@@ -128,6 +128,12 @@ app.use((_req, res, next) => {
 
 app.use(express.json({ limit: "10kb" }));
 
+// ─── Static file serving for uploads ──────────────────────
+app.use("/uploads", express.static(path.resolve(__dirname, "../uploads"), {
+  maxAge: "7d",
+  immutable: false,
+}));
+
 // ─── Admin auth routes ────────────────────────────────────
 const loginLimiter = rateLimit({
   windowMs: 60 * 1000,

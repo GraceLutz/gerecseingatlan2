@@ -203,10 +203,12 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ error: "Munkatárs nem található." });
     }
 
-    // Clean up photo file if exists
+    // Clean up photo file if exists — validate path stays within UPLOAD_DIR
     if (deleted.photoUrl) {
       const photoPath = path.resolve(__dirname, "../../..", deleted.photoUrl);
-      fs.unlink(photoPath, () => {});
+      if (photoPath.startsWith(UPLOAD_DIR)) {
+        fs.unlink(photoPath, () => {});
+      }
     }
 
     await db.insert(activityLog).values({
@@ -255,9 +257,7 @@ router.post("/:id/photo", async (req, res) => {
       return res.status(400).json({ error: "Nem támogatott képformátum. Használjon JPEG, PNG vagy WebP formátumot." });
     }
 
-    if (!fs.existsSync(UPLOAD_DIR)) {
-      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-    }
+    await fs.promises.mkdir(UPLOAD_DIR, { recursive: true });
 
     const ext = contentType === "image/jpeg" ? ".jpg" : contentType === "image/png" ? ".png" : ".webp";
     const filename = `${idResult.data}${ext}`;
@@ -281,12 +281,12 @@ router.post("/:id/photo", async (req, res) => {
       if (res.headersSent) return;
 
       const buffer = Buffer.concat(chunks);
-      fs.writeFileSync(filePath, buffer);
+      await fs.promises.writeFile(filePath, buffer);
 
-      // Delete old photo if different format
+      // Delete old photo if different format — validate path stays within UPLOAD_DIR
       if (member.photoUrl) {
         const oldPath = path.resolve(__dirname, "../../..", member.photoUrl);
-        if (oldPath !== filePath) {
+        if (oldPath !== filePath && oldPath.startsWith(UPLOAD_DIR)) {
           fs.unlink(oldPath, () => {});
         }
       }

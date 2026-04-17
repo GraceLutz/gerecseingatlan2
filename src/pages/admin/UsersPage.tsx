@@ -164,6 +164,7 @@ export default function UsersPage() {
     try {
       const res = await fetch(`/api/admin/users/${user.id}`, {
         method: "DELETE",
+        headers: { ...(csrfToken ? { "x-csrf-token": csrfToken } : {}) },
         credentials: "include",
       });
       const data = await res.json();

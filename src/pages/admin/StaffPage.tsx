@@ -71,7 +71,7 @@ export default function StaffPage() {
       if (search) params.set("search", search);
       if (!showInactive) params.set("active", "true");
 
-      const res = await fetch(`/api/admin/staff?${params}`);
+      const res = await fetch(`/api/admin/staff?${params}`, { credentials: "include" });
       if (!res.ok) throw new Error("Hiba történt a munkatársak betöltésekor.");
       const data = await res.json();
       setStaffList(data.staff);
@@ -124,6 +124,7 @@ export default function StaffPage() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(body),
       });
 
@@ -145,7 +146,7 @@ export default function StaffPage() {
     if (!confirm("Biztosan törölni szeretné ezt a munkatársat?")) return;
     setDeleting(id);
     try {
-      const res = await fetch(`/api/admin/staff/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/staff/${id}`, { method: "DELETE", credentials: "include" });
       if (!res.ok) throw new Error("Hiba történt a törlés során.");
       fetchStaff();
     } catch (err: any) {
@@ -160,6 +161,7 @@ export default function StaffPage() {
       const res = await fetch(`/api/admin/staff/${member.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ active: !member.active }),
       });
       if (!res.ok) throw new Error("Hiba történt a státusz módosításakor.");
@@ -187,6 +189,7 @@ export default function StaffPage() {
       const res = await fetch(`/api/admin/staff/${memberId}/photo`, {
         method: "POST",
         headers: { "Content-Type": file.type },
+        credentials: "include",
         body: file,
       });
       if (!res.ok) throw new Error("Hiba történt a kép feltöltésekor.");

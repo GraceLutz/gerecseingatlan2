@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, and, gte } from "drizzle-orm";
 import { db } from "../db/index";
 import { calendarEvents } from "../db/schema/calendar";
 import { staff } from "../db/schema/staff";
@@ -61,7 +61,10 @@ router.get("/ics/:staffId", async (req, res) => {
       .select()
       .from(calendarEvents)
       .where(
-        eq(calendarEvents.staffId, result.data)
+        and(
+          eq(calendarEvents.staffId, result.data),
+          gte(calendarEvents.endDatetime, cutoffDate)
+        )
       )
       .orderBy(calendarEvents.startDatetime);
 

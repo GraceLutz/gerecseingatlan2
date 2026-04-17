@@ -103,7 +103,7 @@ export default function CalendarPage() {
 
   const fetchStaff = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/staff?active=true");
+      const res = await fetch("/api/admin/staff?active=true", { credentials: "include" });
       if (!res.ok) return;
       const data = await res.json();
       setStaffList(data.staff);
@@ -122,7 +122,7 @@ export default function CalendarPage() {
         if (start) params.set("start", start);
         if (end) params.set("end", end);
 
-        const res = await fetch(`/api/admin/calendar?${params}`);
+        const res = await fetch(`/api/admin/calendar?${params}`, { credentials: "include" });
         if (!res.ok) throw new Error("Hiba történt az események betöltésekor.");
         const data = await res.json();
         setEvents(data.events);
@@ -197,6 +197,7 @@ export default function CalendarPage() {
       const res = await fetch(`/api/admin/calendar/${eventId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           startDatetime: newStart,
           endDatetime: newEnd,
@@ -245,6 +246,7 @@ export default function CalendarPage() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(body),
       });
 
@@ -271,6 +273,7 @@ export default function CalendarPage() {
     try {
       const res = await fetch(`/api/admin/calendar/${editingEvent.id}`, {
         method: "DELETE",
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Hiba történt a törlés során.");
 

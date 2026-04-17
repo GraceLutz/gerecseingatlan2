@@ -170,7 +170,7 @@ router.post("/", async (req, res) => {
     }
 
     // createdBy comes from auth session (set by middleware)
-    const createdBy = (req as any).user?.id;
+    const createdBy = req.user?.id;
     if (!createdBy) {
       return res.status(401).json({ error: "Nincs bejelentkezve." });
     }
@@ -250,7 +250,7 @@ router.patch("/:id", async (req, res) => {
     }
 
     await db.insert(activityLog).values({
-      userId: (req as any).user?.id ?? null,
+      userId: req.user?.id ?? null,
       action: "event_updated",
       entityType: "calendar_event",
       entityId: updated.id,
@@ -282,7 +282,7 @@ router.delete("/:id", async (req, res) => {
     }
 
     await db.insert(activityLog).values({
-      userId: (req as any).user?.id ?? null,
+      userId: req.user?.id ?? null,
       action: "event_deleted",
       entityType: "calendar_event",
       entityId: deleted.id,

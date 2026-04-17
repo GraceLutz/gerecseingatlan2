@@ -11,6 +11,7 @@ import contentAdminRoutes from "./routes/admin/content";
 import newsletterAdminRoutes from "./routes/admin/newsletter";
 import staffRoutes from "./routes/admin/staff";
 import calendarAdminRoutes from "./routes/admin/calendar";
+import dashboardRoutes from "./routes/admin/dashboard";
 import contentPublicRoutes from "./routes/content";
 import newsletterPublicRoutes from "./routes/newsletter";
 import calendarPublicRoutes from "./routes/calendar";
@@ -155,6 +156,7 @@ app.use("/api/admin/content", contentAdminRoutes);
 app.use("/api/admin/newsletter", newsletterAdminRoutes);
 app.use("/api/admin/staff", staffRoutes);
 app.use("/api/admin/calendar", calendarAdminRoutes);
+app.use("/api/admin/dashboard", dashboardRoutes);
 
 // Public routes (no auth required)
 app.use("/api/content", contentPublicRoutes);

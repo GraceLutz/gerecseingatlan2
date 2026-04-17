@@ -116,7 +116,12 @@ export function validateCsrf(req: Request, res: Response, next: NextFunction): v
   const cookieToken = parseCookie(req.headers.cookie || "", CSRF_COOKIE);
   const headerToken = req.headers[CSRF_HEADER] as string | undefined;
 
-  if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+  if (
+    !cookieToken ||
+    !headerToken ||
+    cookieToken.length !== headerToken.length ||
+    !crypto.timingSafeEqual(Buffer.from(cookieToken), Buffer.from(headerToken))
+  ) {
     res.status(403).json({ error: "Érvénytelen CSRF token." });
     return;
   }

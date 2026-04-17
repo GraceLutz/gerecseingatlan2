@@ -1,6 +1,10 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import * as users from "./schema/users.js";
+import * as content from "./schema/content.js";
+import * as newsletter from "./schema/newsletter.js";
+import * as staff from "./schema/staff.js";
+import * as calendar from "./schema/calendar.js";
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -8,7 +12,7 @@ const pool = new pg.Pool({
 });
 
 export const db = drizzle(pool, {
-  schema: { ...users },
+  schema: { ...users, ...content, ...newsletter, ...staff, ...calendar },
 });
 
 export { pool };

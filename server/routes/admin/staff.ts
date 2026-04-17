@@ -138,7 +138,8 @@ router.post("/", async (req, res) => {
 
       userId = newUser.id;
 
-      const loginUrl = `${req.protocol}://${req.get("host")}/admin/login`;
+      const siteUrl = process.env.SITE_URL || `${req.protocol}://${req.get("host")}`;
+      const loginUrl = `${siteUrl}/admin/login`;
       await sendWelcomeEmail({
         email: staffData.email,
         tempPassword,

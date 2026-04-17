@@ -22,6 +22,11 @@ import NotFound from "./pages/NotFound";
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const LoginPage = lazy(() => import("./pages/admin/LoginPage"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
+const AdminUsersPage = lazy(() => import("./pages/admin/UsersPage"));
+const AdminContentPage = lazy(() => import("./pages/admin/ContentPage"));
+const AdminNewsletterPage = lazy(() => import("./pages/admin/NewsletterPage"));
+const AdminStaffPage = lazy(() => import("./pages/admin/StaffPage"));
+const AdminCalendarPage = lazy(() => import("./pages/admin/CalendarPage"));
 
 /* Legal / compliance pages — lazy-loaded since they are rarely visited */
 const ImpresszumPage = lazy(() => import("./pages/ImpresszumPage"));
@@ -126,6 +131,11 @@ const AppRoutes = () => (
           <Route path="/admin/login" element={<AuthProvider><LoginPage /></AuthProvider>} />
           <Route path="/admin" element={<AuthProvider><AdminLayout /></AuthProvider>}>
             <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="felhasznalok" element={<AdminUsersPage />} />
+            <Route path="tartalom" element={<AdminContentPage />} />
+            <Route path="hirlevel" element={<AdminNewsletterPage />} />
+            <Route path="munkatarsak" element={<AdminStaffPage />} />
+            <Route path="naptar" element={<AdminCalendarPage />} />
             <Route index element={<AdminDashboardPage />} />
           </Route>
 

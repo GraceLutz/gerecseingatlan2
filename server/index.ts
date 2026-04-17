@@ -6,6 +6,14 @@ import rateLimit from "express-rate-limit";
 import { getTransporter, getMailFrom } from "./mailer";
 import { fetchFeed, getFeedStatus } from "./ingatlan-feed";
 import authRoutes from "./routes/admin/auth";
+import usersRoutes from "./routes/admin/users";
+import contentAdminRoutes from "./routes/admin/content";
+import newsletterAdminRoutes from "./routes/admin/newsletter";
+import staffRoutes from "./routes/admin/staff";
+import calendarAdminRoutes from "./routes/admin/calendar";
+import contentPublicRoutes from "./routes/content";
+import newsletterPublicRoutes from "./routes/newsletter";
+import calendarPublicRoutes from "./routes/calendar";
 import { requireAuth, validateCsrf } from "./middleware/auth";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -134,6 +142,18 @@ app.use("/api/admin", authRoutes);
 
 // CSRF + auth for all other admin API routes
 app.use("/api/admin", requireAuth, validateCsrf);
+
+// Admin route modules (auth + CSRF applied above)
+app.use("/api/admin/users", usersRoutes);
+app.use("/api/admin/content", contentAdminRoutes);
+app.use("/api/admin/newsletter", newsletterAdminRoutes);
+app.use("/api/admin/staff", staffRoutes);
+app.use("/api/admin/calendar", calendarAdminRoutes);
+
+// Public routes (no auth required)
+app.use("/api/content", contentPublicRoutes);
+app.use("/api/newsletter", newsletterPublicRoutes);
+app.use("/api/calendar", calendarPublicRoutes);
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ContentProvider } from "@/contexts/ContentContext";
 import Analytics from "./components/Analytics";
 import Index from "./pages/Index";
 import IntroductionPage from "./pages/IntroductionPage";
@@ -108,6 +109,7 @@ class ErrorBoundary extends React.Component<
 const AppRoutes = () => (
   <LanguageProvider>
     <CurrencyProvider>
+      <ContentProvider>
       <Analytics />
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -164,6 +166,7 @@ const AppRoutes = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      </ContentProvider>
     </CurrencyProvider>
   </LanguageProvider>
 );

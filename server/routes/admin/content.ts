@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, desc, sql, and, ilike, or } from "drizzle-orm";
+import { eq, desc, sql, and, ilike, or, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../../db/index.js";
 import {
@@ -7,11 +7,9 @@ import {
   contentBlockVersions,
 } from "../../db/schema/content.js";
 import { activityLog } from "../../db/schema/users.js";
-import { requireAuth, requireRole } from "../../middleware/auth.js";
+import { requireRole } from "../../middleware/auth.js";
 
 const router = Router();
-
-router.use(requireAuth);
 
 const MAX_VERSIONS_PER_BLOCK = 10;
 
@@ -51,10 +49,12 @@ router.get("/", async (req, res) => {
 
     let whereClause;
     if (search) {
+      // Escape LIKE special characters to prevent pattern injection
+      const escapedSearch = search.replace(/[%_\\]/g, (ch) => `\\${ch}`);
       whereClause = or(
-        ilike(contentBlocks.pagePath, `%${search}%`),
-        ilike(contentBlocks.blockKey, `%${search}%`),
-        ilike(contentBlocks.content, `%${search}%`)
+        ilike(contentBlocks.pagePath, `%${escapedSearch}%`),
+        ilike(contentBlocks.blockKey, `%${escapedSearch}%`),
+        ilike(contentBlocks.content, `%${escapedSearch}%`)
       );
     }
 
@@ -226,11 +226,9 @@ router.patch(
         const toDelete = allVersions
           .slice(MAX_VERSIONS_PER_BLOCK)
           .map((v) => v.id);
-        for (const vId of toDelete) {
-          await db
-            .delete(contentBlockVersions)
-            .where(eq(contentBlockVersions.id, vId));
-        }
+        await db
+          .delete(contentBlockVersions)
+          .where(inArray(contentBlockVersions.id, toDelete));
       }
 
       const updateData: Record<string, unknown> = {

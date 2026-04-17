@@ -3,6 +3,7 @@ import { z } from "zod";
 import { eq, sql, count, ilike, and } from "drizzle-orm";
 import { db } from "../../db/index";
 import { staff } from "../../db/schema/staff";
+import { activityLog } from "../../db/schema/users";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -33,6 +34,10 @@ const updateStaffSchema = z.object({
 
 const idSchema = z.string().uuid("Érvénytelen azonosító.");
 
+function escapeLikePattern(s: string): string {
+  return s.replace(/[%_\\]/g, (c) => `\\${c}`);
+}
+
 /** GET /api/admin/staff — list all staff */
 router.get("/", async (req, res) => {
   try {
@@ -48,8 +53,9 @@ router.get("/", async (req, res) => {
 
     const conditions = [];
     if (query.data.search) {
+      const pattern = `%${escapeLikePattern(query.data.search)}%`;
       conditions.push(
-        sql`(${ilike(staff.name, `%${query.data.search}%`)} OR ${ilike(staff.email, `%${query.data.search}%`)})`
+        sql`(${ilike(staff.name, pattern)} OR ${ilike(staff.email, pattern)})`
       );
     }
     if (query.data.active !== undefined) {
@@ -125,7 +131,13 @@ router.post("/", async (req, res) => {
       })
       .returning();
 
-    // TODO: Log to activity_log when available from T1
+    await db.insert(activityLog).values({
+      userId: req.user?.id ?? null,
+      action: "staff_created",
+      entityType: "staff",
+      entityId: member.id,
+      details: { name: member.name, roleTitle: member.roleTitle },
+    });
 
     res.status(201).json(member);
   } catch (error) {
@@ -159,7 +171,13 @@ router.patch("/:id", async (req, res) => {
       return res.status(404).json({ error: "Munkatárs nem található." });
     }
 
-    // TODO: Log to activity_log when available from T1
+    await db.insert(activityLog).values({
+      userId: req.user?.id ?? null,
+      action: "staff_updated",
+      entityType: "staff",
+      entityId: updated.id,
+      details: { name: updated.name, changes: Object.keys(result.data) },
+    });
 
     res.json(updated);
   } catch (error) {
@@ -191,7 +209,13 @@ router.delete("/:id", async (req, res) => {
       fs.unlink(photoPath, () => {});
     }
 
-    // TODO: Log to activity_log when available from T1
+    await db.insert(activityLog).values({
+      userId: req.user?.id ?? null,
+      action: "staff_deleted",
+      entityType: "staff",
+      entityId: deleted.id,
+      details: { name: deleted.name },
+    });
 
     res.json({
       success: true,

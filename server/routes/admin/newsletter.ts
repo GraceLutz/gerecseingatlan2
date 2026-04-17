@@ -3,8 +3,14 @@ import { z } from "zod";
 import { eq, ilike, and, gte, lte, sql, inArray, count } from "drizzle-orm";
 import { db } from "../../db/index";
 import { newsletterSubscribers } from "../../db/schema/newsletter";
+import { activityLog } from "../../db/schema/users";
+import { requireAuth, requireRole, validateCsrf } from "../../middleware/auth";
 
 const router = Router();
+
+router.use(requireAuth);
+router.use(requireRole("admin", "editor"));
+router.use(validateCsrf);
 
 const listQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -28,8 +34,9 @@ router.get("/", async (req, res) => {
 
     const conditions = [];
     if (search) {
+      const escaped = search.replace(/[%_\\]/g, (c) => `\\${c}`);
       conditions.push(
-        sql`(${ilike(newsletterSubscribers.email, `%${search}%`)} OR ${ilike(newsletterSubscribers.name, `%${search}%`)})`
+        sql`(${ilike(newsletterSubscribers.email, `%${escaped}%`)} OR ${ilike(newsletterSubscribers.name, `%${escaped}%`)})`
       );
     }
     if (status) {
@@ -139,7 +146,12 @@ router.delete("/bulk", async (req, res) => {
       .where(inArray(newsletterSubscribers.id, result.data.ids))
       .returning({ id: newsletterSubscribers.id });
 
-    // TODO: Log to activity_log when available from T1
+    await db.insert(activityLog).values({
+      userId: req.user!.id,
+      action: "newsletter_bulk_delete",
+      entityType: "newsletter_subscriber",
+      details: { deletedCount: deleted.length, ids: result.data.ids },
+    });
 
     res.json({
       success: true,
@@ -164,13 +176,19 @@ router.delete("/:id", async (req, res) => {
     const [deleted] = await db
       .delete(newsletterSubscribers)
       .where(eq(newsletterSubscribers.id, idResult.data))
-      .returning();
+      .returning({ id: newsletterSubscribers.id, email: newsletterSubscribers.email });
 
     if (!deleted) {
       return res.status(404).json({ error: "Feliratkozó nem található." });
     }
 
-    // TODO: Log to activity_log when available from T1
+    await db.insert(activityLog).values({
+      userId: req.user!.id,
+      action: "newsletter_delete",
+      entityType: "newsletter_subscriber",
+      entityId: deleted.id,
+      details: { email: deleted.email },
+    });
 
     res.json({
       success: true,

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { Search, Plus, Shield, Eye, Pencil, Trash2, UserCheck, UserX } from "lucide-react";
+import { Search, Plus, UserCheck, UserX, Trash2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface User {
   id: string;
@@ -38,6 +39,7 @@ export default function UsersPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const { csrfToken } = useAuth();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export default function UsersPage() {
     try {
       const res = await fetch("/api/admin/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(csrfToken ? { "x-csrf-token": csrfToken } : {}) },
         credentials: "include",
         body: JSON.stringify({
           email: createEmail,
@@ -115,7 +117,7 @@ export default function UsersPage() {
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(csrfToken ? { "x-csrf-token": csrfToken } : {}) },
         credentials: "include",
         body: JSON.stringify({ role: newRole }),
       });
@@ -137,7 +139,7 @@ export default function UsersPage() {
     try {
       const res = await fetch(`/api/admin/users/${user.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(csrfToken ? { "x-csrf-token": csrfToken } : {}) },
         credentials: "include",
         body: JSON.stringify({ active: !user.active }),
       });

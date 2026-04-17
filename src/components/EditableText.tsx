@@ -1,6 +1,11 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useContent, useContentBlock } from "@/contexts/ContentContext";
-import { Pencil, Check, X, RotateCcw } from "lucide-react";
+import { Pencil, Check, X } from "lucide-react";
+
+function getCsrfToken(): string | null {
+  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
 interface EditableTextProps {
   pagePath: string;
@@ -51,9 +56,13 @@ export default function EditableText({
       setSaving(true);
       setError(null);
       try {
+        const csrf = getCsrfToken();
         const res = await fetch(`/api/admin/content/by-path`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(csrf ? { "x-csrf-token": csrf } : {}),
+          },
           credentials: "include",
           body: JSON.stringify({
             pagePath: `/${pagePath.replace(/^\//, "")}`,

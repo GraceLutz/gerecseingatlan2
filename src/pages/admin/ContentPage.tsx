@@ -12,6 +12,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+function getCsrfToken(): string | null {
+  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
 interface ContentBlock {
   id: string;
@@ -35,6 +39,11 @@ interface ContentVersion {
 
 interface GroupedBlocks {
   [pagePath: string]: ContentBlock[];
+}
+
+function csrfHeaders(): Record<string, string> {
+  const token = getCsrfToken();
+  return token ? { "x-csrf-token": token } : {};
 }
 
 export default function ContentPage() {
@@ -104,7 +113,7 @@ export default function ContentPage() {
     try {
       const res = await fetch(`/api/admin/content/${editingBlock.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...csrfHeaders() },
         credentials: "include",
         body: JSON.stringify({ content: editContent }),
       });
@@ -149,6 +158,7 @@ export default function ContentPage() {
         `/api/admin/content/${blockId}/rollback/${versionId}`,
         {
           method: "POST",
+          headers: csrfHeaders(),
           credentials: "include",
         }
       );
@@ -176,6 +186,7 @@ export default function ContentPage() {
     try {
       const res = await fetch(`/api/admin/content/${blockId}`, {
         method: "DELETE",
+        headers: csrfHeaders(),
         credentials: "include",
       });
       if (!res.ok) {

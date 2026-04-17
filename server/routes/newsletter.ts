@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "../db/index";
 import { newsletterSubscribers } from "../db/schema/newsletter";
 import { sendNewsletterConfirmationEmail } from "../services/email";
@@ -90,50 +90,11 @@ router.post("/subscribe", async (req, res) => {
       .returning();
 
     const confirmUrl = `${process.env.SITE_URL ?? "https://gerecseingatlan.hu"}/api/newsletter/confirm/${subscriber.confirmationToken}`;
-    const safeName = name ? escapeHtml(name) : "Kedves Feliratkozó";
 
-    await getTransporter().sendMail({
-      from: getMailFrom(),
-      to: normalizedEmail,
-      subject: "Hírlevél feliratkozás megerősítése – Gerecse Ingatlan",
-      html: `
-        <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F5F3EF;font-family:Arial,Helvetica,sans-serif;">
-          <tr><td align="center" style="padding:32px 16px;">
-            <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#FFFFFF;">
-              <tr><td align="center" style="background-color:#1B3A5C;padding:32px 32px 16px 32px;">
-                <table cellpadding="0" cellspacing="0">
-                  <tr><td align="center" style="font-family:Georgia,'Times New Roman',serif;font-size:28px;color:#C5A55A;font-weight:bold;letter-spacing:1px;">G<span style="color:#FFFFFF;">I</span></td></tr>
-                  <tr><td align="center" style="font-family:Georgia,'Times New Roman',serif;font-size:14px;color:#C5A55A;letter-spacing:3px;padding-top:8px;">GERECSE INGATLAN</td></tr>
-                </table>
-              </td></tr>
-              <tr><td style="height:3px;background-color:#C5A55A;line-height:0;font-size:0;">&nbsp;</td></tr>
-              <tr><td style="padding:28px 32px;">
-                <p style="font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#1B3A5C;margin:0 0 16px 0;">Kedves ${safeName}!</p>
-                <p style="font-size:15px;color:#333;line-height:1.7;margin:0 0 24px 0;">
-                  Köszönjük, hogy feliratkozott a Gerecse Ingatlan hírlevelére! Az alábbi gombra kattintva erősítse meg feliratkozását:
-                </p>
-                <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
-                  <tr><td align="center" style="background-color:#C5A55A;padding:14px 32px;">
-                    <a href="${confirmUrl}" style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#FFFFFF;text-decoration:none;font-weight:bold;letter-spacing:1px;">
-                      FELIRATKOZÁS MEGERŐSÍTÉSE
-                    </a>
-                  </td></tr>
-                </table>
-                <p style="font-size:13px;color:#999;line-height:1.6;margin:24px 0 0 0;">
-                  Ha nem Ön iratkozott fel, kérjük, hagyja figyelmen kívül ezt az e-mailt.
-                </p>
-              </td></tr>
-              <tr><td style="padding:0 32px;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="height:1px;background-color:#C5A55A;line-height:0;font-size:0;">&nbsp;</td></tr></table></td></tr>
-              <tr><td style="padding:20px 32px 28px 32px;">
-                <p style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#AAA;font-style:italic;margin:0;">
-                  Ez egy automatikus értesítés a gerecseingatlan.hu weboldalról.
-                </p>
-              </td></tr>
-            </table>
-          </td></tr>
-        </table>
-      `,
-      text: `Kedves ${name ?? "Feliratkozó"}!\n\nKöszönjük, hogy feliratkozott a Gerecse Ingatlan hírlevelére!\nA feliratkozás megerősítéséhez kattintson az alábbi linkre:\n\n${confirmUrl}\n\nHa nem Ön iratkozott fel, kérjük, hagyja figyelmen kívül ezt az e-mailt.\n\nGerecse Ingatlan`,
+    await sendNewsletterConfirmationEmail({
+      email: normalizedEmail,
+      confirmUrl,
+      name: name ?? undefined,
     });
 
     res.json({
@@ -161,9 +122,15 @@ router.get("/confirm/:token", async (req, res) => {
       .set({
         status: "confirmed",
         confirmedAt: new Date(),
+        confirmationToken: null,
         updatedAt: new Date(),
       })
-      .where(eq(newsletterSubscribers.confirmationToken, tokenResult.data))
+      .where(
+        and(
+          eq(newsletterSubscribers.confirmationToken, tokenResult.data),
+          eq(newsletterSubscribers.status, "pending")
+        )
+      )
       .returning();
 
     if (!subscriber) {
@@ -230,4 +197,4 @@ function confirmationPage(success: boolean, message: string): string {
 </html>`;
 }
 
-export defa
+export default router;

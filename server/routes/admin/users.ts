@@ -12,6 +12,10 @@ const router = Router();
 
 router.use(requireRole("admin"));
 
+function escapeLikePattern(input: string): string {
+  return input.replace(/[%_\\]/g, (ch) => `\\${ch}`);
+}
+
 /** Generates a cryptographically secure temporary password */
 function generateTempPassword(length = 12): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
@@ -40,8 +44,9 @@ router.get("/", async (req, res) => {
     const { page, limit, search } = query.data;
     const offset = (page - 1) * limit;
 
-    const whereClause = search
-      ? sql`(${ilike(users.email, `%${search}%`)} OR ${ilike(users.name, `%${search}%`)})`
+    const safeSearch = search ? escapeLikePattern(search) : null;
+    const whereClause = safeSearch
+      ? sql`(${ilike(users.email, `%${safeSearch}%`)} OR ${ilike(users.name, `%${safeSearch}%`)})`
       : undefined;
 
     const [userList, [{ total }]] = await Promise.all([

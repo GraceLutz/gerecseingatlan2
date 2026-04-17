@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { eq, gte } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { calendarEvents } from "../db/schema/calendar";
 import { staff } from "../db/schema/staff";

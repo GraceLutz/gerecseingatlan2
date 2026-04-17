@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { z } from "zod";
-import { eq, and, gte, lte, sql, count } from "drizzle-orm";
+import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { db } from "../../db/index";
 import { calendarEvents } from "../../db/schema/calendar";
 import { staff } from "../../db/schema/staff";
+import { activityLog } from "../../db/schema/users";
 
 const router = Router();
 
@@ -190,7 +191,13 @@ router.post("/", async (req, res) => {
       })
       .returning();
 
-    // TODO: Log to activity_log when available from T1
+    await db.insert(activityLog).values({
+      userId: createdBy,
+      action: "event_created",
+      entityType: "calendar_event",
+      entityId: event.id,
+      details: { title: event.title, eventType: event.eventType },
+    });
 
     res.status(201).json(event);
   } catch (error) {
@@ -242,7 +249,13 @@ router.patch("/:id", async (req, res) => {
       return res.status(404).json({ error: "Esemény nem található." });
     }
 
-    // TODO: Log to activity_log when available from T1
+    await db.insert(activityLog).values({
+      userId: (req as any).user?.id ?? null,
+      action: "event_updated",
+      entityType: "calendar_event",
+      entityId: updated.id,
+      details: { title: updated.title, changes: Object.keys(updateData) },
+    });
 
     res.json(updated);
   } catch (error) {
@@ -268,7 +281,13 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ error: "Esemény nem található." });
     }
 
-    // TODO: Log to activity_log when available from T1
+    await db.insert(activityLog).values({
+      userId: (req as any).user?.id ?? null,
+      action: "event_deleted",
+      entityType: "calendar_event",
+      entityId: deleted.id,
+      details: { title: deleted.title },
+    });
 
     res.json({
       success: true,

@@ -1,9 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
 import { eq, sql, count, ilike, and } from "drizzle-orm";
+import { randomBytes } from "crypto";
+import { hash } from "bcryptjs";
 import { db } from "../../db/index";
 import { staff } from "../../db/schema/staff";
-import { activityLog } from "../../db/schema/users";
+import { activityLog, users } from "../../db/schema/users";
+import { sendWelcomeEmail } from "../../services/email";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -119,9 +122,29 @@ router.post("/", async (req, res) => {
 
     let userId: string | null = null;
 
-    // TODO: When T2 (email service) is available, implement dashboard access:
-    // If dashboardAccess is true, create a linked user account and send welcome email
-    // userId = createdUser.id;
+    if (dashboardAccess && staffData.email) {
+      const tempPassword = randomBytes(12).toString("base64url");
+      const passwordHash = await hash(tempPassword, 12);
+
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          email: staffData.email,
+          passwordHash,
+          name: staffData.name,
+          role: "editor" as const,
+        })
+        .returning();
+
+      userId = newUser.id;
+
+      const loginUrl = `${req.protocol}://${req.get("host")}/admin/login`;
+      await sendWelcomeEmail({
+        email: staffData.email,
+        tempPassword,
+        loginUrl,
+      });
+    }
 
     const [member] = await db
       .insert(staff)

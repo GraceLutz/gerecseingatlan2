@@ -1,0 +1,24 @@
+# robots.txt — gerecseingatlan.hu
+# Primary target: Google.hu (98%+ market share in Hungary)
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_vite/
+
+# Sitemap location
+Sitemap: https://gerecseingatlan.hu/sitemap.xml

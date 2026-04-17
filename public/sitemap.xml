@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Főoldal / Homepage -->
+  <url>
+    <loc>https://gerecseingatlan.hu/</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/" />
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Bemutatkozás / Introduction -->
+  <url>
+    <loc>https://gerecseingatlan.hu/bemutatkozas</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/bemutatkozas" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/introduction" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Munkatársaink / Our Team -->
+  <url>
+    <loc>https://gerecseingatlan.hu/munkatarsaink</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/munkatarsaink" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/our-team" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Ingatlanok / Properties -->
+  <url>
+    <loc>https://gerecseingatlan.hu/ingatlanok</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlanok" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/properties" />
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Vélemények / Testimonials -->
+  <url>
+    <loc>https://gerecseingatlan.hu/velemenyek</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/velemenyek" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/testimonials" />
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Kapcsolat / Contact -->
+  <url>
+    <loc>https://gerecseingatlan.hu/kapcsolat</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/kapcsolat" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/contact" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- GYIK / FAQ -->
+  <url>
+    <loc>https://gerecseingatlan.hu/gyik</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/gyik" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/faq" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Szolgáltatások / Services -->
+  <url>
+    <loc>https://gerecseingatlan.hu/adas-vetel-berbeadas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/ertekbecsles</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/jogi-hatter</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/hitel-tamogatasok</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/home-staging</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/belsoepiteszet</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Jogi oldalak / Legal pages -->
+  <url>
+    <loc>https://gerecseingatlan.hu/impresszum</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/adatkezelesi-tajekoztato</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/cookie-tajekoztato</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/aszf</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- English routes -->
+  <url>
+    <loc>https://gerecseingatlan.hu/en</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/" />
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/en/introduction</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/introduction" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/bemutatkozas" />
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/en/our-team</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/our-team" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/munkatarsaink" />
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/en/properties</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/properties" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlanok" />
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/en/testimonials</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/testimonials" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/velemenyek" />
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/en/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/contact" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/kapcsolat" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/en/faq</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/faq" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/gyik" />
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+</urlset>

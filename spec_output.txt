@@ -1,0 +1,554 @@
+GERECSE INGATLAN
+Weboldal Tervezet és Projekt Összefoglaló
+Részletes Funkcionális és Dizájn Specifikáció
+Referencia: www.buki-ingatlan.hu
+Verzió: 2.0  |  Dátum: 2026. április 5.
+Nyelvek: Magyar + Angol  |  Devizák: HUF + EUR  |  Admin: egyszemélyes kezelés
+Készítette: AI alapú tervezés
+Megrendelő: Szilvia (Gerecse Ingatlan)
+1. Projekt Összefoglaló
+A Gerecse Ingatlan weboldal egy professzionális, modern ingatlaniroda online platformja, amely a Büki Ingatlan és Hitelcentrum (www.buki-ingatlan.hu) mintájára készül, de a Gerecse régió sajátosságaira szabva, egyedi arculattal és bővített funkcionalitással.
+1.1 Projekt célok
+Professzionális online megjelenés a Gerecse Ingatlan számára
+Ingatlanok hatékony bemutatása és kereshetősége magyar és angol nyelven
+Külföldi vásárlók elérése (angol nyelvű felület)
+Árak megjelenítése HUF és EUR devizában
+Beépített AI chatbot az ügyfélkiszolgálás automatizálására
+Kiegészítő szolgáltatások bemutatása (home staging, belsőépítészet, energetika stb.)
+Reszponzív megjelenés minden eszközön
+1.2 Célcsoport
+Hazai ingatlant kereső magánszemélyek (vásárlók, bérlők)
+Külföldi érdeklődők (angol nyelvű felületen)
+Ingatlant eladni kívánó tulajdonosok
+Ipari ingatlanok iránt érdeklődő cégek
+Hitelt igénylő ügyfelek (jövőbeni bővítés)
+1.3 Kulcsdöntések (Szilvia visszajelzései alapján)
+Téma
+Döntés
+Megjegyzés
+Nyelvek
+Magyar + Angol
+Szlovák kihagyva (korábbi tervhez képest)
+Devizák
+HUF + EUR
+USD kihagyva
+Hozzáférés
+Egyszemélyes admin
+Nincs többszintű jogosultságkezelés
+Hitelügyintézés
+Közvetítői szolgáltatás
+Segítségnyújtás hitel- és állami támogatás ügyekben, de a hiteligénylést nem a Gerecse Ingatlan intézi
+2. Arculat és Dizájn Irányelvek
+2.1 Általános megjelenés
+A weboldal elegáns, professzionális megjelenést közvetít. A sötétkék és arany színvilág megbízhatóságot és prémium érzést sugároz, a Raleway betűtípus modern, letisztult hatást ad.
+Szabányos háttérkép a cég logójával és a "Gerecse Ingatlan" felirattal
+A "Rólunk" szekció kiemelten, az oldal tetején vagy a hero szekció közelében kap helyet
+Modern, letisztult tipográfia és ikonhasználat
+Reszponzív, mobilbarát elrendezés
+2.2 Színpaletta
+Szín neve
+Hex kód
+Használat
+Sötétkék
+#1B2A4A
+Fejléc, lábléc, főcímek, navigáció háttér
+Fő kék
+#2E5DA8
+Gombok, linkek, CTA elemek, kiemelések
+Arany akcentus
+#D4A843
+Badge-ek, árak, figyelem felhívás, prémiérzés
+Világos kék háttér
+#F0F3F8
+Szekciók váltakozó háttere, kártya háttér
+Fehér
+#FFFFFF
+Fő tartalom háttér
+Sötét szöveg
+#444444
+Törzszszöveg
+Szürke
+#C0C0C0
+Szegélyek, elválasztók
+2.3 Tipográfia
+Elem
+Betűtípus
+Méret
+Stílus
+Főcímek (H1)
+Raleway
+32–40px
+Bold (700)
+Alcímek (H2)
+Raleway
+24–28px
+Bold (700)
+Kisebb címek (H3)
+Raleway
+18–22px
+Semibold (600)
+Törzsszöveg
+DM Sans
+15–16px
+Regular (400)
+Kártya ár
+Raleway
+20–24px
+Bold, arany akcentus
+Navigáció
+Raleway
+14–16px
+Semibold, nagybetűs
+2.4 Logó és háttérkép
+A logóban a "Gerecse Ingatlan" felirat jelenik meg, a Gerecse hegységet idéző grafikus elemmel
+Szabányos háttérkép: a cég logója finoman, watermark-szerűen jelenik meg a háttérben
+A hero szekcióban nagy felbontású, Gerecse régióhoz köthető képek (táj, házak)
+3. Oldaltérkép (Sitemap)
+Az alábbi táblázat a weboldal teljes oldal szerkezetét mutatja be. Minden oldal magyar és angol változatban is elérhető lesz (/en/ prefix az angol verzióknál).
+Szint
+Oldal neve
+URL slug
+Leírás
+1
+Kezdőlap
+/
+Hero, kereső, kiemelt ingatlanok, rólunk, szolgáltatások
+1
+Rólunk
+/rolunk
+Cég bemutatkozás – KIEMELT pozícióban
+1
+Ingatlanok
+/ingatlanok
+Összes ingatlan listázása szűrőkkel
+2
+  Részletes kereső
+/ingatlanok/kereso
+Bővített szűrők
+2
+  Házak
+/ingatlanok/hazak
+Családi ház, ikerház, sorház
+2
+  Lakások
+/ingatlanok/lakasok
+Tégla, panel, garzón
+2
+  Telkek
+/ingatlanok/telkek
+Építési telkek
+2
+  Nyaralók
+/ingatlanok/nyaralok
+Pihenő és üdülő ingatlanok
+2
+  Ipari ingatlanok
+/ingatlanok/ipari
+Csarnokok, raktárak, iródák
+2
+  Eladó
+/ingatlanok/elado
+Csak eladó hirdetések
+2
+  Kiadó
+/ingatlanok/kiado
+Csak kiadó hirdetések
+1
+Ingatlan adatlap
+/ingatlan/{id}
+Egyedi ingatlan részletek
+1
+Szolgáltatások
+/szolgaltatasok
+Szolgáltatások áttekintése
+2
+  Adás-vétel és bérbeadás
+/adas-vetel-berbeadas
+Ingatlan értékesítés, vásárlás, bérbeadás
+2
+  Értékbecslés
+/ertekbecsles
+Értékbecslés készítése/közvetítése
+2
+  Jogi háttér
+/jogi-hatter
+Jogi támogatás ingatlanügyekhez
+2
+  Hitel és támogatások
+/hitel-tamogatasok
+Hitel- és állami támogatásokban segítségnyújtás
+2
+  Home staging
+/home-staging
+Ingatlan felkészítése eladásra
+2
+  Belsőépítészet
+/belsoepiteszet
+Belsőépítészet, látványtervezés
+1
+Kapcsolat
+/kapcsolat
+Elérhetőségek, térkép, űrlap
+4. Oldalak Részletes Leírása
+4.1 Kezdőlap
+A kezdőlap a weboldal fő belépési pontja. Célja az azonnali figyelemfelkeltés, a gyors ingatlankeresés, és a cég professzionális bemutatása. Fontos: a "Rólunk" szekció kiemelt helyen, az oldal tetején jelenik meg.
+Hero szekció
+Teljes szélességű háttérkép a Gerecse régióból, a cég logójával
+"Gerecse Ingatlan" felirat integrálva a háttérbe
+Képváltó (slider) 3–5 képpel, fade animációval
+Overlay szlogen + CTA gomb ("Ingatlanok böngészése" / "Browse Properties")
+Nyelvváltó gomb (HU/EN) jól látható helyen
+Rólunk szekció (KIEMELT)
+A Rólunk szekció közvetlenül a hero után, az oldal tetején kap helyet – nem az oldal alján elrejtve.
+Cég bemutatkozás rövid, meggyőző szöveggel
+Kulcsszámok animált számlálókkal (évek tapasztalata, eladott ingatlanok stb.)
+Csapat bemutato fényképpel és rövid leírással
+"Tovább a teljes bemutatáshoz" link a Rólunk aloldalra
+Ingatlan gyorskereső
+Település (legördülő lista)
+Típus: családi ház, tégla lakás, panel, ikerház, sorház, nyaraló, telek, ipari
+Eladó / Kiadó
+Ár tartomány (HUF és EUR közötti váltási lehetőség)
+Alapterület tartomány
+Szobaszám
+"Keresés" gomb
+Kiemelt ingatlanok
+Rácsos (grid) elrendezés: 6–12 kiemelt ingatlan kártya
+Kártya elemek: fő kép, ár (HUF és/vagy EUR), település, alapterület, szobaszám, badge
+Hover effekt: enyhe zoom vagy overlay
+"Eladó" / "Kiadó" badge színes jelöléssel
+"Az összes ingatlan" gomb a lista oldalra
+Szolgáltatások áttekintés
+2x3 rácsos elrendezés ikonokkal (6 fő szolgáltatás)
+1. Ingatlan adás-vétel és bérbeadás
+2. Értékbecslés készítése / közvetítése
+3. Jogi háttér és támogatás ingatlanügyekhez
+4. Hitel- és állami támogatásokban segítségnyújtás
+5. Ingatlan felkészítése eladásra (home staging) – igény esetén
+6. Belsőépítészet, látványtervezés
+Mindegyikhez rövid leírás + "Tovább" link a részletes aloldalra
+Hírlevél feliratkozás
+E-mail cím mező + "Feliratkozás" gomb
+GDPR checkbox
+4.2 Ingatlanok Listaoldal
+Szűrő panel
+Oldalsáv (desktop) vagy összecsukható panel (mobil)
+Település – többes kiválasztás
+Típus – tégla lakás, panellakás, családi ház, ikerház, sorház, nyaraló, építési telek, ipari
+Eladó / Kiadó
+Ár tartomány – HUF/EUR váltás gombbal
+Alapterület, szobaszám, fürdőszoba
+Ingatlan ID keresés
+"Szűrők törlése" gomb
+Találati lista
+Grid nézet (3 oszlop desktop, 2 tablet, 1 mobil) vagy lista nézet
+Rendezés: ár, dátum, méret
+Lapozás – 12 ingatlan/oldal
+Találatok száma jelzés
+Devizaváltó (HUF ↔ EUR) a lista tetején
+4.3 Ingatlan Részletes Adatlap
+Képgaléria
+Főkép + thumbnail galéria lightbox megnyitással
+Swipe mobilon
+Képek száma jelzés
+Fő adatok panel
+Ár HUF-ban és EUR-ban egymás mellett
+Település, cím
+Típus (tégla/panel/családi ház/stb.), státusz
+Alapterület, telekterület, szobaszám, fürdőszoba
+Építés éve, állapot, fűtés, energetikai besorolás
+Emelet, lift, parkoló, erkély – ikonos megjelenítés
+Leírás
+Részletes szöveges leírás magyar és angol nyelven
+Formázott szöveg
+Térkép
+Google Maps / OpenStreetMap beágyazás
+Környék infrastruktúra jelzés
+Kapcsolatfelvétel
+"Érdeklődöm" űrlap (név, telefon, e-mail, üzenet)
+Közvetlen hívás gomb mobilon
+AI Chatbot
+Az adatlapon elérhető AI asszisztens, amely az ingatlan adatai alapján válaszol
+Példa kérdések: "Van-e gáz bekötve?", "Milyen messze van a főút?", "Van-e nagyfészültség a ház mellett?"
+A chatbot a feltöltött dokumentációk és leírások alapján dolgozik
+4.4 Szolgáltatások Aloldalak
+A Gerecse Ingatlan fő szolgáltatásai, amelyek kiemelt helyen jelennek meg a weboldalon:
+1. Ingatlan adás-vétel és bérbeadás
+Lakossági és ipari ingatlanok értékesítése, vásárlása
+Ingatlanok bérbeadásának közvetítése
+Az értékesítési és bérbeadási folyamat lépésenkenti bemutatása
+Kapcsolatfelvételi űrlap
+2. Értékbecslés készítése / közvetítése
+Ingatlan értékmegállapítás leírása
+Értékbecslés közvetítése szakemberekhez
+Díjmentes előzetes konzultáció ajánlat
+3. Jogi háttér és támogatás ingatlanügyekhez
+Ügyvédi közreműködés biztosítása ingatlanügyleteknél
+Szerződésírás, jogi tanácsadás
+Tulajdoni lap ellenőrzés, tehermentesítés segítése
+4. Hitel- és állami támogatásokban segítségnyújtás
+A Gerecse Ingatlan közvetítőként segít a hitel- és támogatásügyintézésben – a hiteligénylést magát nem intézi, de a szolgáltatást közvetíti.
+Lakáshitel, személyi kölcsön tájékoztatás
+Állami támogatások (CSOK, Babaváró stb.) ügyintézésében segítség
+Bankfüggetlen tanácsadás közvetítése
+Időpontfoglalás / kapcsolatfelvétel konzultációra
+5. Ingatlan felkészítése eladásra – Home staging
+Igény esetén az ingatlan felkészítése és "felokosítása" a sikeresebb eladás érdekében
+Előtte-utána galéria
+Partner bemutatása
+6. Belsőépítészet, látványtervezés
+Lakberendezési tanácsadás
+3D látványtervek bemutatása
+Referencia munkák galériája
+4.5 Rólunk (KülÖn Aloldal)
+A Rólunk oldal a cég részletes bemutatását tartalmazza, és KIEMELT navigációs pozíciót kap.
+Cég története, küldetés, értékek
+Számok: eladott ingatlanok, évek tapasztalata, elégedett ügyfelek – animált számlálók
+Csapat: fénykép, pozíció, rövid bio
+Partnerek logó sora
+Ügyfélvélemények (testimonials)
+4.6 Kapcsolat
+Iroda cím, telefonszám, e-mail, nyitvatartás
+Google Maps beágyazás
+Kapcsolatfelvételi űrlap
+Közösségi média linkek
+5. Globális Elemek
+5.1 Fejléc (Header)
+Ragadós (sticky) fejléc
+Bal oldalt: Gerecse Ingatlan logó
+Navigáció: Kezdőlap, Rólunk (KIEMELT), Ingatlanok, Szolgáltatások, Kapcsolat
+Jobb oldalt: Nyelvváltó (HU | EN) + Devizaváltó (HUF | EUR)
+Mobilon: hamburger menü
+5.2 Lábléc (Footer)
+4 oszlop: Kapcsolat, Gyors linkek, Szolgáltatások, Hírlevél
+Copyright, GDPR, sütik kezelése
+Közösségi média ikonok
+5.3 AI Chatbot widget
+Minden oldalon elérhető lebegő chat gomb, amelyre kattintva megnyílik az intelligens asszisztens.
+Az AI a feltöltött ingatlan adatok és leírások alapján válaszol
+Képes magyar és angol nyelven kommunikálni
+Példa kérdések: "Van-e gáz bekötve?", "Milyen messze van a főút?", "Van-e nagyfészültség a ház mellett?"
+Fall-back: ha nem tud válaszolni, felajánlja a kapcsolatfelvételt
+5.4 Egyéb elemek
+"Vissza az elejre" gomb
+Cookie consent banner (GDPR)
+Loading animációk
+Naptár/időpontfoglaló funkció (belső használatra, admin felületen)
+6. Többnyelvűség és Devizakezelés
+6.1 Nyelvi rendszer
+Szempont
+Részletek
+Támogatott nyelvek
+Magyar (alap) és Angol
+URL struktúra
+Magyar: /ingatlanok – Angol: /en/properties
+Fordítás módja
+AI alapú fordítás + manuális fellülvizsgálat
+Nyelvváltó pozíció
+Fejléc jobb oldalán, zászló ikonokkal (HU | EN)
+Ingatlan leírások
+Mindkettő nyelven megadható az admin felületen
+SEO
+Nyelvenként külön meta tag-ek és hreflang jelölés
+6.2 Devizakezelés
+Szempont
+Részletek
+Támogatott devizák
+HUF (Magyar Forint) és EUR (Euró)
+Ármegadás
+Admin felületen HUF-ban rögzítve, EUR automatikusan számolva
+Árváltás
+MNB árfolyam API vagy manuális beállítás
+Megjelenítés
+Kártyákon: választott deviza; adatlapon: mindketto
+Váltó gomb
+Fejlécben vagy keresőben HUF ↔ EUR váltás
+7. AI Chatbot Részletes Specifikáció
+7.1 Funkciók
+Önállóan válaszol a látogatók ingatlanokkal kapcsolatos kérdéseire
+A feltöltött ingatlan dokumentációk és leírások alapján dolgozik
+Magyar és angol nyelvtudás
+Konkrét ingatlan adatlapon: az adott ingatlanra vonatkozó kérdések megválaszolása
+Általános oldalon: általános céges kérdések, keresési segítség
+7.2 Példa kérdések és válaszok
+Látogató kérdése
+AI válasz forrása
+"Van-e gáz bekötve?"
+Ingatlan adatlap / műszaki leírás
+"Milyen messze van a főút?"
+Ingatlan leírás / helyszín adatok
+"Van-e nagyfészültség a ház mellett?"
+Ingatlan dokumentáció
+"Mennyi az ár euróban?"
+Devizaváltás az adatlap áraból
+"Mikor tudom megnézni?"
+→ Átirányítás időpontfoglalásra / kapcsolatfelvételre
+7.3 Technikai megvalósítás
+RAG (Retrieval-Augmented Generation) alapú rendszer
+Tudásbázis: ingatlan adatbázis + feltöltött dokumentumok
+API: OpenAI / Anthropic Claude API integráció
+Fall-back: "Sajnálom, erre a kérdésre nem tudok válaszolni. Kérem, vegye fel a kapcsolatot munkatársunkkal."
+8. Admin Felület
+Az admin felület egyszemélyes használatra készül (Szilvia számára). Nincs szükség többszintű jogosultságkezelésre.
+8.1 Ingatlankezelés
+Ingatlanok hozzáadása, szerkesztése, törlése
+Képfeltöltés (drag & drop, többszörös, átrendezés)
+Leírás magyar és angol nyelven (AI fordítás segítség gomb)
+Ár megadása HUF-ban, EUR automatikus számítás
+Státusz: aktív, foglalt, eladva, archivált
+Kiemelt ingatlan jelölés a kezdőlapra
+Ingatlan ID automatikus generálás
+8.2 Ingatlantípusok
+Kategória
+Típusok
+Lakossági
+Tégla lakás, panellakás, családi ház, ikerház, sorház, nyaraló
+Telek
+Építési telek, mezőgazdasági terület
+Ipari
+Csarnok, raktár, iroda, üzlethelyiség
+8.3 Naptár és időpontfoglaló
+Beépített naptár a megtekíntések kezelésére
+Jegyzetek kezelése
+Csak admin számára látható (belső használat)
+8.4 AI chatbot tudásbázis kezelés
+Dokumentumok feltöltése az AI számára
+Chatbot válaszok áttekintése / log
+GYIK (FAQ) kérdések manuális hozzáadása
+9. Funkcionális Követelmények
+9.1 SEO és analitika
+Egyedi meta title, description minden oldalon (HU + EN)
+Hreflang jelölés a kétnyelvűséghez
+Open Graph meta tag-ek (Facebook, LinkedIn megosztás)
+Strukturált adatok (Schema.org RealEstateListing)
+XML sitemap, robots.txt
+Google Analytics 4 integráció
+Facebook Pixel (opcionális)
+9.2 Teljesítmény
+Google PageSpeed: cél 90+ pont
+Képoptimalizálás (WebP, lazy loading)
+CSS/JS minifikálás
+CDN használat
+9.3 Biztonság
+SSL tanúsítvány (Let's Encrypt)
+SPAM védelem (reCAPTCHA) űrlapokon
+Rendszeres biztonsági frissítések
+Adatbiztonsági mentések
+10. Technológiai Javaslat
+Komponens
+Javasolt technológia
+Alternatíva
+CMS / Backend
+WordPress + Jestate theme
+Next.js + Headless CMS
+Többnyelvűség
+WPML / Polylang plugin
+i18n keretrendszer (Next.js)
+Ingatlan kezelés
+Egyedi CPT + ACF
+Jestate plugin
+Frontend
+HTML5, CSS3, JavaScript
+React / Vue.js
+CSS
+Tailwind CSS
+Bootstrap 5
+AI Chatbot
+Anthropic Claude API + RAG
+OpenAI GPT + Langchain
+Chatbot UI
+Tidio / egyedi widget
+Botpress
+Képgaléria
+GLightbox
+Swiper.js
+Slider
+Swiper.js
+Splide.js
+Térkép
+Google Maps API
+Leaflet + OpenStreetMap
+Árfolyam
+MNB API / exchangerate-api.com
+Manuális beállítás
+Hosting
+Magyar VPS (Rackforest)
+Vercel / Netlify
+SSL
+Let's Encrypt
+CloudFlare
+Domain
+.hu + opcionális .com
+–
+11. Wireframe Leírások
+11.1 Kezdőlap wireframe
+[HEADER: Sticky | Logo bal | Nav: Kezdőlap, Rólunk, Ingatlanok, Szolg., Kapcsolat | HU|EN + HUF|EUR jobb]
+[HERO: Teljes szélesség | Gerecse háttérkép + logó | Szlogen + CTA]
+[RÓLUNK: Kiemelten az oldal tetején | Rövid bemutato + számlálók + csapat]
+[KERESŐ: Kompakt kereső panel | Település + Típus + Státusz + Ár + Méret]
+[KIEMELT INGATLANOK: 3x4 grid | Kártya: kép + ár (HUF/EUR) + adatok + badge]
+[SZOLGÁLTATÁSOK: 3 oszlop | Ikon + cím + rövid szöveg]
+[HÍRLEVÉL: Email + gomb + GDPR]
+[AI CHATBOT: Lebegő gomb jobb alul]
+[FOOTER: 4 oszlop + Copyright + Social]
+11.2 Ingatlan lista wireframe
+[HEADER + NYELVVÁLTÓ]
+[BREADCRUMB: Kezdőlap > Ingatlanok > {szűrő}]
+[SZŰRŐK: Bal sáv 25% | HUF/EUR váltó + Település + Típus + Ár + Méret]
+[LISTA: Jobb 75% | Rendezés + Devizaváltó | 3 oszlop grid | Lapozás]
+[FOOTER]
+11.3 Ingatlan adatlap wireframe
+[HEADER]
+[BREADCRUMB]
+[GALÉRIA: Főkép + thumbnails]
+[ADATOK: Bal 60% | Ár HUF + EUR | Cím, típus, adatok táblázat, leírás]
+[KAPCSOLAT: Jobb 40% | Érdeklődés űrlap + telefon]
+[TÉRKÉP: Google Maps embed]
+[AI CHATBOT: Context-aware – az adott ingatlan adataival]
+[HASONLÓ INGATLANOK: 3 kártya]
+[FOOTER]
+12. Javasolt Ütemterv
+Fázis
+Feladat
+Időtartam
+Eredmény
+1.
+Arculat és dizájn (UI/UX)
+1–2 hét
+Figma mockupok, logó, színek
+2.
+Frontend fejlesztés
+2–3 hét
+Reszponzív HU + EN oldalak
+3.
+Backend / CMS + Admin
+1–2 hét
+Ingatlan kezelés, devizaváltás
+4.
+AI Chatbot integráció
+1–2 hét
+Működő chatbot tudásbázissal
+5.
+Tartalom feltöltés + fordítás
+1 hét
+Ingatlanok, szövegek HU+EN
+6.
+Tesztelés és optimalizálás
+1 hét
+Hibák javítása, SEO, sebesség
+7.
+Élesítés és átadás
+2–3 nap
+Domain, oktatás, átadás
+Teljes becsült időtartam: 8–12 hét
+13. Összegzés és Következő Lépések
+Ez a tervezet a Gerecse Ingatlan weboldal teljes koncepcióját tartalmazza, Szilvia visszajelzései alapján frissítve (magyar + angol nyelv, HUF + EUR deviza, egyszemélyes admin kezelés).
+Következő lépések:
+Tervezet áttekintése és véglegesítése Szilviával
+Logó és arculati elemek elkészítése
+Dizájn mockupok (Figma)
+Technológiai döntés véglegesítése
+Fejlesztés megkezdése
+AI chatbot tudásbázis összeállítása
+Tesztelés és élesítés
+Ez a dokumentum a projekt kiindulási alapja. A végleges tartalom (logó, szövegek, képek, ingatlanok) a megrendelővel való további egyeztetés során kerül véglegesítésre.

@@ -74,6 +74,10 @@ describe("formatPlotArea", () => {
   it("formats exactly 10000 m² as 1 ha", () => {
     expect(formatPlotArea(10000)).toBe("1\u00a0ha");
   });
+
+  it("formats zero plot area", () => {
+    expect(formatPlotArea(0)).toBe("0\u00a0m²");
+  });
 });
 
 describe("formatRooms", () => {
@@ -112,8 +116,17 @@ describe("formatPhone", () => {
     expect(formatPhone("+36706132658")).toBe("+36 70 613 2658");
   });
 
+  it("formats other Hungarian mobile prefixes", () => {
+    expect(formatPhone("+36301234567")).toBe("+36 30 123 4567");
+    expect(formatPhone("+36201234567")).toBe("+36 20 123 4567");
+  });
+
   it("returns unrecognized numbers as-is", () => {
     expect(formatPhone("12345")).toBe("12345");
+  });
+
+  it("returns empty string as-is", () => {
+    expect(formatPhone("")).toBe("");
   });
 });
 
@@ -134,5 +147,13 @@ describe("toHungarianSlug", () => {
 
   it("collapses multiple non-alphanumeric characters", () => {
     expect(toHungarianSlug("eladó -- ház")).toBe("elado-haz");
+  });
+
+  it("handles empty string", () => {
+    expect(toHungarianSlug("")).toBe("");
+  });
+
+  it("handles uppercase accented characters", () => {
+    expect(toHungarianSlug("ÁÉÍÓÖŐÚÜŰ")).toBe("aeiooouuu");
   });
 });

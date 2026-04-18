@@ -10,6 +10,10 @@ const HU_TO_EN_PATH: Record<string, string> = {
   "/velemenyek": "/en/testimonials",
   "/kapcsolat": "/en/contact",
   "/gyik": "/en/faq",
+  "/impresszum": "/en/impresszum",
+  "/adatkezelesi-tajekoztato": "/en/privacy-policy",
+  "/cookie-tajekoztato": "/en/cookie-policy",
+  "/aszf": "/en/terms",
 };
 
 interface SEOHeadProps {
@@ -39,7 +43,7 @@ function buildOrganizationJsonLd(): Record<string, unknown> {
     name: "Gerecse Ingatlan",
     url: "https://gerecseingatlan.hu",
     logo: "https://gerecseingatlan.hu/logo.png",
-    image: "https://gerecseingatlan.hu/og-image.jpg",
+    image: "https://gerecseingatlan.hu/og-image.png",
     telephone: "+36-70-613-2658",
     email: "info@gerecseingatlan.hu",
     address: {
@@ -74,6 +78,22 @@ function buildOrganizationJsonLd(): Record<string, unknown> {
     sameAs: [
       "https://www.facebook.com/gerecseingatlan",
     ],
+  };
+}
+
+/** Builds a BreadcrumbList JSON-LD schema from an array of breadcrumb items. */
+export function buildBreadcrumbJsonLd(
+  items: { name: string; url: string }[],
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
   };
 }
 
@@ -140,17 +160,14 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       "og:locale:alternate",
       lang === "hu" ? "en_US" : "hu_HU",
     );
-    if (ogImage) {
-      setMeta("property", "og:image", ogImage);
-    }
+    const resolvedImage = ogImage || `${ORIGIN}/og-image.png`;
+    setMeta("property", "og:image", resolvedImage);
 
     /* ── Twitter Card ── */
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", fullTitle);
     setMeta("name", "twitter:description", metaDescription);
-    if (ogImage) {
-      setMeta("name", "twitter:image", ogImage);
-    }
+    setMeta("name", "twitter:image", resolvedImage);
 
     /* ── Canonical URL ── */
     const currentPath = canonicalPath || "/";

@@ -18,7 +18,7 @@
     <meta property="og:site_name" content="Gerecse Ingatlan" />
     <meta property="og:locale" content="hu_HU" />
     <meta property="og:locale:alternate" content="en_US" />
-    <meta property="og:image" content="https://gerecseingatlan.hu/og-image.jpg" />
+    <meta property="og:image" content="https://gerecseingatlan.hu/og-image.png" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -31,6 +31,9 @@
     <link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/" />
     <link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en" />
     <link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/" />
+
+    <!-- Set lang attribute based on URL before first paint to avoid flash -->
+    <script>document.documentElement.lang=location.pathname.startsWith('/en')?'en':'hu'</script>
 
     <!-- Fonts self-hosted in /fonts/ for GDPR compliance (no external Google requests) -->
     <!-- @font-face declarations are in src/index.css -->

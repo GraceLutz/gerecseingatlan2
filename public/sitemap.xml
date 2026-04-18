@@ -68,37 +68,57 @@
 
   <!-- Szolgáltatások / Services -->
   <url>
-    <loc>https://gerecseingatlan.hu/adas-vetel-berbeadas</loc>
+    <loc>https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales-and-rentals" />
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://gerecseingatlan.hu/ertekbecsles</loc>
+    <loc>https://gerecseingatlan.hu/ertekbecsles-ertekmeghatrozas</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ertekbecsles-ertekmeghatrozas" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/appraisal-and-valuation" />
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://gerecseingatlan.hu/jogi-hatter</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://gerecseingatlan.hu/hitel-tamogatasok</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://gerecseingatlan.hu/home-staging</loc>
+    <loc>https://gerecseingatlan.hu/belsoepiteszet-latvanyterv</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/belsoepiteszet-latvanyterv" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/interior-design" />
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://gerecseingatlan.hu/belsoepiteszet</loc>
+    <loc>https://gerecseingatlan.hu/teljeskoru-jogi-hatter</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/teljeskoru-jogi-hatter" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/full-legal-support" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/hitel-allami-tamogatasok</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/hitel-allami-tamogatasok" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/loans-and-subsidies" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/energetikai-tanusitvany</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/energetikai-tanusitvany" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/energy-certificate" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/villamos-biztonsagi-felulvizsgalat</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/villamos-biztonsagi-felulvizsgalat" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/electrical-safety-inspection" />
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

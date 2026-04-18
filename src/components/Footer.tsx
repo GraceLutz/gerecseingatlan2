@@ -1,9 +1,39 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Mail, Phone } from "lucide-react";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const Footer = () => {
   const { lang, t, localePath } = useLanguage();
+  const [footerEmail, setFooterEmail] = useState("");
+  const [footerGdpr, setFooterGdpr] = useState(false);
+  const [footerSubmitted, setFooterSubmitted] = useState(false);
+  const [footerError, setFooterError] = useState<string | null>(null);
+
+  const handleFooterNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFooterError(null);
+    if (!EMAIL_REGEX.test(footerEmail) || !footerGdpr) return;
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: footerEmail.trim(), gdprConsent: true }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setFooterError(data.error ?? (lang === "hu" ? "Hiba történt." : "An error occurred."));
+        return;
+      }
+      setFooterEmail("");
+      setFooterGdpr(false);
+      setFooterSubmitted(true);
+    } catch {
+      setFooterError(lang === "hu" ? "Hálózati hiba." : "Network error.");
+    }
+  };
 
   return (
     <footer role="contentinfo" className="bg-[#4682B4] text-primary-foreground">
@@ -52,26 +82,52 @@ const Footer = () => {
           <div>
             <h3 id="footer-newsletter-heading" className="text-lg font-heading font-bold text-gold mb-4">{t.footer.newsletter}</h3>
             <p className="text-sm text-primary-foreground/80 mb-3">{t.newsletter.subtitle}</p>
-            <form
-              aria-labelledby="footer-newsletter-heading"
-              onSubmit={(e) => e.preventDefault()}
-              className="flex gap-2"
-            >
-              <label htmlFor="footer-email" className="sr-only">{t.newsletter.placeholder}</label>
-              <input
-                id="footer-email"
-                type="email"
-                placeholder={t.newsletter.placeholder}
-                required
-                className="flex-1 px-3 py-2 text-sm rounded bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-gold text-accent-foreground font-semibold text-sm rounded hover:bg-gold/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4]"
+            {footerSubmitted ? (
+              <p className="text-sm text-gold font-semibold" role="status" aria-live="polite">
+                ✓ {t.newsletter.success}
+              </p>
+            ) : (
+              <form
+                aria-labelledby="footer-newsletter-heading"
+                onSubmit={handleFooterNewsletter}
+                className="space-y-2"
+                noValidate
               >
-                OK
-              </button>
-            </form>
+                <div className="flex gap-2">
+                  <label htmlFor="footer-email" className="sr-only">{t.newsletter.placeholder}</label>
+                  <input
+                    id="footer-email"
+                    type="email"
+                    value={footerEmail}
+                    onChange={(e) => setFooterEmail(e.target.value)}
+                    placeholder={t.newsletter.placeholder}
+                    required
+                    autoComplete="email"
+                    className="flex-1 px-3 py-2 text-sm rounded bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-gold text-accent-foreground font-semibold text-sm rounded hover:bg-gold/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4]"
+                  >
+                    OK
+                  </button>
+                </div>
+                <label htmlFor="footer-gdpr" className="flex items-start gap-2 text-xs text-primary-foreground/70 cursor-pointer">
+                  <input
+                    id="footer-gdpr"
+                    type="checkbox"
+                    checked={footerGdpr}
+                    onChange={(e) => setFooterGdpr(e.target.checked)}
+                    aria-required="true"
+                    className="mt-0.5 rounded accent-gold"
+                  />
+                  <span>{t.newsletter.gdpr}</span>
+                </label>
+                {footerError && (
+                  <p role="alert" className="text-xs text-red-300">{footerError}</p>
+                )}
+              </form>
+            )}
           </div>
         </div>
 

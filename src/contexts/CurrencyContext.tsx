@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { formatPrice as formatPriceUtil, DEFAULT_EUR_RATE } from "@/lib/currencyConverter";
 
 /** Supported display currencies */
@@ -18,9 +18,35 @@ interface CurrencyContextType {
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
+/**
+ * Fetches the current HUF/EUR exchange rate from a public API.
+ * Falls back to DEFAULT_EUR_RATE on any error.
+ *
+ * TODO: Replace with server-side /api/exchange-rate endpoint backed by
+ * MNB API + Redis cache (Upstash) once the server endpoint is implemented.
+ */
+async function fetchExchangeRate(): Promise<number> {
+  try {
+    const res = await fetch(
+      "https://open.er-api.com/v6/latest/EUR",
+      { signal: AbortSignal.timeout(5000) },
+    );
+    if (!res.ok) return DEFAULT_EUR_RATE;
+    const data = await res.json();
+    const hufRate = data?.rates?.HUF;
+    return typeof hufRate === "number" && hufRate > 0 ? Math.round(hufRate) : DEFAULT_EUR_RATE;
+  } catch {
+    return DEFAULT_EUR_RATE;
+  }
+}
+
 export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currency, setCurrency] = useState<Currency>("HUF");
   const [exchangeRate, setExchangeRate] = useState(DEFAULT_EUR_RATE);
+
+  useEffect(() => {
+    fetchExchangeRate().then(setExchangeRate);
+  }, []);
 
   const toggleCurrency = useCallback(() => {
     setCurrency(c => c === "HUF" ? "EUR" : "HUF");

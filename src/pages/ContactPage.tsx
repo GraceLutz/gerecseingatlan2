@@ -300,7 +300,7 @@ const ContactPage = () => {
                     htmlFor="contact-subject"
                     className="text-sm font-semibold text-foreground mb-1 block"
                   >
-                    {lang === "hu" ? "Tárgy" : "Subject"} *
+                    {t.contact.subject} *
                   </label>
                   <input
                     id="contact-subject"

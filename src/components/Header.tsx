@@ -152,7 +152,7 @@ const Header = () => {
           <Link to={localePath("/")} className={`flex items-center gap-2 mr-auto -ml-20 md:-ml-32 ${focusRing}`}>
             <img
               src={logo}
-              alt="Gerecse Ingatlan — Kezdőlap"
+              alt={lang === "hu" ? "Gerecse Ingatlan — Kezdőlap" : "Gerecse Ingatlan — Home"}
               className="h-40 md:h-56 -my-6 md:-my-10 rounded"
             />
           </Link>

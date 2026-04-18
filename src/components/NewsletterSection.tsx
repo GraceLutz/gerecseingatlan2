@@ -116,7 +116,7 @@ const NewsletterSection = () => {
                   type="submit"
                   disabled={submitting}
                   aria-busy={submitting}
-                  className="px-6 py-3 bg-[#4682B4] text-white font-semibold rounded-lg hover:bg-[#3B72A4] transition-colors focus:outline-none focus:ring-2 focus:ring-[#4682B4] focus:ring-offset-2 focus:ring-offset-[#D8EEFF] disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                  className="px-6 py-3 bg-gold text-accent-foreground font-semibold rounded-lg hover:bg-gold/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-[#4682B4] disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
                   <span>{t.newsletter.button}</span>

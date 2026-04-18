@@ -53,7 +53,7 @@ const enToHuSlugs: Record<string, string> = Object.fromEntries(
  * Translates a HU path to its EN equivalent.
  * Handles both static routes and dynamic segments like /ingatlan/:id → /property/:id.
  */
-function translateHuToEn(huPath: string): string {
+export function translateHuToEn(huPath: string): string {
   // Exact match
   if (huToEnSlugs[huPath]) return huToEnSlugs[huPath];
 
@@ -69,7 +69,7 @@ function translateHuToEn(huPath: string): string {
  * Translates an EN path to its HU equivalent.
  * Handles both static routes and dynamic segments like /property/:id → /ingatlan/:id.
  */
-function translateEnToHu(enPath: string): string {
+export function translateEnToHu(enPath: string): string {
   // Exact match
   if (enToHuSlugs[enPath]) return enToHuSlugs[enPath];
 

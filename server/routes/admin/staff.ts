@@ -126,6 +126,16 @@ router.post("/", async (req, res) => {
     let userId: string | null = null;
 
     if (dashboardAccess && staffData.email) {
+      const existingUser = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, staffData.email.toLowerCase()))
+        .limit(1);
+
+      if (existingUser.length > 0) {
+        return res.status(409).json({ error: "Ez az e-mail cím már regisztrálva van felhasználóként." });
+      }
+
       const tempPassword = randomBytes(12).toString("base64url");
       const passwordHash = await hash(tempPassword, 12);
 

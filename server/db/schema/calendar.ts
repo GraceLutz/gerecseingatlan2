@@ -25,7 +25,6 @@ export const calendarEvents = pgTable("calendar_events", {
   endDatetime: timestamp("end_datetime", { withTimezone: true }).notNull(),
   staffId: uuid("staff_id").references(() => staff.id, { onDelete: "cascade" }),
   createdBy: uuid("created_by")
-    .notNull()
     .references(() => users.id, { onDelete: "set null" }),
   eventType: eventTypeEnum("event_type").notNull().default("egyeb"),
   location: varchar("location", { length: 500 }),

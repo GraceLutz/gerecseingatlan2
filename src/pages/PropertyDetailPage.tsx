@@ -12,10 +12,20 @@ import { Maximize, BedDouble, Bath, Calendar, Thermometer, Zap, Building, Car, T
 const PropertyDetailPage = () => {
   const { t, lang, localePath } = useLanguage();
   const { formatPrice } = useCurrency();
-  const { properties } = useProperties();
+  const { properties, isLoading } = useProperties();
   const { id } = useParams();
 
   const property = properties.find(p => p.id === id);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="py-32 text-center text-muted-foreground" aria-live="polite">
+          {lang === "hu" ? "Betöltés..." : "Loading..."}
+        </div>
+      </Layout>
+    );
+  }
 
   if (!property) {
     return (

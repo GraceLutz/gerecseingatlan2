@@ -1,6 +1,6 @@
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useId, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,8 +15,7 @@ const NewsletterSection = () => {
   const [gdpr, setGdpr] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // Whether the user has attempted to submit — gates inline error visibility so
-  // the user is not scolded before they even interact with the field.
+  const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
 
   const uid = useId();
@@ -33,14 +32,29 @@ const NewsletterSection = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched(true);
+    setError(null);
     if (!isValidEmail || !gdpr || submitting) return;
     setSubmitting(true);
-    // Newsletter signup would be handled here (no network call yet).
-    setEmail("");
-    setGdpr(false);
-    setTouched(false);
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), gdprConsent: true }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? (lang === "hu" ? "Hiba történt." : "An error occurred."));
+        return;
+      }
+      setEmail("");
+      setGdpr(false);
+      setTouched(false);
+      setSubmitted(true);
+    } catch {
+      setError(lang === "hu" ? "Hálózati hiba." : "Network error.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const labelClass = "block text-left text-xs font-semibold text-primary-foreground/80 mb-1";
@@ -62,11 +76,15 @@ const NewsletterSection = () => {
           {t.newsletter.subtitle}
         </p>
 
-        {/* Live region for async success feedback — always rendered so SRs pick up the update. */}
         <div id={statusId} role="status" aria-live="polite" className="min-h-[1.5rem]">
           {submitted && (
             <p className="text-gold font-semibold font-body text-lg">
-              ✓ {t.newsletter.success ?? (lang === "hu" ? "Sikeres feliratkozás!" : "Successfully subscribed!")}
+              ✓ {t.newsletter.success}
+            </p>
+          )}
+          {error && (
+            <p className="text-red-200 font-semibold font-body text-sm">
+              {error}
             </p>
           )}
         </div>

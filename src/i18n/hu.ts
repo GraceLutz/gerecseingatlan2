@@ -112,6 +112,7 @@ export const hu = {
     name: "Név",
     email: "E-mail",
     phone: "Telefon",
+    subject: "Tárgy",
     message: "Üzenet",
     send: "Küldés",
     address: "Cím",

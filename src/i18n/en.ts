@@ -112,6 +112,7 @@ export const en = {
     name: "Name",
     email: "Email",
     phone: "Phone",
+    subject: "Subject",
     message: "Message",
     send: "Send",
     address: "Address",

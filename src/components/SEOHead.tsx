@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/** Mapping of Hungarian paths to their English equivalents for hreflang */
+/** Static mapping of Hungarian paths to their English equivalents for hreflang */
 const HU_TO_EN_PATH: Record<string, string> = {
   "/": "/en",
   "/bemutatkozas": "/en/introduction",
@@ -15,6 +15,32 @@ const HU_TO_EN_PATH: Record<string, string> = {
   "/cookie-tajekoztato": "/en/cookie-policy",
   "/aszf": "/en/terms",
 };
+
+/** Dynamic route patterns: /ingatlan/:id → /en/property/:id, /:slug → /en/:slug */
+function resolveHuEnPair(huPath: string): { hu: string; en: string } | null {
+  if (HU_TO_EN_PATH[huPath]) {
+    return { hu: huPath, en: HU_TO_EN_PATH[huPath] };
+  }
+  const propertyMatch = huPath.match(/^\/ingatlan\/(.+)$/);
+  if (propertyMatch) {
+    return { hu: huPath, en: `/en/property/${propertyMatch[1]}` };
+  }
+  // Service slug pages: /:slug → /en/:slug (same slug)
+  if (huPath.startsWith("/") && !huPath.startsWith("/en") && !huPath.startsWith("/admin")) {
+    return { hu: huPath, en: `/en${huPath}` };
+  }
+  return null;
+}
+
+/** Reverse: given an English path, derive the Hungarian equivalent */
+function resolveEnToHu(enPath: string): string | null {
+  const entry = Object.entries(HU_TO_EN_PATH).find(([, en]) => en === enPath);
+  if (entry) return entry[0];
+  const propertyMatch = enPath.match(/^\/en\/property\/(.+)$/);
+  if (propertyMatch) return `/ingatlan/${propertyMatch[1]}`;
+  if (enPath.startsWith("/en/")) return enPath.replace(/^\/en/, "");
+  return null;
+}
 
 interface SEOHeadProps {
   /** Page title — appended to site name */
@@ -180,13 +206,18 @@ const SEOHead: React.FC<SEOHeadProps> = ({
 
     /* ── hreflang tags ── */
     {
-      const huPath =
-        lang === "hu"
-          ? currentPath
-          : Object.entries(HU_TO_EN_PATH).find(
-              ([, en]) => en === `/en${currentPath === "/" ? "" : currentPath}`,
-            )?.[0] ?? currentPath;
-      const enPath = HU_TO_EN_PATH[huPath];
+      let huPath: string;
+      let enPath: string | null;
+
+      if (lang === "hu") {
+        huPath = currentPath;
+        const pair = resolveHuEnPair(currentPath);
+        enPath = pair?.en ?? null;
+      } else {
+        const fullEnPath = `/en${currentPath === "/" ? "" : currentPath}`;
+        huPath = resolveEnToHu(fullEnPath) ?? currentPath;
+        enPath = fullEnPath;
+      }
 
       const huUrl = `${ORIGIN}${huPath}`;
       setLink('link[rel="alternate"][hreflang="hu"]', {

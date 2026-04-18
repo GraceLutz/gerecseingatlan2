@@ -223,8 +223,15 @@ const PropertiesPage = () => {
   const paginationLabel = lang === "hu" ? "Lapozás" : "Pagination";
   const filtersLabel = lang === "hu" ? "Szűrők" : "Filters";
 
+  const seoTitle = lang === "hu"
+    ? "Eladó és kiadó ingatlanok – Gerecse Ingatlan"
+    : "Properties for Sale and Rent – Gerecse Ingatlan";
+  const seoDescription = lang === "hu"
+    ? "Böngésszen eladó és kiadó ingatlanjaink között a Gerecse régióban. Szűrés típus, ár, méret és település szerint."
+    : "Browse properties for sale and rent in the Gerecse region. Filter by type, price, size, and location.";
+
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/ingatlanok">
       <section className="bg-dark-green py-16 text-center">
         <h1 className="text-4xl font-heading font-bold text-primary-foreground mb-2">{t.properties.title}</h1>
         <p className="text-primary-foreground/70 font-body">{t.properties.subtitle}</p>

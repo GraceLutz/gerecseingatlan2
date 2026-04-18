@@ -82,8 +82,15 @@ const ContactPage = () => {
       errors[field] ? "border-destructive" : "border-border"
     }`;
 
+  const seoTitle = lang === "hu"
+    ? "Kapcsolat – Gerecse Ingatlan"
+    : "Contact – Gerecse Ingatlan";
+  const seoDescription = lang === "hu"
+    ? "Vegye fel velünk a kapcsolatot! Telefon, e-mail, nyitvatartás és kapcsolatfelvételi űrlap."
+    : "Get in touch with us! Phone, e-mail, opening hours and contact form.";
+
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/kapcsolat">
       <section className="bg-dark-green py-20 text-center">
         <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground">
           {t.contact.title}
@@ -107,10 +114,10 @@ const ContactPage = () => {
                     {t.contact.phone}
                   </h3>
                   <a
-                    href="tel:+36301234567"
+                    href="tel:+36706132658"
                     className="text-muted-foreground text-sm hover:text-primary transition-colors"
                   >
-                    +36 30 123 4567
+                    +36 70 613 2658
                   </a>
                 </div>
               </div>
@@ -153,7 +160,7 @@ const ContactPage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                  aria-label="Facebook"
+                  aria-label={lang === "hu" ? "Facebook oldalunk" : "Visit us on Facebook"}
                 >
                   <Facebook size={18} className="text-primary" />
                 </a>
@@ -162,7 +169,7 @@ const ContactPage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                  aria-label="Instagram"
+                  aria-label={lang === "hu" ? "Instagram oldalunk" : "Visit us on Instagram"}
                 >
                   <Instagram size={18} className="text-primary" />
                 </a>
@@ -188,6 +195,7 @@ const ContactPage = () => {
                 <div
                   className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm"
                   role="status"
+                  aria-live="polite"
                 >
                   {lang === "hu"
                     ? "Üzenetét sikeresen elküldtük! Hamarosan felvesszük Önnel a kapcsolatot."

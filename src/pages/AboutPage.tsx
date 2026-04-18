@@ -16,8 +16,15 @@ const AboutPage = () => {
     { icon: Eye, labelHu: "Átláthatóság", labelEn: "Transparency" },
   ];
 
+  const seoTitle = lang === "hu"
+    ? "Rólunk – Gerecse Ingatlan"
+    : "About Us – Gerecse Ingatlan";
+  const seoDescription = lang === "hu"
+    ? "Ismerje meg a Gerecse Ingatlan csapatát, történetünket, küldetésünket és értékeinket."
+    : "Learn about the Gerecse Ingatlan team, our history, mission and values.";
+
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/rolunk">
       {/* Hero */}
       <section className="bg-dark-green py-20 text-center">
         <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground mb-3">

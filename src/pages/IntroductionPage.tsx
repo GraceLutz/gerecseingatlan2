@@ -3,12 +3,30 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Award, Users, Heart, Eye, XCircle, Quote } from "lucide-react";
 
 const notRightFitItems = [
-  "Ha nem szeretne őszinte, reális véleményt hallani",
-  "Ha nem hajlandó kihasználni általunk biztosított kedvezményeket",
-  "Ha zavarja az, hogy mindent elintézünk Ön helyett (érintésvédelem, energetika, földhivatali ügyintézés, ügyvédi egyeztetések az adásvétellel és az ingatlant érintő tennivalókkal kapcsolatban)",
-  "Ha azt várja, hogy rábeszéljük vagy támogassuk egy rossz döntésben",
-  "Ha gyanúsnak találja, hogy alacsony jutalékkal dolgozunk",
-  "Ha nem szeretne elsőkézből hitelezési tanácsokat, információkat kapni",
+  {
+    hu: "Ha nem szeretne őszinte, reális véleményt hallani",
+    en: "If you don't want to hear honest, realistic opinions",
+  },
+  {
+    hu: "Ha nem hajlandó kihasználni általunk biztosított kedvezményeket",
+    en: "If you're unwilling to take advantage of the discounts we provide",
+  },
+  {
+    hu: "Ha zavarja az, hogy mindent elintézünk Ön helyett (érintésvédelem, energetika, földhivatali ügyintézés, ügyvédi egyeztetések az adásvétellel és az ingatlant érintő tennivalókkal kapcsolatban)",
+    en: "If it bothers you that we handle everything for you (contact protection, energy certification, land registry, legal consultations regarding the sale and property-related tasks)",
+  },
+  {
+    hu: "Ha azt várja, hogy rábeszéljük vagy támogassuk egy rossz döntésben",
+    en: "If you expect us to talk you into or support a bad decision",
+  },
+  {
+    hu: "Ha gyanúsnak találja, hogy alacsony jutalékkal dolgozunk",
+    en: "If you find it suspicious that we work with low commission",
+  },
+  {
+    hu: "Ha nem szeretne elsőkézből hitelezési tanácsokat, információkat kapni",
+    en: "If you don't want first-hand mortgage advice and information",
+  },
 ];
 
 const IntroductionPage = () => {
@@ -21,8 +39,15 @@ const IntroductionPage = () => {
     { icon: Eye, labelHu: "Átláthatóság", labelEn: "Transparency" },
   ];
 
+  const seoTitle = lang === "hu"
+    ? "Bemutatkozás – Gerecse Ingatlan"
+    : "Introduction – Gerecse Ingatlan";
+  const seoDescription = lang === "hu"
+    ? "Ismerje meg a Gerecse Ingatlan csapatát, szemléletünket és küldetésünket. Családias, ügyfélközpontú ingatlanszolgáltatás."
+    : "Learn about the Gerecse Ingatlan team, our approach and mission. Family-like, client-focused real estate services.";
+
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/bemutatkozas">
       {/* Hero */}
       <section className="bg-dark-green py-20 text-center">
         <div className="container mx-auto px-4 max-w-3xl">
@@ -113,7 +138,9 @@ const IntroductionPage = () => {
             {notRightFitItems.map((item, i) => (
               <li key={i} className="flex items-start gap-3 bg-card rounded-lg p-4 shadow-sm">
                 <XCircle size={22} className="text-gold shrink-0 mt-0.5" aria-hidden="true" />
-                <span className="text-foreground font-body leading-relaxed">{item}</span>
+                <span className="text-foreground font-body leading-relaxed">
+                  {lang === "hu" ? item.hu : item.en}
+                </span>
               </li>
             ))}
           </ul>

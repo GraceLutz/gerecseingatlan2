@@ -43,8 +43,13 @@ const PropertyDetailPage = () => {
     property.parking !== undefined ? { icon: Car, label: t.properties.parking, value: property.parking ? t.properties.yes : t.properties.no } : null,
   ].filter(Boolean) as { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; value: string | number }[];
 
+  const seoTitle = `${title} – ${property.location} | Gerecse Ingatlan`;
+  const seoDescription = lang === "hu"
+    ? `${title} – ${property.location}. ${property.area} m², ${formatPrice(property.price)}. Gerecse Ingatlan.`
+    : `${title} – ${property.location}. ${property.area} m², ${formatPrice(property.price)}. Gerecse Ingatlan.`;
+
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlanok/${property.id}`}>
       {/* Page header */}
       <section className="bg-dark-green py-12">
         <div className="container mx-auto px-4">
@@ -58,7 +63,7 @@ const PropertyDetailPage = () => {
               {t.nav.properties}
             </Link>
             <ChevronRight size={14} />
-            <span className="text-primary-foreground">{property.id}</span>
+            <span className="text-primary-foreground" aria-current="page">{property.id}</span>
           </nav>
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">

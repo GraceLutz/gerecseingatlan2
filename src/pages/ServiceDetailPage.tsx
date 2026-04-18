@@ -57,6 +57,10 @@ const ServiceDetailPage = () => {
   }
 
   const title = t.services[service.titleKey];
+  const seoTitle = `${title} – Gerecse Ingatlan`;
+  const seoDescription = lang === "hu"
+    ? `${title} – professzionális ingatlanszolgáltatás a Gerecse régióban. Kérjen ajánlatot!`
+    : `${title} – professional real estate service in the Gerecse region. Request a quote!`;
   const content = lang === "hu" ? service.contentHu : service.contentEn;
   const benefitData = resolvedSlug ? benefitsMap[resolvedSlug] : undefined;
   const benefits = benefitData ? (lang === "hu" ? benefitData.hu : benefitData.en) : [];
@@ -65,7 +69,7 @@ const ServiceDetailPage = () => {
   const relatedServices = services.filter((s) => s.slug !== resolvedSlug).slice(0, 3);
 
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath={`/${resolvedSlug}`}>
       <section className="bg-dark-green py-20 text-center">
         <div className="flex items-center justify-center gap-3 mb-4">
           <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center">

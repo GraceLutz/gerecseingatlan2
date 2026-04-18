@@ -72,8 +72,15 @@ const ServicesPage = () => {
     },
   ];
 
+  const seoTitle = lang === "hu"
+    ? "Szolgáltatásaink – Gerecse Ingatlan"
+    : "Our Services – Gerecse Ingatlan";
+  const seoDescription = lang === "hu"
+    ? "Ingatlan adásvétel, értékbecslés, jogi háttér, hiteltanácsadás, home staging és belsőépítészet – teljes körű szolgáltatások."
+    : "Property sales, valuation, legal support, mortgage consulting, home staging and interior design – comprehensive services.";
+
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/szolgaltatasok">
       <section className="bg-dark-green py-20 text-center">
         <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground">
           {t.services.title}

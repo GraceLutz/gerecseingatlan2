@@ -4,22 +4,29 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 const FaqPage = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggle = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
+  const seoTitle = lang === "hu"
+    ? "Gyakori kérdések – Gerecse Ingatlan"
+    : "FAQ – Gerecse Ingatlan";
+  const seoDescription = lang === "hu"
+    ? "Válaszok a leggyakrabban felmerülő kérdésekre az ingatlanügyletekkel és szolgáltatásainkkal kapcsolatban."
+    : "Answers to frequently asked questions about real estate transactions and our services.";
+
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/gyik">
       <section className="pt-28 pb-16 bg-light-bg">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-heading font-bold text-dark-navy text-center mb-4">
+            <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground text-center mb-4">
               {t.faq.title}
             </h1>
-            <p className="text-center text-gray-600 font-body mb-10">
+            <p className="text-center text-muted-foreground font-body mb-10">
               {t.faq.subtitle}
             </p>
 
@@ -27,14 +34,15 @@ const FaqPage = () => {
               {t.faq.items.map((item: { q: string; a: string }, index: number) => (
                 <div
                   key={index}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+                  className="bg-card rounded-lg shadow-sm border border-border overflow-hidden"
                 >
                   <button
+                    type="button"
                     onClick={() => toggle(index)}
-                    className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset"
+                    className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset"
                     aria-expanded={openIndex === index}
                   >
-                    <span className="font-heading font-semibold text-dark-navy pr-4">
+                    <span className="font-heading font-semibold text-foreground pr-4">
                       {item.q}
                     </span>
                     <ChevronDown
@@ -47,7 +55,7 @@ const FaqPage = () => {
                   </button>
                   {openIndex === index && (
                     <div className="px-6 pb-5 pt-1">
-                      <p className="font-body text-gray-600 leading-relaxed">
+                      <p className="font-body text-muted-foreground leading-relaxed">
                         {item.a}
                       </p>
                     </div>

@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { formatPrice as formatPriceUtil } from "@/lib/currencyConverter";
+import { formatPrice as formatPriceUtil, DEFAULT_EUR_RATE } from "@/lib/currencyConverter";
 
+/** Supported display currencies */
 type Currency = "HUF" | "EUR";
 
+/** Shape of the currency context consumed by useContext */
 interface CurrencyContextType {
   currency: Currency;
   setCurrency: (c: Currency) => void;
@@ -13,9 +15,6 @@ interface CurrencyContextType {
   /** Update the exchange rate (e.g., from MNB API) */
   setExchangeRate: (rate: number) => void;
 }
-
-/** Default HUF/EUR exchange rate */
-const DEFAULT_EUR_RATE = 400;
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 

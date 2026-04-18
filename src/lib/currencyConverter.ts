@@ -1,5 +1,5 @@
 /** Default HUF/EUR exchange rate (approximate) */
-const DEFAULT_EUR_RATE = 400;
+export const DEFAULT_EUR_RATE = 400;
 
 /** Returns 0 for NaN/Infinity, otherwise the input value */
 function safeNumber(n: number): number {

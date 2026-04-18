@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, ChevronDown, ChevronRight, History, RotateCcw, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-function getCsrfToken(): string | null {
-  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ContentBlock {
   id: string;
@@ -41,12 +38,8 @@ interface GroupedBlocks {
   [pagePath: string]: ContentBlock[];
 }
 
-function csrfHeaders(): Record<string, string> {
-  const token = getCsrfToken();
-  return token ? { "x-csrf-token": token } : {};
-}
-
 export default function ContentPage() {
+  const { csrfToken } = useAuth();
   const [blocks, setBlocks] = useState<ContentBlock[]>([]);
   const [grouped, setGrouped] = useState<GroupedBlocks>({});
   const [total, setTotal] = useState(0);
@@ -113,7 +106,7 @@ export default function ContentPage() {
     try {
       const res = await fetch(`/api/admin/content/${editingBlock.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...csrfHeaders() },
+        headers: { "Content-Type": "application/json", ...(csrfToken ? { "x-csrf-token": csrfToken } : {}) },
         credentials: "include",
         body: JSON.stringify({ content: editContent }),
       });
@@ -158,7 +151,7 @@ export default function ContentPage() {
         `/api/admin/content/${blockId}/rollback/${versionId}`,
         {
           method: "POST",
-          headers: csrfHeaders(),
+          headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
           credentials: "include",
         }
       );
@@ -186,7 +179,7 @@ export default function ContentPage() {
     try {
       const res = await fetch(`/api/admin/content/${blockId}`, {
         method: "DELETE",
-        headers: csrfHeaders(),
+        headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
         credentials: "include",
       });
       if (!res.ok) {

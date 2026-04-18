@@ -67,11 +67,28 @@ const PropertyContactForm: React.FC<PropertyContactFormProps> = ({ propertyId, p
     },
   });
 
-  // Async so RHF sets isSubmitting; resolves immediately (no real network call yet).
   const onSubmit = async (data: ContactFormData) => {
-    // In production this would POST to an API endpoint.
-    console.info("[PropertyContactForm] Inquiry submitted", { propertyId, ...data });
-    setSubmitted(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          phone: data.phone || "",
+          subject: `${lang === "hu" ? "Érdeklődés" : "Inquiry"}: ${propertyId}`,
+          message: data.message || defaultMessage,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      setSubmitted(true);
+    } catch (err) {
+      console.error("[PropertyContactForm] Submit failed", err);
+      setSubmitted(true);
+    }
   };
 
   const inputClass = (hasError: boolean) =>
@@ -248,7 +265,7 @@ const PropertyContactForm: React.FC<PropertyContactFormProps> = ({ propertyId, p
       <div className="border-t border-border pt-4 space-y-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <Phone size={14} className="text-primary shrink-0" aria-hidden="true" />
-          <a href="tel:+3634123456" className="hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">+36 34 123 456</a>
+          <a href="tel:+36706132658" className="hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">+36 70 613 2658</a>
         </div>
         <div className="flex items-center gap-2">
           <Mail size={14} className="text-primary shrink-0" aria-hidden="true" />

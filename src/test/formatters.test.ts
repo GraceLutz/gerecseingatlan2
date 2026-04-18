@@ -44,11 +44,20 @@ describe("formatArea", () => {
   });
 
   it("formats large areas with thousand separator", () => {
-    // Intl hu-HU uses non-breaking space as thousand separator
     const result = formatArea(1200);
     expect(result).toContain("1");
     expect(result).toContain("200");
     expect(result).toContain("m²");
+  });
+
+  it("formats zero area", () => {
+    expect(formatArea(0)).toBe("0\u00a0m²");
+  });
+
+  it("formats very large areas", () => {
+    const result = formatArea(999999);
+    expect(result).toContain("m²");
+    expect(result).not.toContain("NaN");
   });
 });
 
@@ -68,7 +77,7 @@ describe("formatPlotArea", () => {
 });
 
 describe("formatRooms", () => {
-  it("formats full rooms only", () => {
+  it("formats full rooms only with default Hungarian label", () => {
     expect(formatRooms(3)).toBe("3 szobás");
   });
 
@@ -78,6 +87,11 @@ describe("formatRooms", () => {
 
   it("formats rooms with zero half-rooms as rooms only", () => {
     expect(formatRooms(2, 0)).toBe("2 szobás");
+  });
+
+  it("accepts a custom label for English localization", () => {
+    expect(formatRooms(3, 0, "rooms")).toBe("3 rooms");
+    expect(formatRooms(3, 1, "rooms")).toBe("3+1 rooms");
   });
 });
 

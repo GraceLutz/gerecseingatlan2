@@ -80,17 +80,16 @@ export function formatPlotArea(squareMeters: number): string {
 }
 
 /**
- * Formats room count in Hungarian convention.
- * Hungarian real estate uses "X+Y szobás" where Y = félszoba (half-rooms).
+ * Formats room count for display.
+ * Hungarian real estate uses "X+Y" where Y = félszoba (half-rooms).
  * @param rooms - Number of full rooms
  * @param halfRooms - Number of half-rooms (félszoba), defaults to 0
- * @returns Formatted string (e.g. "3 szobás" or "3+1 szobás")
+ * @param label - Localized room label (e.g. "szobás" or "rooms"), defaults to "szobás"
+ * @returns Formatted string (e.g. "3 szobás" or "3+1 rooms")
  */
-export function formatRooms(rooms: number, halfRooms = 0): string {
-  if (halfRooms > 0) {
-    return `${rooms}+${halfRooms} szobás`;
-  }
-  return `${rooms} szobás`;
+export function formatRooms(rooms: number, halfRooms = 0, label = "szobás"): string {
+  const count = halfRooms > 0 ? `${rooms}+${halfRooms}` : `${rooms}`;
+  return `${count} ${label}`;
 }
 
 /**

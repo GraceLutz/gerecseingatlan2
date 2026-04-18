@@ -73,30 +73,37 @@ function toClientProperty(fp: FeedProperty): Property {
   };
 }
 
-async function fetchProperties(): Promise<{ properties: Property[]; locations: string[] }> {
+interface PropertiesResult {
+  properties: Property[];
+  locations: string[];
+  /** True when showing mock/demo data instead of live feed data */
+  isMockData: boolean;
+}
+
+async function fetchProperties(): Promise<PropertiesResult> {
   try {
     const response = await fetch("/api/properties");
 
     if (!response.ok) {
       console.warn("[useProperties] API returned", response.status, "— falling back to mock data");
-      return { properties: mockProperties, locations: mockLocations };
+      return { properties: mockProperties, locations: mockLocations, isMockData: true };
     }
 
     const data: FeedResponse = await response.json();
 
     if (data.error || !data.properties?.length) {
       console.warn("[useProperties] No feed data available — using mock data");
-      return { properties: mockProperties, locations: mockLocations };
+      return { properties: mockProperties, locations: mockLocations, isMockData: true };
     }
 
     const properties = data.properties.map(toClientProperty);
     const locationSet = new Set(properties.map((p) => p.location).filter(Boolean));
     const locations = Array.from(locationSet).sort((a, b) => a.localeCompare(b, "hu"));
 
-    return { properties, locations };
+    return { properties, locations, isMockData: false };
   } catch (err) {
     console.warn("[useProperties] Fetch failed — using mock data:", err);
-    return { properties: mockProperties, locations: mockLocations };
+    return { properties: mockProperties, locations: mockLocations, isMockData: true };
   }
 }
 
@@ -117,5 +124,6 @@ export function useProperties() {
     locations: data?.locations ?? mockLocations,
     isLoading,
     error,
+    isMockData: data?.isMockData ?? true,
   };
 }

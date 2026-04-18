@@ -6,6 +6,7 @@ import { hash } from "bcryptjs";
 import { db } from "../../db/index";
 import { staff } from "../../db/schema/staff";
 import { activityLog, users } from "../../db/schema/users";
+import { requireRole } from "../../middleware/auth";
 import { sendWelcomeEmail } from "../../services/email";
 import path from "path";
 import fs from "fs";
@@ -15,6 +16,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOAD_DIR = path.resolve(__dirname, "../../../uploads/staff");
 
 const router = Router();
+
+router.use(requireRole("admin", "editor"));
 
 const createStaffSchema = z.object({
   name: z.string().min(1, "A név megadása kötelező.").max(255),

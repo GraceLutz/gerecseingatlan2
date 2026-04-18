@@ -10,7 +10,6 @@ export function getTransporter(): nodemailer.Transporter {
       host: process.env.SMTP_HOST,
       port: smtpPort,
       user: process.env.SMTP_USER,
-      passLength: process.env.SMTP_PASS?.length,
     });
     _transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,

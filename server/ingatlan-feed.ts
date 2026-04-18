@@ -82,7 +82,7 @@ const xmlParser = new XMLParser({
   isArray: (name) => name === "ingatlan" || name === "kep" || name === "ertekesito",
   trimValues: true,
   cdataPropName: "__cdata",
-  processEntities: true,
+  processEntities: false,
 });
 
 // ─── Main parser ─────────────────────────────────────────────

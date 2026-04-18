@@ -5,8 +5,11 @@ import { db } from "../../db/index";
 import { calendarEvents } from "../../db/schema/calendar";
 import { staff } from "../../db/schema/staff";
 import { activityLog } from "../../db/schema/users";
+import { requireRole } from "../../middleware/auth";
 
 const router = Router();
+
+router.use(requireRole("admin", "editor"));
 
 const EVENT_TYPES = [
   "ingatlan_megtekintes",

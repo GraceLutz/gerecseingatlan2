@@ -6,11 +6,10 @@ import { calendarEvents } from "../../db/schema/calendar";
 import { staff } from "../../db/schema/staff";
 import { activityLog } from "../../db/schema/users";
 import { fetchFeed } from "../../ingatlan-feed";
-import { requireAuth, requireRole } from "../../middleware/auth";
+import { requireRole } from "../../middleware/auth";
 
 const router = Router();
 
-router.use(requireAuth);
 router.use(requireRole("admin", "editor", "viewer"));
 
 /** GET /api/admin/dashboard/stats */

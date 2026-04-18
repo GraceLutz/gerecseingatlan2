@@ -4,13 +4,11 @@ import { eq, ilike, and, gte, lte, sql, inArray, count } from "drizzle-orm";
 import { db } from "../../db/index";
 import { newsletterSubscribers } from "../../db/schema/newsletter";
 import { activityLog } from "../../db/schema/users";
-import { requireAuth, requireRole, validateCsrf } from "../../middleware/auth";
+import { requireRole } from "../../middleware/auth";
 
 const router = Router();
 
-router.use(requireAuth);
 router.use(requireRole("admin", "editor"));
-router.use(validateCsrf);
 
 const listQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),

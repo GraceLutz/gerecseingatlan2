@@ -3,6 +3,7 @@ dotenv.config({ path: ".env.local", override: true });
 import express from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { z } from "zod";
 import { getTransporter, getMailFrom } from "./mailer";
 import { fetchFeed, getFeedStatus } from "./ingatlan-feed";
 import authRoutes from "./routes/admin/auth";
@@ -163,8 +164,6 @@ app.use("/api/content", contentPublicRoutes);
 app.use("/api/newsletter", newsletterPublicRoutes);
 app.use("/api/calendar", calendarPublicRoutes);
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 /** Escape HTML special characters to prevent injection in email templates */
 function escapeHtml(str: string): string {
   return str
@@ -175,23 +174,38 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#39;");
 }
 
+const contactFormSchema = z.object({
+  name: z.string().min(1, "A név megadása kötelező.").max(255),
+  email: z.string().email("Érvénytelen email cím.").max(320),
+  phone: z.string().max(50).optional(),
+  subject: z.string().min(1, "A tárgy megadása kötelező.").max(500),
+  message: z.string().min(1, "Az üzenet megadása kötelező.").max(5000),
+  honeypot: z.string().optional(),
+});
+
+const interiorDesignSchema = z.object({
+  name: z.string().min(1, "A név megadása kötelező.").max(255),
+  email: z.string().email("Érvénytelen email cím.").max(320),
+  phone: z.string().max(50).optional(),
+  address: z.string().max(500).optional(),
+  message: z.string().min(1, "Az üzenet megadása kötelező.").max(5000),
+  honeypot: z.string().optional(),
+});
+
 // ─── API routes ─────────────────────────────────────────────
 
 // General contact form
 app.post("/api/contact", formLimiter, async (req, res) => {
   try {
-    const { name, email, phone, subject, message, honeypot } = req.body;
+    const parsed = contactFormSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Érvénytelen adatok." });
+    }
+
+    const { name, email, phone, subject, message, honeypot } = parsed.data;
 
     if (honeypot) {
       return res.json({ success: true });
-    }
-
-    if (!name || !email || !subject || !message) {
-      return res.status(400).json({ error: "Kérjük, töltse ki az összes kötelező mezőt." });
-    }
-
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Érvénytelen email cím." });
     }
 
     const safeName = escapeHtml(name);
@@ -328,18 +342,15 @@ app.post("/api/contact", formLimiter, async (req, res) => {
 // Interior design inquiry form
 app.post("/api/interior-design", formLimiter, async (req, res) => {
   try {
-    const { name, email, phone, address, message, honeypot } = req.body;
+    const parsed = interiorDesignSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Érvénytelen adatok." });
+    }
+
+    const { name, email, phone, address, message, honeypot } = parsed.data;
 
     if (honeypot) {
       return res.json({ success: true });
-    }
-
-    if (!name || !email || !message) {
-      return res.status(400).json({ error: "Kérjük, töltse ki az összes kötelező mezőt." });
-    }
-
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Érvénytelen email cím." });
     }
 
     const safeName = escapeHtml(name);

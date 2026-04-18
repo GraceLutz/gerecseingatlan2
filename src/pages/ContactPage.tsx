@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Phone, Mail, Clock, Facebook, Instagram } from "lucide-react";
+import { Phone, Mail, Clock, Facebook } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -192,25 +192,8 @@ const ContactPage = () => {
                 >
                   <Facebook size={18} className="text-primary" />
                 </a>
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                  aria-label={lang === "hu" ? "Instagram oldalunk" : "Visit us on Instagram"}
-                >
-                  <Instagram size={18} className="text-primary" />
-                </a>
               </div>
 
-              {/* Map placeholder */}
-              <div
-                className="aspect-video bg-muted rounded-xl flex items-center justify-center"
-                role="img"
-                aria-label={lang === "hu" ? "Térkép" : "Map"}
-              >
-                <span className="text-muted-foreground text-sm">Google Maps</span>
-              </div>
             </div>
 
             {/* Form */}

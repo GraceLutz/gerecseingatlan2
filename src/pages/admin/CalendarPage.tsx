@@ -12,6 +12,7 @@ import {
   Filter,
   Link as LinkIcon,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 import type { EventClickArg, DateSelectArg, EventDropArg } from "@fullcalendar/core";
 
@@ -83,6 +84,7 @@ function fromLocalDatetimeValue(local: string): string {
 }
 
 export default function CalendarPage() {
+  const { csrfToken } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,8 +128,8 @@ export default function CalendarPage() {
         if (!res.ok) throw new Error("Hiba történt az események betöltésekor.");
         const data = await res.json();
         setEvents(data.events);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Hiba történt az események betöltésekor.");
       } finally {
         setLoading(false);
       }
@@ -196,7 +198,10 @@ export default function CalendarPage() {
     try {
       const res = await fetch(`/api/admin/calendar/${eventId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        },
         credentials: "include",
         body: JSON.stringify({
           startDatetime: newStart,
@@ -245,7 +250,10 @@ export default function CalendarPage() {
 
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        },
         credentials: "include",
         body: JSON.stringify(body),
       });
@@ -258,8 +266,8 @@ export default function CalendarPage() {
       setModalOpen(false);
       const { start, end } = currentRangeRef.current;
       fetchEvents(start, end);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a mentés során.");
     } finally {
       setSaving(false);
     }
@@ -273,6 +281,7 @@ export default function CalendarPage() {
     try {
       const res = await fetch(`/api/admin/calendar/${editingEvent.id}`, {
         method: "DELETE",
+        headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
         credentials: "include",
       });
       if (!res.ok) throw new Error("Hiba történt a törlés során.");
@@ -280,8 +289,8 @@ export default function CalendarPage() {
       setModalOpen(false);
       const { start, end } = currentRangeRef.current;
       fetchEvents(start, end);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a törlés során.");
     } finally {
       setDeletingEvent(false);
     }

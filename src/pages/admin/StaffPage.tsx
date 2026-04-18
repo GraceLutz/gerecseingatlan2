@@ -13,6 +13,7 @@ import {
   EyeOff,
   X,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface StaffMember {
   id: string;
@@ -49,6 +50,7 @@ const EMPTY_FORM: StaffFormData = {
 };
 
 export default function StaffPage() {
+  const { csrfToken } = useAuth();
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,8 +77,8 @@ export default function StaffPage() {
       if (!res.ok) throw new Error("Hiba történt a munkatársak betöltésekor.");
       const data = await res.json();
       setStaffList(data.staff);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a munkatársak betöltésekor.");
     } finally {
       setLoading(false);
     }
@@ -123,7 +125,10 @@ export default function StaffPage() {
 
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        },
         credentials: "include",
         body: JSON.stringify(body),
       });
@@ -135,8 +140,8 @@ export default function StaffPage() {
 
       setModalOpen(false);
       fetchStaff();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a mentés során.");
     } finally {
       setSaving(false);
     }
@@ -146,11 +151,15 @@ export default function StaffPage() {
     if (!confirm("Biztosan törölni szeretné ezt a munkatársat?")) return;
     setDeleting(id);
     try {
-      const res = await fetch(`/api/admin/staff/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`/api/admin/staff/${id}`, {
+        method: "DELETE",
+        headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Hiba történt a törlés során.");
       fetchStaff();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a törlés során.");
     } finally {
       setDeleting(null);
     }
@@ -160,14 +169,17 @@ export default function StaffPage() {
     try {
       const res = await fetch(`/api/admin/staff/${member.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        },
         credentials: "include",
         body: JSON.stringify({ active: !member.active }),
       });
       if (!res.ok) throw new Error("Hiba történt a státusz módosításakor.");
       fetchStaff();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a státusz módosításakor.");
     }
   };
 
@@ -188,14 +200,17 @@ export default function StaffPage() {
     try {
       const res = await fetch(`/api/admin/staff/${memberId}/photo`, {
         method: "POST",
-        headers: { "Content-Type": file.type },
+        headers: {
+          "Content-Type": file.type,
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        },
         credentials: "include",
         body: file,
       });
       if (!res.ok) throw new Error("Hiba történt a kép feltöltésekor.");
       fetchStaff();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a kép feltöltésekor.");
     } finally {
       setUploadingPhoto(null);
     }

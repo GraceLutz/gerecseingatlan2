@@ -11,6 +11,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Subscriber {
   id: string;
@@ -51,6 +52,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function NewsletterPage() {
+  const { csrfToken } = useAuth();
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
@@ -114,6 +116,7 @@ export default function NewsletterPage() {
     try {
       const res = await fetch(`/api/admin/newsletter/${id}`, {
         method: "DELETE",
+        headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
         credentials: "include",
       });
       if (!res.ok) throw new Error("Törlési hiba.");
@@ -143,7 +146,10 @@ export default function NewsletterPage() {
       const res = await fetch("/api/admin/newsletter/bulk", {
         method: "DELETE",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        },
         body: JSON.stringify({ ids: Array.from(selected) }),
       });
       if (!res.ok) throw new Error("Törlési hiba.");

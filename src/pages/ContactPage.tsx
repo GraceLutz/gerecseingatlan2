@@ -20,6 +20,8 @@ type ContactFormData = z.infer<typeof contactSchema>;
 const ContactPage = () => {
   const { t, lang } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -37,13 +39,39 @@ const ContactPage = () => {
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = (data: ContactFormData) => {
-    // In production, this would send to an API endpoint
-    console.log("Contact form submitted:", data);
-    setSubmitted(true);
-    reset();
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setSubmitted(false), 5000);
+  const onSubmit = async (data: ContactFormData) => {
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          phone: data.phone || "",
+          subject: data.subject,
+          message: data.message,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      setSubmitted(true);
+      reset();
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setSubmitted(false), 8000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setSubmitError(
+        lang === "hu"
+          ? `Hiba történt az üzenet küldésekor: ${message}`
+          : `Error sending message: ${message}`
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const fieldError = (field: keyof ContactFormData) => {
@@ -203,6 +231,16 @@ const ContactPage = () => {
                 </div>
               )}
 
+              {submitError && (
+                <div
+                  className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  {submitError}
+                </div>
+              )}
+
               <form
                 className="space-y-4"
                 onSubmit={handleSubmit(onSubmit)}
@@ -312,9 +350,12 @@ const ContactPage = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-main-green/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  disabled={submitting}
+                  className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-main-green/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {t.contact.send}
+                  {submitting
+                    ? (lang === "hu" ? "Küldés..." : "Sending...")
+                    : t.contact.send}
                 </button>
               </form>
             </div>

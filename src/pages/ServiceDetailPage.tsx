@@ -189,17 +189,55 @@ const ServiceDetailPage = () => {
 /** Dedicated contact form for Interior Design service — data goes to Gerecse Ingatlan for tracking */
 const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const isHu = lang === "hu";
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: connect to backend/email endpoint
-    setSubmitted(true);
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const phone = (formData.get("phone") as string) || "";
+    const address = (formData.get("address") as string) || "";
+    const message = formData.get("message") as string;
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          subject: isHu ? "Belsőépítészeti ajánlatkérés" : "Interior Design Inquiry",
+          message: address
+            ? `${isHu ? "Helyszín" : "Location"}: ${address}\n\n${message}`
+            : message,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      setSubmitted(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setSubmitError(
+        isHu ? `Hiba történt a küldéskor: ${msg}` : `Error sending inquiry: ${msg}`
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
     return (
-      <div className="p-8 bg-light-bg rounded-xl text-center">
+      <div className="p-8 bg-light-bg rounded-xl text-center" role="status" aria-live="polite">
         <p className="text-lg font-heading font-semibold text-dark-green">
           {isHu
             ? "Köszönjük megkeresését! Hamarosan felvesszük Önnel a kapcsolatot."
@@ -221,43 +259,53 @@ const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
           ? "Töltse ki az alábbi űrlapot, és felvesszük Önnel a kapcsolatot a részletekkel kapcsolatban."
           : "Fill out the form below and we will contact you with details."}
       </p>
+
+      {submitError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm" role="alert">
+          {submitError}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="interior-name" className="block text-sm font-semibold text-foreground mb-1">
             {isHu ? "Név" : "Name"} *
           </label>
-          <input id="interior-name" type="text" required className={fieldClass} />
+          <input id="interior-name" name="name" type="text" required className={fieldClass} />
         </div>
         <div>
           <label htmlFor="interior-email" className="block text-sm font-semibold text-foreground mb-1">
             E-mail *
           </label>
-          <input id="interior-email" type="email" required className={fieldClass} />
+          <input id="interior-email" name="email" type="email" required className={fieldClass} />
         </div>
         <div>
           <label htmlFor="interior-phone" className="block text-sm font-semibold text-foreground mb-1">
             {isHu ? "Telefonszám" : "Phone"}
           </label>
-          <input id="interior-phone" type="tel" className={fieldClass} />
+          <input id="interior-phone" name="phone" type="tel" className={fieldClass} />
         </div>
         <div>
           <label htmlFor="interior-address" className="block text-sm font-semibold text-foreground mb-1">
             {isHu ? "Ingatlan címe / helyszín" : "Property address / location"}
           </label>
-          <input id="interior-address" type="text" className={fieldClass} />
+          <input id="interior-address" name="address" type="text" className={fieldClass} />
         </div>
         <div>
           <label htmlFor="interior-message" className="block text-sm font-semibold text-foreground mb-1">
             {isHu ? "Üzenet, elképzelések" : "Message, ideas"} *
           </label>
-          <textarea id="interior-message" required rows={4} className={fieldClass} />
+          <textarea id="interior-message" name="message" required rows={4} className={fieldClass} />
         </div>
         <button
           type="submit"
-          className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2"
+          disabled={submitting}
+          className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <Send size={16} aria-hidden="true" />
-          {isHu ? "Ajánlatkérés küldése" : "Send inquiry"}
+          {submitting
+            ? (isHu ? "Küldés..." : "Sending...")
+            : (isHu ? "Ajánlatkérés küldése" : "Send inquiry")}
         </button>
         <p className="text-xs text-muted-foreground text-center">
           {isHu

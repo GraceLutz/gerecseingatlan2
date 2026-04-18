@@ -144,24 +144,31 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       setMeta("property", "og:image", ogImage);
     }
 
-    /* ── Canonical URL ── */
-    if (canonicalPath) {
-      const fullCanonical =
-        lang === "en"
-          ? `${ORIGIN}/en${canonicalPath === "/" ? "" : canonicalPath}`
-          : `${ORIGIN}${canonicalPath}`;
-      setMeta("property", "og:url", fullCanonical);
-      setLink('link[rel="canonical"]', { rel: "canonical", href: fullCanonical });
+    /* ── Twitter Card ── */
+    setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:title", fullTitle);
+    setMeta("name", "twitter:description", metaDescription);
+    if (ogImage) {
+      setMeta("name", "twitter:image", ogImage);
     }
 
+    /* ── Canonical URL ── */
+    const currentPath = canonicalPath || "/";
+    const fullCanonical =
+      lang === "en"
+        ? `${ORIGIN}/en${currentPath === "/" ? "" : currentPath}`
+        : `${ORIGIN}${currentPath}`;
+    setMeta("property", "og:url", fullCanonical);
+    setLink('link[rel="canonical"]', { rel: "canonical", href: fullCanonical });
+
     /* ── hreflang tags ── */
-    if (canonicalPath) {
+    {
       const huPath =
         lang === "hu"
-          ? canonicalPath
+          ? currentPath
           : Object.entries(HU_TO_EN_PATH).find(
-              ([, en]) => en === `/en${canonicalPath === "/" ? "" : canonicalPath}`,
-            )?.[0] ?? canonicalPath;
+              ([, en]) => en === `/en${currentPath === "/" ? "" : currentPath}`,
+            )?.[0] ?? currentPath;
       const enPath = HU_TO_EN_PATH[huPath];
 
       const huUrl = `${ORIGIN}${huPath}`;

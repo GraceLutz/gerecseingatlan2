@@ -24,13 +24,13 @@ const Layout: React.FC<LayoutProps> = ({ children, title, description, canonical
     <div className="min-h-screen flex flex-col">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-gold focus:text-accent-foreground focus:rounded focus:font-semibold"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-gold focus:text-accent-foreground focus:rounded focus:font-semibold focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2"
       >
         {skipLabel}
       </a>
       <SEOHead title={title} description={description} canonicalPath={canonicalPath} />
       <Header />
-      <main id="main-content" className="flex-1 pt-20 md:pt-28">
+      <main id="main-content" tabIndex={-1} className="flex-1 pt-20 md:pt-28 focus:outline-none">
         {children}
       </main>
       <Footer />

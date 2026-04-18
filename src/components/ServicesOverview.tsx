@@ -1,14 +1,14 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { Home, FileText, Scale, Banknote, Paintbrush, Sofa } from "lucide-react";
+import { Home, FileText, Scale, Banknote, Zap, Sofa } from "lucide-react";
 
 const services = [
-  { icon: Home, titleKey: "salesTitle" as const, descKey: "salesDesc" as const, path: "/adas-vetel-berbeadas" },
-  { icon: FileText, titleKey: "valuationTitle" as const, descKey: "valuationDesc" as const, path: "/ertekbecsles" },
-  { icon: Scale, titleKey: "legalTitle" as const, descKey: "legalDesc" as const, path: "/jogi-hatter" },
-  { icon: Banknote, titleKey: "loanTitle" as const, descKey: "loanDesc" as const, path: "/hitel-tamogatasok" },
-  { icon: Paintbrush, titleKey: "stagingTitle" as const, descKey: "stagingDesc" as const, path: "/home-staging" },
-  { icon: Sofa, titleKey: "interiorTitle" as const, descKey: "interiorDesc" as const, path: "/belsoepiteszet" },
+  { icon: Home, titleKey: "salesTitle" as const, descKey: "salesDesc" as const, path: "/ingatlan-ertekesites-berbeadas" },
+  { icon: FileText, titleKey: "appraisalTitle" as const, descKey: "appraisalDesc" as const, path: "/ertekbecsles-ertekmeghatrozas" },
+  { icon: Scale, titleKey: "legalTitle" as const, descKey: "legalDesc" as const, path: "/teljeskoru-jogi-hatter" },
+  { icon: Banknote, titleKey: "loanTitle" as const, descKey: "loanDesc" as const, path: "/hitel-allami-tamogatasok" },
+  { icon: Zap, titleKey: "energyTitle" as const, descKey: "energyDesc" as const, path: "/energetikai-tanusitvany" },
+  { icon: Sofa, titleKey: "interiorTitle" as const, descKey: "interiorDesc" as const, path: "/belsoepiteszet-latvanyterv" },
 ];
 
 const ServicesOverview = () => {

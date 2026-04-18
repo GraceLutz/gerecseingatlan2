@@ -12,6 +12,8 @@ const enToHuServiceSlug: Record<string, string> = {
   "interior-design": "belsoepiteszet-latvanyterv",
   "full-legal-support": "teljeskoru-jogi-hatter",
   "loans-and-subsidies": "hitel-allami-tamogatasok",
+  "energy-certificate": "energetikai-tanusitvany",
+  "electrical-safety-inspection": "villamos-biztonsagi-felulvizsgalat",
 };
 
 /** Benefits data per service slug (not in shared data since only used here) */
@@ -35,6 +37,14 @@ const benefitsMap: Record<string, { hu: string[]; en: string[] }> = {
   "hitel-allami-tamogatasok": {
     hu: ["Bankfüggetlen tanácsadás", "CSOK és Babaváró ügyintézés", "Személyre szabott hitelajánlatok"],
     en: ["Bank-independent advice", "CSOK and Babaváró processing", "Personalized loan offers"],
+  },
+  "energetikai-tanusitvany": {
+    hu: ["Akkreditált szakértők", "Gyors ügyintézés", "Jogszabálynak megfelelő tanúsítvány", "Adásvételhez és bérbeadáshoz egyaránt"],
+    en: ["Accredited specialists", "Fast processing", "Legally compliant certificate", "For both sales and rentals"],
+  },
+  "villamos-biztonsagi-felulvizsgalat": {
+    hu: ["Szakképzett felülvizsgálók", "Hivatalos jegyzőkönyv", "Lakó- és ipari ingatlanokhoz", "Jogszabályi megfelelőség"],
+    en: ["Certified inspectors", "Official report", "For residential and industrial properties", "Legal compliance"],
   },
 };
 

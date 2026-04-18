@@ -1,54 +1,8 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import {
-  Home,
-  FileText,
-  Scale,
-  Banknote,
-  Paintbrush,
-  Sofa,
-  CheckCircle,
-} from "lucide-react";
-
-const services = [
-  {
-    icon: Home,
-    titleKey: "salesTitle" as const,
-    descKey: "salesDesc" as const,
-    path: "/adas-vetel-berbeadas",
-  },
-  {
-    icon: FileText,
-    titleKey: "valuationTitle" as const,
-    descKey: "valuationDesc" as const,
-    path: "/ertekbecsles",
-  },
-  {
-    icon: Scale,
-    titleKey: "legalTitle" as const,
-    descKey: "legalDesc" as const,
-    path: "/jogi-hatter",
-  },
-  {
-    icon: Banknote,
-    titleKey: "loanTitle" as const,
-    descKey: "loanDesc" as const,
-    path: "/hitel-tamogatasok",
-  },
-  {
-    icon: Paintbrush,
-    titleKey: "stagingTitle" as const,
-    descKey: "stagingDesc" as const,
-    path: "/home-staging",
-  },
-  {
-    icon: Sofa,
-    titleKey: "interiorTitle" as const,
-    descKey: "interiorDesc" as const,
-    path: "/belsoepiteszet",
-  },
-];
+import { CheckCircle } from "lucide-react";
+import { services } from "@/data/services";
 
 const ServicesPage = () => {
   const { t, lang, localePath } = useLanguage();
@@ -76,8 +30,8 @@ const ServicesPage = () => {
     ? "Szolgáltatásaink – Gerecse Ingatlan"
     : "Our Services – Gerecse Ingatlan";
   const seoDescription = lang === "hu"
-    ? "Ingatlan adásvétel, értékbecslés, jogi háttér, hiteltanácsadás, home staging és belsőépítészet – teljes körű szolgáltatások."
-    : "Property sales, valuation, legal support, mortgage consulting, home staging and interior design – comprehensive services.";
+    ? "Ingatlan adásvétel, értékbecslés, jogi háttér, hiteltanácsadás, belsőépítészet és energetika – teljes körű szolgáltatások."
+    : "Property sales, valuation, legal support, mortgage consulting, interior design and energy certification – comprehensive services.";
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/szolgaltatasok">
@@ -100,8 +54,8 @@ const ServicesPage = () => {
               const Icon = service.icon;
               return (
                 <Link
-                  key={service.path}
-                  to={localePath(service.path)}
+                  key={service.slug}
+                  to={localePath(`/${service.slug}`)}
                   className="group bg-card rounded-xl p-8 shadow-sm hover:shadow-lg transition-all border border-border hover:border-primary/30 text-center"
                 >
                   <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">

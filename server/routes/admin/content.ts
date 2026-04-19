@@ -13,6 +13,45 @@ const router = Router();
 
 const MAX_VERSIONS_PER_BLOCK = 10;
 
+async function saveVersionAndPrune(
+  blockId: string,
+  content: string,
+  contentType: string,
+  editedBy: string
+): Promise<void> {
+  const latestVersion = await db
+    .select({ version: contentBlockVersions.version })
+    .from(contentBlockVersions)
+    .where(eq(contentBlockVersions.blockId, blockId))
+    .orderBy(desc(contentBlockVersions.version))
+    .limit(1);
+
+  const nextVersion = (latestVersion[0]?.version ?? 0) + 1;
+
+  await db.insert(contentBlockVersions).values({
+    blockId,
+    content,
+    contentType,
+    version: nextVersion,
+    editedBy,
+  });
+
+  const allVersions = await db
+    .select({ id: contentBlockVersions.id })
+    .from(contentBlockVersions)
+    .where(eq(contentBlockVersions.blockId, blockId))
+    .orderBy(desc(contentBlockVersions.version));
+
+  if (allVersions.length > MAX_VERSIONS_PER_BLOCK) {
+    const toDelete = allVersions
+      .slice(MAX_VERSIONS_PER_BLOCK)
+      .map((v) => v.id);
+    await db
+      .delete(contentBlockVersions)
+      .where(inArray(contentBlockVersions.id, toDelete));
+  }
+}
+
 const updateBlockSchema = z.object({
   content: z.string(),
   contentType: z.enum(["text", "html", "markdown"]).optional(),
@@ -197,39 +236,7 @@ router.patch(
         return res.status(201).json({ block });
       }
 
-      // Save version before updating
-      const latestVersion = await db
-        .select({ version: contentBlockVersions.version })
-        .from(contentBlockVersions)
-        .where(eq(contentBlockVersions.blockId, existing.id))
-        .orderBy(desc(contentBlockVersions.version))
-        .limit(1);
-
-      const nextVersion = (latestVersion[0]?.version ?? 0) + 1;
-
-      await db.insert(contentBlockVersions).values({
-        blockId: existing.id,
-        content: existing.content,
-        contentType: existing.contentType,
-        version: nextVersion,
-        editedBy: req.user!.id,
-      });
-
-      // Prune versions
-      const allVersions = await db
-        .select({ id: contentBlockVersions.id })
-        .from(contentBlockVersions)
-        .where(eq(contentBlockVersions.blockId, existing.id))
-        .orderBy(desc(contentBlockVersions.version));
-
-      if (allVersions.length > MAX_VERSIONS_PER_BLOCK) {
-        const toDelete = allVersions
-          .slice(MAX_VERSIONS_PER_BLOCK)
-          .map((v) => v.id);
-        await db
-          .delete(contentBlockVersions)
-          .where(inArray(contentBlockVersions.id, toDelete));
-      }
+      await saveVersionAndPrune(existing.id, existing.content, existing.contentType, req.user!.id);
 
       const updateData: Record<string, unknown> = {
         content,
@@ -352,41 +359,7 @@ router.patch("/:id", requireRole("admin", "editor"), async (req, res) => {
       return res.status(404).json({ error: "Tartalom nem található." });
     }
 
-    // Save current state as a version before overwriting
-    const latestVersion = await db
-      .select({ version: contentBlockVersions.version })
-      .from(contentBlockVersions)
-      .where(eq(contentBlockVersions.blockId, blockId))
-      .orderBy(desc(contentBlockVersions.version))
-      .limit(1);
-
-    const nextVersion = (latestVersion[0]?.version ?? 0) + 1;
-
-    await db.insert(contentBlockVersions).values({
-      blockId,
-      content: existing.content,
-      contentType: existing.contentType,
-      version: nextVersion,
-      editedBy: req.user!.id,
-    });
-
-    // Prune old versions beyond the limit
-    const allVersions = await db
-      .select({ id: contentBlockVersions.id })
-      .from(contentBlockVersions)
-      .where(eq(contentBlockVersions.blockId, blockId))
-      .orderBy(desc(contentBlockVersions.version));
-
-    if (allVersions.length > MAX_VERSIONS_PER_BLOCK) {
-      const toDelete = allVersions
-        .slice(MAX_VERSIONS_PER_BLOCK)
-        .map((v) => v.id);
-      for (const vId of toDelete) {
-        await db
-          .delete(contentBlockVersions)
-          .where(eq(contentBlockVersions.id, vId));
-      }
-    }
+    await saveVersionAndPrune(blockId, existing.content, existing.contentType, req.user!.id);
 
     // Update the block
     const updateData: Record<string, unknown> = {
@@ -464,23 +437,7 @@ router.post(
         return res.status(404).json({ error: "Verzió nem található." });
       }
 
-      // Save current state before rollback
-      const latestVersion = await db
-        .select({ version: contentBlockVersions.version })
-        .from(contentBlockVersions)
-        .where(eq(contentBlockVersions.blockId, blockId))
-        .orderBy(desc(contentBlockVersions.version))
-        .limit(1);
-
-      const nextVersion = (latestVersion[0]?.version ?? 0) + 1;
-
-      await db.insert(contentBlockVersions).values({
-        blockId,
-        content: block.content,
-        contentType: block.contentType,
-        version: nextVersion,
-        editedBy: req.user!.id,
-      });
+      await saveVersionAndPrune(blockId, block.content, block.contentType, req.user!.id);
 
       const [updated] = await db
         .update(contentBlocks)

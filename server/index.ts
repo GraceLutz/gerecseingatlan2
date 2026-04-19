@@ -10,6 +10,7 @@ import newsletterAdminRoutes from "./routes/admin/newsletter";
 import staffRoutes from "./routes/admin/staff";
 import calendarAdminRoutes from "./routes/admin/calendar";
 import dashboardRoutes from "./routes/admin/dashboard";
+import featuredRoutes from "./routes/admin/featured";
 import contentPublicRoutes from "./routes/content";
 import newsletterPublicRoutes from "./routes/newsletter";
 import calendarPublicRoutes from "./routes/calendar";
@@ -148,6 +149,7 @@ app.use("/api/admin/newsletter", newsletterAdminRoutes);
 app.use("/api/admin/staff", staffRoutes);
 app.use("/api/admin/calendar", calendarAdminRoutes);
 app.use("/api/admin/dashboard", dashboardRoutes);
+app.use("/api/admin/featured", featuredRoutes);
 app.use("/api/admin", feedAdminRouter);
 
 // Public routes (no auth required)

@@ -1,7 +1,15 @@
 import * as React from "react";
 
+/** Viewport width threshold (px) below which the device is considered mobile. */
 const MOBILE_BREAKPOINT = 768;
 
+/**
+ * Reactive hook that returns `true` when the viewport width is below
+ * {@link MOBILE_BREAKPOINT} (768 px). Uses `matchMedia` for efficient
+ * change detection without polling.
+ *
+ * @returns `true` on mobile-width viewports, `false` otherwise.
+ */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
 

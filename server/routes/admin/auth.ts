@@ -14,50 +14,60 @@ const loginSchema = z.object({
 });
 
 router.post("/login", async (req, res) => {
-  const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: parsed.error.issues[0].message });
+  try {
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
+    }
+
+    const { email, password } = parsed.data;
+
+    const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+
+    if (!user || !await bcrypt.compare(password, user.passwordHash)) {
+      return res.status(401).json({ error: "Hibás email cím vagy jelszó." });
+    }
+
+    if (!user.active) {
+      return res.status(403).json({ error: "A fiók inaktív. Forduljon az adminisztrátorhoz." });
+    }
+
+    await createSession(user.id, res);
+    const csrfToken = generateCsrfToken(res);
+
+    await db.insert(activityLog).values({
+      userId: user.id,
+      action: "login",
+      entityType: "user",
+      entityId: user.id,
+    });
+
+    res.json({
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      csrfToken,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Szerverhiba a bejelentkezés során." });
   }
-
-  const { email, password } = parsed.data;
-
-  const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
-
-  if (!user || !await bcrypt.compare(password, user.passwordHash)) {
-    return res.status(401).json({ error: "Hibás email cím vagy jelszó." });
-  }
-
-  if (!user.active) {
-    return res.status(403).json({ error: "A fiók inaktív. Forduljon az adminisztrátorhoz." });
-  }
-
-  await createSession(user.id, res);
-  const csrfToken = generateCsrfToken(res);
-
-  await db.insert(activityLog).values({
-    userId: user.id,
-    action: "login",
-    entityType: "user",
-    entityId: user.id,
-  });
-
-  res.json({
-    user: { id: user.id, email: user.email, name: user.name, role: user.role },
-    csrfToken,
-  });
 });
 
 router.post("/logout", requireAuth, async (req, res) => {
-  if (req.user && req.sessionId) {
-    await db.insert(activityLog).values({
-      userId: req.user.id,
-      action: "logout",
-      entityType: "user",
-      entityId: req.user.id,
-    });
-    await destroySession(req.sessionId, res);
+  try {
+    if (req.user && req.sessionId) {
+      await db.insert(activityLog).values({
+        userId: req.user.id,
+        action: "logout",
+        entityType: "user",
+        entityId: req.user.id,
+      });
+      await destroySession(req.sessionId, res);
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ error: "Szerverhiba a kijelentkezés során." });
   }
-  res.json({ success: true });
 });
 
 router.get("/me", requireAuth, (req, res) => {

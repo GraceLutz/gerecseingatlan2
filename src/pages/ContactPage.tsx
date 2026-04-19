@@ -64,11 +64,7 @@ const ContactPage = () => {
       timeoutRef.current = setTimeout(() => setSubmitted(false), 8000);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setSubmitError(
-        lang === "hu"
-          ? `Hiba történt az üzenet küldésekor: ${message}`
-          : `Error sending message: ${message}`
-      );
+      setSubmitError(`${t.contact.sendErrorPrefix}${message}`);
     } finally {
       setSubmitting(false);
     }
@@ -76,31 +72,10 @@ const ContactPage = () => {
 
   const fieldError = (field: keyof ContactFormData) => {
     if (!errors[field]) return null;
-    const messages: Record<string, Record<string, string>> = {
-      name: {
-        hu: "Kérjük, adja meg a nevét (min. 2 karakter)",
-        en: "Please enter your name (min. 2 characters)",
-      },
-      email: {
-        hu: "Kérjük, adjon meg érvényes e-mail címet",
-        en: "Please enter a valid email address",
-      },
-      subject: {
-        hu: "Kérjük, adja meg a tárgyat",
-        en: "Please enter the subject",
-      },
-      message: {
-        hu: "Az üzenet legalább 10 karakter legyen",
-        en: "Message must be at least 10 characters",
-      },
-      gdpr: {
-        hu: "Az adatkezelési hozzájárulás elfogadása kötelező",
-        en: "You must accept the data processing consent",
-      },
-    };
+    const fieldErrors = t.contact.fieldErrors as Record<string, string>;
     return (
       <p className="text-destructive text-xs mt-1" role="alert">
-        {messages[field]?.[lang] ?? ""}
+        {fieldErrors[field] ?? ""}
       </p>
     );
   };
@@ -110,12 +85,8 @@ const ContactPage = () => {
       errors[field] ? "border-destructive" : "border-border"
     }`;
 
-  const seoTitle = lang === "hu"
-    ? "Kapcsolat – Gerecse Ingatlan"
-    : "Contact – Gerecse Ingatlan";
-  const seoDescription = lang === "hu"
-    ? "Vegye fel velünk a kapcsolatot! Telefon, e-mail, nyitvatartás és kapcsolatfelvételi űrlap."
-    : "Get in touch with us! Phone, e-mail, opening hours and contact form.";
+  const seoTitle = t.seo.contactTitle;
+  const seoDescription = t.seo.contactDescription;
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/kapcsolat">
@@ -188,7 +159,7 @@ const ContactPage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                  aria-label={lang === "hu" ? "Facebook oldalunk" : "Visit us on Facebook"}
+                  aria-label={t.contact.facebookLabel}
                 >
                   <Facebook size={18} className="text-primary" />
                 </a>
@@ -208,9 +179,7 @@ const ContactPage = () => {
                   role="status"
                   aria-live="polite"
                 >
-                  {lang === "hu"
-                    ? "Üzenetét sikeresen elküldtük! Hamarosan felvesszük Önnel a kapcsolatot."
-                    : "Your message has been sent successfully! We will contact you shortly."}
+                  {t.contact.successMessage}
                 </div>
               )}
 
@@ -324,9 +293,7 @@ const ContactPage = () => {
                     htmlFor="contact-gdpr"
                     className="text-sm text-muted-foreground"
                   >
-                    {lang === "hu"
-                      ? "Elfogadom az adatkezelési tájékoztatót és hozzájárulok személyes adataim kezeléséhez. *"
-                      : "I accept the privacy policy and consent to the processing of my personal data. *"}
+                    {t.contact.gdprConsent}
                   </label>
                 </div>
                 {fieldError("gdpr")}
@@ -336,9 +303,7 @@ const ContactPage = () => {
                   disabled={submitting}
                   className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-main-green/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {submitting
-                    ? (lang === "hu" ? "Küldés..." : "Sending...")
-                    : t.contact.send}
+                  {submitting ? t.contact.sending : t.contact.send}
                 </button>
               </form>
             </div>

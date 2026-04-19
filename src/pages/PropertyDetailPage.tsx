@@ -21,7 +21,7 @@ const PropertyDetailPage = () => {
     return (
       <Layout>
         <div className="py-32 text-center text-muted-foreground" aria-live="polite">
-          {lang === "hu" ? "Betöltés..." : "Loading..."}
+          {t.common.loading}
         </div>
       </Layout>
     );
@@ -31,7 +31,7 @@ const PropertyDetailPage = () => {
     return (
       <Layout>
         <div className="py-32 text-center text-muted-foreground">
-          {lang === "hu" ? "Az ingatlan nem található." : "Property not found."}
+          {t.properties.notFound}
         </div>
       </Layout>
     );
@@ -54,9 +54,7 @@ const PropertyDetailPage = () => {
   ].filter(Boolean) as { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; value: string | number }[];
 
   const seoTitle = `${title} – ${property.location} | Gerecse Ingatlan`;
-  const seoDescription = lang === "hu"
-    ? `${title} – ${property.location}. ${property.area} m², ${formatPrice(property.price)}. Gerecse Ingatlan.`
-    : `${title} – ${property.location}. ${property.area} m², ${formatPrice(property.price)}. Gerecse Ingatlan.`;
+  const seoDescription = `${title} – ${property.location}. ${property.area} m², ${formatPrice(property.price)}. Gerecse Ingatlan.`;
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlanok/${property.id}`}>
@@ -104,7 +102,7 @@ const PropertyDetailPage = () => {
                   {formatPrice(property.price)}
                   {property.status === "rent" && (
                     <span className="text-lg font-body font-normal text-muted-foreground">
-                      {" "}/{lang === "hu" ? "hó" : "mo"}
+                      {" "}/{t.properties.perMonth}
                     </span>
                   )}
                 </p>

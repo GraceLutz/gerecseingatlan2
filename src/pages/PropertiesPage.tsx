@@ -149,7 +149,7 @@ function getPageNumbers(current: number, total: number): (number | "ellipsis")[]
 
 /* ---- Main page ---- */
 const PropertiesPage = () => {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const { currency, toggleCurrency } = useCurrency();
   const { properties, locations } = useProperties();
   const [searchParams] = useSearchParams();
@@ -218,17 +218,13 @@ const PropertiesPage = () => {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const pageNumbers = getPageNumbers(page, totalPages);
 
-  const prevPageLabel = lang === "hu" ? "Előző oldal" : "Previous page";
-  const nextPageLabel = lang === "hu" ? "Következő oldal" : "Next page";
-  const paginationLabel = lang === "hu" ? "Lapozás" : "Pagination";
-  const filtersLabel = lang === "hu" ? "Szűrők" : "Filters";
+  const prevPageLabel = t.properties.prevPage;
+  const nextPageLabel = t.properties.nextPage;
+  const paginationLabel = t.properties.pagination;
+  const filtersLabel = t.properties.filters;
 
-  const seoTitle = lang === "hu"
-    ? "Eladó és kiadó ingatlanok – Gerecse Ingatlan"
-    : "Properties for Sale and Rent – Gerecse Ingatlan";
-  const seoDescription = lang === "hu"
-    ? "Böngésszen eladó és kiadó ingatlanjaink között a Gerecse régióban. Szűrés típus, ár, méret és település szerint."
-    : "Browse properties for sale and rent in the Gerecse region. Filter by type, price, size, and location.";
+  const seoTitle = t.seo.propertiesTitle;
+  const seoDescription = t.seo.propertiesDescription;
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/ingatlanok">

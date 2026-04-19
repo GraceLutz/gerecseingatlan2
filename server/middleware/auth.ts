@@ -1,3 +1,13 @@
+/**
+ * Authentication and CSRF middleware for the Express server.
+ *
+ * Provides cookie-based session management (24 h TTL) backed by the
+ * `sessions` table, role-based access control, and double-submit-cookie
+ * CSRF protection using timing-safe comparison.
+ *
+ * @module server/middleware/auth
+ */
+
 import type { Request, Response, NextFunction } from "express";
 import { db } from "../db/index.js";
 import { sessions, users, type User } from "../db/schema/users.js";
@@ -16,6 +26,14 @@ declare global {
 const SESSION_COOKIE = "sid";
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+/**
+ * Creates a new authenticated session for the given user.
+ * Inserts a row into the `sessions` table and sets an HTTP-only session cookie.
+ *
+ * @param userId - The ID of the user to create a session for.
+ * @param res - Express response used to set the session cookie.
+ * @returns The newly created session ID.
+ */
 export async function createSession(userId: string, res: Response): Promise<string> {
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
   const [session] = await db
@@ -35,11 +53,22 @@ export async function createSession(userId: string, res: Response): Promise<stri
   return session.id;
 }
 
+/**
+ * Destroys an active session by deleting it from the database and clearing the cookie.
+ *
+ * @param sessionId - The session ID to invalidate.
+ * @param res - Express response used to clear the session cookie.
+ */
 export async function destroySession(sessionId: string, res: Response): Promise<void> {
   await db.delete(sessions).where(eq(sessions.id, sessionId));
   res.clearCookie(SESSION_COOKIE, { path: "/" });
 }
 
+/**
+ * Express middleware that requires a valid, non-expired session.
+ * On success, attaches `req.user` and `req.sessionId`. On failure, responds
+ * with 401 (no/expired session) or 403 (inactive account).
+ */
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const sessionId = parseCookie(req.headers.cookie || "", SESSION_COOKIE);
   if (!sessionId) {
@@ -71,6 +100,13 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   next();
 }
 
+/**
+ * Returns Express middleware that restricts access to users with one of the specified roles.
+ * Must be used after {@link requireAuth} so `req.user` is populated.
+ *
+ * @param roles - Allowed role names (e.g. "admin", "agent").
+ * @returns Middleware that responds 401/403 if the user lacks the required role.
+ */
 export function requireRole(...roles: string[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
@@ -85,6 +121,13 @@ export function requireRole(...roles: string[]) {
   };
 }
 
+/**
+ * Extracts a single cookie value from a raw `Cookie` header string.
+ *
+ * @param cookieHeader - The raw `Cookie` header value.
+ * @param name - The cookie name to look up.
+ * @returns The decoded cookie value, or `undefined` if not found.
+ */
 function parseCookie(cookieHeader: string, name: string): string | undefined {
   const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : undefined;
@@ -94,6 +137,14 @@ function parseCookie(cookieHeader: string, name: string): string | undefined {
 const CSRF_COOKIE = "csrf_token";
 const CSRF_HEADER = "x-csrf-token";
 
+/**
+ * Generates a cryptographically random CSRF token and sets it as a
+ * non-HTTP-only cookie so client-side JavaScript can read and echo it
+ * back in the {@link CSRF_HEADER} header.
+ *
+ * @param res - Express response used to set the CSRF cookie.
+ * @returns The generated CSRF token string.
+ */
 export function generateCsrfToken(res: Response): string {
   const token = crypto.randomBytes(32).toString("hex");
   const isProduction = process.env.NODE_ENV === "production";
@@ -107,6 +158,11 @@ export function generateCsrfToken(res: Response): string {
   return token;
 }
 
+/**
+ * Express middleware that validates the double-submit-cookie CSRF token.
+ * Skips safe HTTP methods (GET, HEAD, OPTIONS). Compares the cookie token
+ * against the `x-csrf-token` request header using timing-safe comparison.
+ */
 export function validateCsrf(req: Request, res: Response, next: NextFunction): void {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
     next();

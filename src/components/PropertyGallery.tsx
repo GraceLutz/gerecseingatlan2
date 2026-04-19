@@ -220,7 +220,7 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
           <button
             onClick={() => setLightboxOpen(false)}
             aria-label={t.common.close}
-            className="absolute top-4 right-4 text-background hover:text-background/80 z-10"
+            className="absolute top-4 right-4 text-background hover:text-background/80 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
           >
             <X size={32} />
           </button>
@@ -229,7 +229,7 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
             <button
               onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
               aria-label={t.properties.prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-background hover:text-background/80 z-10"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-background hover:text-background/80 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
             >
               <ChevronLeft size={40} />
             </button>
@@ -246,7 +246,7 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
             <button
               onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
               aria-label={t.properties.nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-background hover:text-background/80 z-10"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-background hover:text-background/80 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
             >
               <ChevronRight size={40} />
             </button>

@@ -107,6 +107,7 @@ const Footer = () => {
                   />
                   <button
                     type="submit"
+                    aria-label={lang === "hu" ? "Feliratkozás a hírlevélre" : "Subscribe to newsletter"}
                     className="px-4 py-2 bg-gold text-accent-foreground font-semibold text-sm rounded hover:bg-gold/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4]"
                   >
                     OK

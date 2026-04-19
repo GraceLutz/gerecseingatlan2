@@ -167,7 +167,7 @@ const CookieConsent = () => {
           <div className="flex items-center gap-3 shrink-0 flex-wrap">
             <button
               onClick={handleRejectNonEssential}
-              className="px-4 py-2 text-sm font-semibold border border-primary-foreground/30 rounded hover:bg-primary-foreground/10 transition-colors focus:outline-none focus:ring-2 focus:ring-gold"
+              className="px-4 py-2 text-sm font-semibold border border-primary-foreground/30 rounded hover:bg-primary-foreground/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               {text.rejectNonEssential}
             </button>
@@ -175,13 +175,13 @@ const CookieConsent = () => {
               onClick={toggleSettings}
               aria-expanded={showSettings}
               aria-controls="cookie-settings-panel"
-              className="px-4 py-2 text-sm font-semibold border border-primary-foreground/30 rounded hover:bg-primary-foreground/10 transition-colors focus:outline-none focus:ring-2 focus:ring-gold"
+              className="px-4 py-2 text-sm font-semibold border border-primary-foreground/30 rounded hover:bg-primary-foreground/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               {text.settings}
             </button>
             <button
               onClick={handleAcceptAll}
-              className="px-4 py-2 text-sm font-semibold bg-gold text-accent-foreground rounded hover:bg-gold/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gold"
+              className="px-4 py-2 text-sm font-semibold bg-gold text-accent-foreground rounded hover:bg-gold/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               {text.acceptAll}
             </button>
@@ -223,7 +223,7 @@ const CookieConsent = () => {
                   type="checkbox"
                   checked={analyticsEnabled}
                   onChange={(e) => setAnalyticsEnabled(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-primary-foreground/30 accent-gold cursor-pointer focus:ring-2 focus:ring-gold"
+                  className="mt-1 h-4 w-4 rounded border-primary-foreground/30 accent-gold cursor-pointer focus-visible:ring-2 focus-visible:ring-gold"
                   aria-describedby="consent-analytics-desc"
                 />
                 <span id="consent-analytics-desc" className="sr-only">{text.analyticsDesc}</span>
@@ -242,7 +242,7 @@ const CookieConsent = () => {
                   type="checkbox"
                   checked={marketingEnabled}
                   onChange={(e) => setMarketingEnabled(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-primary-foreground/30 accent-gold cursor-pointer focus:ring-2 focus:ring-gold"
+                  className="mt-1 h-4 w-4 rounded border-primary-foreground/30 accent-gold cursor-pointer focus-visible:ring-2 focus-visible:ring-gold"
                   aria-describedby="consent-marketing-desc"
                 />
                 <span id="consent-marketing-desc" className="sr-only">{text.marketingDesc}</span>
@@ -252,7 +252,7 @@ const CookieConsent = () => {
             <div className="mt-4 flex justify-end">
               <button
                 onClick={handleSaveSettings}
-                className="px-4 py-2 text-sm font-semibold bg-gold text-accent-foreground rounded hover:bg-gold/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gold"
+                className="px-4 py-2 text-sm font-semibold bg-gold text-accent-foreground rounded hover:bg-gold/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               >
                 {text.save}
               </button>

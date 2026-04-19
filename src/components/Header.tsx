@@ -179,6 +179,7 @@ const Header = () => {
                 onClick={() => setAboutOpen(!aboutOpen)}
                 aria-expanded={aboutOpen}
                 aria-haspopup="menu"
+                aria-controls="about-menu"
                 className={`flex items-center gap-1 ${linkClass(isAboutActive)}`}
               >
                 {t.nav.about}
@@ -191,6 +192,7 @@ const Header = () => {
 
               {aboutOpen && (
                 <div
+                  id="about-menu"
                   role="menu"
                   className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 bg-dark-navy border border-primary-foreground/15 rounded-lg shadow-xl py-2"
                 >
@@ -237,6 +239,7 @@ const Header = () => {
                         onClick={() => setServicesOpen(!servicesOpen)}
                         aria-expanded={servicesOpen}
                         aria-haspopup="menu"
+                        aria-controls="services-menu"
                         className={`flex items-center gap-1 ${linkClass(isServicesActive)}`}
                       >
                         {t.nav.services}
@@ -249,6 +252,7 @@ const Header = () => {
 
                       {servicesOpen && (
                         <div
+                          id="services-menu"
                           role="menu"
                           className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-dark-navy border border-primary-foreground/15 rounded-lg shadow-xl py-2"
                         >
@@ -347,6 +351,7 @@ const Header = () => {
                 <button
                   onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
                   aria-expanded={mobileAboutOpen}
+                  aria-controls="mobile-about-menu"
                   className={`flex items-center justify-between w-full ${mobileLinkClass(isAboutActive)}`}
                 >
                   {t.nav.about}
@@ -357,7 +362,7 @@ const Header = () => {
                   />
                 </button>
                 {mobileAboutOpen && (
-                  <div className="pl-4 flex flex-col gap-1">
+                  <div id="mobile-about-menu" className="pl-4 flex flex-col gap-1">
                     {aboutSubLinks.map((sub) => (
                       <Link
                         key={sub.path}
@@ -395,6 +400,7 @@ const Header = () => {
                       <button
                         onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
                         aria-expanded={mobileServicesOpen}
+                        aria-controls="mobile-services-menu"
                         className={`flex items-center justify-between w-full ${mobileLinkClass(isServicesActive)}`}
                       >
                         {t.nav.services}
@@ -405,7 +411,7 @@ const Header = () => {
                         />
                       </button>
                       {mobileServicesOpen && (
-                        <div className="pl-4 flex flex-col gap-1">
+                        <div id="mobile-services-menu" className="pl-4 flex flex-col gap-1">
                           {serviceSubLinks.map((sub) => (
                             <Link
                               key={sub.path}

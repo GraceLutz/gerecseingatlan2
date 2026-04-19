@@ -5,6 +5,7 @@ import {
   text,
   boolean,
   timestamp,
+  index,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
@@ -25,7 +26,9 @@ export const staff = pgTable("staff", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-});
+}, (table) => [
+  index("staff_user_id_idx").on(table.userId),
+]);
 
 export type Staff = typeof staff.$inferSelect;
 export type NewStaff = typeof staff.$inferInsert;

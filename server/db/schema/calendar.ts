@@ -5,6 +5,7 @@ import {
   varchar,
   text,
   timestamp,
+  index,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { staff } from "./staff";
@@ -37,7 +38,10 @@ export const calendarEvents = pgTable("calendar_events", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-});
+}, (table) => [
+  index("calendar_events_staff_id_idx").on(table.staffId),
+  index("calendar_events_start_datetime_idx").on(table.startDatetime),
+]);
 
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type NewCalendarEvent = typeof calendarEvents.$inferInsert;

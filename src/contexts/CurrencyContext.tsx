@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { formatPrice as formatPriceUtil, DEFAULT_EUR_RATE } from "@/lib/currencyConverter";
 
 /** Supported display currencies */
@@ -56,8 +56,13 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return formatPriceUtil(hufPrice, currency, exchangeRate);
   }, [currency, exchangeRate]);
 
+  const value = useMemo(
+    () => ({ currency, setCurrency, formatPrice, toggleCurrency, exchangeRate, setExchangeRate }),
+    [currency, setCurrency, formatPrice, toggleCurrency, exchangeRate, setExchangeRate],
+  );
+
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, formatPrice, toggleCurrency, exchangeRate, setExchangeRate }}>
+    <CurrencyContext.Provider value={value}>
       {children}
     </CurrencyContext.Provider>
   );

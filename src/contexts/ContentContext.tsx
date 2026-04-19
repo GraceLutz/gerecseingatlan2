@@ -3,6 +3,7 @@ import React, {
   useContext,
   useState,
   useCallback,
+  useMemo,
   useRef,
 } from "react";
 
@@ -86,10 +87,13 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     [pages]
   );
 
+  const value = useMemo(
+    () => ({ getPageContent, fetchPageContent, isAdmin, setIsAdmin }),
+    [getPageContent, fetchPageContent, isAdmin, setIsAdmin],
+  );
+
   return (
-    <ContentContext.Provider
-      value={{ getPageContent, fetchPageContent, isAdmin, setIsAdmin }}
-    >
+    <ContentContext.Provider value={value}>
       {children}
     </ContentContext.Provider>
   );

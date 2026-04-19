@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 
 interface AuthUser {
   id: string;
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, [checkAuth]);
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -61,9 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await res.json();
     setUser(data.user);
     setCsrfToken(data.csrfToken);
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await fetch("/api/admin/logout", {
       method: "POST",
       headers: {
@@ -74,10 +74,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     setUser(null);
     setCsrfToken(null);
-  };
+  }, [csrfToken]);
+
+  const value = useMemo(
+    () => ({ user, csrfToken, loading, login, logout }),
+    [user, csrfToken, loading, login, logout],
+  );
 
   return (
-    <AuthContext.Provider value={{ user, csrfToken, loading, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

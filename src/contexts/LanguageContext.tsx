@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { hu } from "@/i18n/hu";
 import { en } from "@/i18n/en";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -119,8 +119,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return path;
   }, [lang]);
 
+  const value = useMemo(
+    () => ({ lang, t: translations[lang], setLanguage, isEnglish: lang === "en", localePath }),
+    [lang, setLanguage, localePath],
+  );
+
   return (
-    <LanguageContext.Provider value={{ lang, t: translations[lang], setLanguage, isEnglish: lang === "en", localePath }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

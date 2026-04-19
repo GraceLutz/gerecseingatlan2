@@ -182,7 +182,7 @@ const SearchSection = () => {
           {/* Row 2: Price range, Area range, Rooms range, Search button */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
             {/* Ár: Min - Max Millió Ft */}
-            <div className={rangeGroupClasses}>
+            <div role="group" aria-label={t.search.price} className={rangeGroupClasses}>
               <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">{t.search.price}</span>
               <input
                 type="number"
@@ -207,7 +207,7 @@ const SearchSection = () => {
             </div>
 
             {/* Alapterület: Min - Max m² */}
-            <div className={rangeGroupClasses}>
+            <div role="group" aria-label={t.search.area} className={rangeGroupClasses}>
               <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">{t.search.area}</span>
               <input
                 type="number"
@@ -232,7 +232,7 @@ const SearchSection = () => {
             </div>
 
             {/* Szobaszám: Min - Max */}
-            <div className={rangeGroupClasses}>
+            <div role="group" aria-label={t.search.rooms} className={rangeGroupClasses}>
               <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">{t.search.rooms}:</span>
               <input
                 type="number"

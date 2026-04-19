@@ -77,6 +77,8 @@ export const hu = {
     forRent: "Kiadó",
     rooms: "szoba",
     sqm: "m²",
+    badge: "Kiemelt",
+    emptyState: "Hamarosan új ingatlanokkal bővül kínálatunk!",
   },
   services: {
     title: "Szolgáltatásaink",
@@ -326,5 +328,22 @@ export const hu = {
     close: "Bezárás",
     back: "Vissza",
     scrollToTop: "Vissza az oldal tetejére",
+  },
+  admin: {
+    properties: {
+      title: "Ingatlanok",
+      featured: "Kiemelt",
+      notFeatured: "Nem kiemelt",
+      toggleFeatured: "Kiemelés be/ki",
+      featuredCount: "Kiemelt ingatlanok",
+      maxFeatured: "Maximum 6 ingatlan emelhető ki",
+      featureSuccess: "Ingatlan kiemelve",
+      unfeatureSuccess: "Kiemelés eltávolítva",
+      noProperties: "Nincsenek ingatlanok",
+      loading: "Ingatlanok betöltése...",
+      search: "Keresés...",
+      filterAll: "Összes",
+      filterFeatured: "Csak kiemelt",
+    },
   },
 };

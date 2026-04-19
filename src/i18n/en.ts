@@ -77,6 +77,8 @@ export const en = {
     forRent: "For Rent",
     rooms: "rooms",
     sqm: "m²",
+    badge: "Featured",
+    emptyState: "New properties coming soon!",
   },
   services: {
     title: "Our Services",
@@ -326,5 +328,22 @@ export const en = {
     close: "Close",
     back: "Back",
     scrollToTop: "Scroll to top",
+  },
+  admin: {
+    properties: {
+      title: "Properties",
+      featured: "Featured",
+      notFeatured: "Not featured",
+      toggleFeatured: "Toggle featured",
+      featuredCount: "Featured properties",
+      maxFeatured: "Maximum 6 properties can be featured",
+      featureSuccess: "Property featured",
+      unfeatureSuccess: "Property unfeatured",
+      noProperties: "No properties found",
+      loading: "Loading properties...",
+      search: "Search...",
+      filterAll: "All",
+      filterFeatured: "Featured only",
+    },
   },
 };

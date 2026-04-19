@@ -1,8 +1,22 @@
+/**
+ * Property data hook with automatic fallback to mock data.
+ *
+ * Fetches normalised property listings from the server-side XML feed
+ * proxy (`/api/properties`) and maps them to the client-side {@link Property}
+ * interface. When the API is unavailable or returns no data, transparently
+ * falls back to bundled mock properties so the UI always has content.
+ *
+ * @module hooks/useProperties
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { mockProperties, locations as mockLocations } from "@/data/properties";
 import type { Property } from "@/data/properties";
 
-/** Slim version of NormalizedProperty for client-side mapping (avoids importing server types) */
+/**
+ * Slim mirror of the server-side `NormalizedProperty` shape returned by `/api/properties`.
+ * Kept separate from the server type to avoid importing Node-only modules into the client bundle.
+ */
 interface FeedProperty {
   id: string;
   slug: string;
@@ -28,6 +42,7 @@ interface FeedProperty {
   featured: boolean;
 }
 
+/** JSON shape returned by the `/api/properties` endpoint. */
 interface FeedResponse {
   properties: FeedProperty[];
   propertyCount: number;
@@ -80,6 +95,10 @@ interface PropertiesResult {
   isMockData: boolean;
 }
 
+/**
+ * Fetches properties from the server feed endpoint and maps them to client types.
+ * Returns mock data on any network or parsing failure, so the UI is never empty.
+ */
 async function fetchProperties(): Promise<PropertiesResult> {
   try {
     const response = await fetch("/api/properties");

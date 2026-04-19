@@ -4,6 +4,7 @@ import { eq, and } from "drizzle-orm";
 import { db } from "../db/index";
 import { newsletterSubscribers } from "../db/schema/newsletter";
 import { sendNewsletterConfirmationEmail } from "../services/email";
+import { escapeHtml } from "../templates/shared";
 
 const router = Router();
 
@@ -16,15 +17,6 @@ const subscribeSchema = z.object({
     }),
   }),
 });
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
 
 /** POST /api/newsletter/subscribe */
 router.post("/subscribe", async (req, res) => {

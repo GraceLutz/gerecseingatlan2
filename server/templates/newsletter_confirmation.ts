@@ -1,16 +1,9 @@
+import { escapeHtml } from "./shared";
+
 interface NewsletterConfirmationParams {
   email: string;
   confirmUrl: string;
   name?: string;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
 
 export function newsletterConfirmationHtml(params: NewsletterConfirmationParams): string {

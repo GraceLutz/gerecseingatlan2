@@ -1,15 +1,8 @@
+import { escapeHtml } from "./shared";
+
 interface PasswordResetParams {
   email: string;
   resetUrl: string;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
 
 export function passwordResetHtml(params: PasswordResetParams): string {

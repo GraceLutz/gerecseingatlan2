@@ -136,15 +136,11 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   ogType = "website",
   jsonLd,
 }) => {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
 
   const siteName = "Gerecse Ingatlan";
   const fullTitle = title ? `${title} | ${siteName}` : siteName;
-  const defaultDescription =
-    lang === "hu"
-      ? "Professzionális ingatlanszolgáltatások a Gerecse régióban. Eladó és kiadó ingatlanok Tata, Tatabánya, Esztergom – értékbecslés, jogi háttér, hitel tanácsadás."
-      : "Professional real estate services in the Gerecse region. Properties for sale and rent, valuation, legal support, loan advisory.";
-  const metaDescription = description || defaultDescription;
+  const metaDescription = description || t.seo.defaultDescription;
   const ORIGIN = "https://gerecseingatlan.hu";
 
   useEffect(() => {

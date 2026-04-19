@@ -52,7 +52,6 @@ const ServiceDetailPage = () => {
   const { lang, t, localePath } = useLanguage();
   const { slug } = useParams();
 
-  // Resolve EN slugs to HU slugs for lookup
   const resolvedSlug = slug ? (enToHuServiceSlug[slug] || slug) : undefined;
   const service = resolvedSlug ? getServiceBySlug(resolvedSlug) : undefined;
 
@@ -60,7 +59,7 @@ const ServiceDetailPage = () => {
     return (
       <Layout>
         <div className="py-32 text-center text-muted-foreground">
-          {lang === "hu" ? "Az oldal nem található." : "Page not found."}
+          {t.serviceDetail.pageNotFound}
         </div>
       </Layout>
     );
@@ -68,9 +67,7 @@ const ServiceDetailPage = () => {
 
   const title = t.services[service.titleKey];
   const seoTitle = `${title} – Gerecse Ingatlan`;
-  const seoDescription = lang === "hu"
-    ? `${title} – professzionális ingatlanszolgáltatás a Gerecse régióban. Kérjen ajánlatot!`
-    : `${title} – professional real estate service in the Gerecse region. Request a quote!`;
+  const seoDescription = `${title} ${t.serviceDetail.seoDescriptionSuffix}`;
   const content = lang === "hu" ? service.contentHu : service.contentEn;
   const benefitData = resolvedSlug ? benefitsMap[resolvedSlug] : undefined;
   const benefits = benefitData ? (lang === "hu" ? benefitData.hu : benefitData.en) : [];
@@ -112,11 +109,10 @@ const ServiceDetailPage = () => {
             ))}
           </div>
 
-          {/* Benefits */}
           {benefits.length > 0 && (
             <div className="mb-12 p-6 bg-light-bg rounded-xl">
               <h2 className="text-lg font-heading font-bold text-dark-green mb-4">
-                {lang === "hu" ? "Előnyök" : "Benefits"}
+                {t.serviceDetail.benefits}
               </h2>
               <ul className="space-y-3">
                 {benefits.map((benefit, i) => (
@@ -135,15 +131,12 @@ const ServiceDetailPage = () => {
             </div>
           )}
 
-          {/* Contact CTA / Interior Design Form */}
           {resolvedSlug === "belsoepiteszet-latvanyterv" ? (
-            <InteriorContactForm lang={lang} />
+            <InteriorContactForm />
           ) : (
             <div className="p-8 bg-dark-green rounded-xl text-center">
               <p className="text-lg font-heading font-semibold text-primary-foreground mb-4">
-                {lang === "hu"
-                  ? "Érdekli a szolgáltatásunk?"
-                  : "Interested in our service?"}
+                {t.services.interestedCta}
               </p>
               <Link
                 to={localePath("/kapcsolat")}
@@ -154,13 +147,10 @@ const ServiceDetailPage = () => {
             </div>
           )}
 
-          {/* Related services */}
           {relatedServices.length > 0 && (
             <div className="mt-16">
               <h2 className="text-xl font-heading font-bold text-dark-green mb-6">
-                {lang === "hu"
-                  ? "További szolgáltatásaink"
-                  : "Our other services"}
+                {t.serviceDetail.otherServices}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {relatedServices.map((rel) => {
@@ -196,12 +186,11 @@ const ServiceDetailPage = () => {
   );
 };
 
-/** Dedicated contact form for Interior Design service — data goes to Gerecse Ingatlan for tracking */
-const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
+const InteriorContactForm: React.FC = () => {
+  const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const isHu = lang === "hu";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -224,9 +213,9 @@ const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
           name,
           email,
           phone,
-          subject: isHu ? "Belsőépítészeti ajánlatkérés" : "Interior Design Inquiry",
+          subject: t.serviceDetail.subjectText,
           message: address
-            ? `${isHu ? "Helyszín" : "Location"}: ${address}\n\n${message}`
+            ? `${t.serviceDetail.locationPrefix}: ${address}\n\n${message}`
             : message,
         }),
       });
@@ -237,9 +226,7 @@ const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
       setSubmitted(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setSubmitError(
-        isHu ? `Hiba történt a küldéskor: ${msg}` : `Error sending inquiry: ${msg}`
-      );
+      setSubmitError(`${t.serviceDetail.sendErrorPrefix}${msg}`);
     } finally {
       setSubmitting(false);
     }
@@ -249,9 +236,7 @@ const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
     return (
       <div className="p-8 bg-light-bg rounded-xl text-center" role="status" aria-live="polite">
         <p className="text-lg font-heading font-semibold text-dark-green">
-          {isHu
-            ? "Köszönjük megkeresését! Hamarosan felvesszük Önnel a kapcsolatot."
-            : "Thank you for your inquiry! We will contact you shortly."}
+          {t.serviceDetail.successMessage}
         </p>
       </div>
     );
@@ -262,12 +247,10 @@ const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
   return (
     <div className="p-8 bg-light-bg rounded-xl">
       <h2 className="text-xl font-heading font-bold text-dark-green mb-2">
-        {isHu ? "Belsőépítészeti ajánlatkérés" : "Interior Design Inquiry"}
+        {t.serviceDetail.interiorFormTitle}
       </h2>
       <p className="text-sm text-muted-foreground mb-6">
-        {isHu
-          ? "Töltse ki az alábbi űrlapot, és felvesszük Önnel a kapcsolatot a részletekkel kapcsolatban."
-          : "Fill out the form below and we will contact you with details."}
+        {t.serviceDetail.interiorFormSubtitle}
       </p>
 
       {submitError && (
@@ -279,7 +262,7 @@ const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="interior-name" className="block text-sm font-semibold text-foreground mb-1">
-            {isHu ? "Név" : "Name"} *
+            {t.serviceDetail.nameLabel} *
           </label>
           <input id="interior-name" name="name" type="text" required className={fieldClass} />
         </div>
@@ -291,19 +274,19 @@ const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
         </div>
         <div>
           <label htmlFor="interior-phone" className="block text-sm font-semibold text-foreground mb-1">
-            {isHu ? "Telefonszám" : "Phone"}
+            {t.serviceDetail.phoneLabel}
           </label>
           <input id="interior-phone" name="phone" type="tel" className={fieldClass} />
         </div>
         <div>
           <label htmlFor="interior-address" className="block text-sm font-semibold text-foreground mb-1">
-            {isHu ? "Ingatlan címe / helyszín" : "Property address / location"}
+            {t.serviceDetail.addressLabel}
           </label>
           <input id="interior-address" name="address" type="text" className={fieldClass} />
         </div>
         <div>
           <label htmlFor="interior-message" className="block text-sm font-semibold text-foreground mb-1">
-            {isHu ? "Üzenet, elképzelések" : "Message, ideas"} *
+            {t.serviceDetail.messageLabel} *
           </label>
           <textarea id="interior-message" name="message" required rows={4} className={fieldClass} />
         </div>
@@ -313,14 +296,10 @@ const InteriorContactForm: React.FC<{ lang: string }> = ({ lang }) => {
           className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <Send size={16} aria-hidden="true" />
-          {submitting
-            ? (isHu ? "Küldés..." : "Sending...")
-            : (isHu ? "Ajánlatkérés küldése" : "Send inquiry")}
+          {submitting ? t.serviceDetail.submitting : t.serviceDetail.submitButton}
         </button>
         <p className="text-xs text-muted-foreground text-center">
-          {isHu
-            ? "Az adatokat a Gerecse Ingatlan kezeli, és továbbítja a belsőépítész partnernek."
-            : "Data is managed by Gerecse Ingatlan and forwarded to the interior design partner."}
+          {t.serviceDetail.dataNotice}
         </p>
       </form>
     </div>

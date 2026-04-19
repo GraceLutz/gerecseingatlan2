@@ -1,22 +1,25 @@
 import { useId, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useNewsletterSubscription } from "@/hooks/useNewsletterSubscription";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/**
- * Public newsletter signup form with double opt-in.
- * Posts to /api/newsletter/subscribe. Bilingual via i18n context.
- */
 export default function NewsletterSignup() {
-  const { t, lang, localePath } = useLanguage();
-  const [email, setEmail] = useState("");
+  const { t, localePath } = useLanguage();
   const [name, setName] = useState("");
-  const [gdpr, setGdpr] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [touched, setTouched] = useState(false);
+  const {
+    email,
+    setEmail,
+    gdpr,
+    setGdpr,
+    submitted,
+    submitting,
+    error,
+    touched,
+    setTouched,
+    emailError,
+    gdprError,
+    handleSubmit,
+  } = useNewsletterSubscription();
 
   const uid = useId();
   const emailId = `${uid}-email`;
@@ -26,70 +29,15 @@ export default function NewsletterSignup() {
   const gdprErrId = `${gdprId}-error`;
   const statusId = `${uid}-status`;
 
-  const isValidEmail = EMAIL_REGEX.test(email);
-  const emailError = touched && email.length > 0 && !isValidEmail;
-  const gdprError = touched && !gdpr;
+  const displayError =
+    error === "NETWORK_ERROR"
+      ? t.newsletter.networkError
+      : error === "GENERIC_ERROR"
+        ? t.newsletter.genericError
+        : error;
 
-  const nameLabel = lang === "hu" ? "Név (nem kötelező)" : "Name (optional)";
-  const namePlaceholder = lang === "hu" ? "Teljes név" : "Full name";
-  const emailPlaceholder = lang === "hu" ? "pelda@email.hu" : "example@email.com";
-  const emailInvalidText = lang === "hu"
-    ? "Kérjük, adjon meg érvényes e-mail címet."
-    : "Please enter a valid email address.";
-  const gdprInvalidText = lang === "hu"
-    ? "A feliratkozáshoz el kell fogadnia az adatkezelést."
-    : "You must accept the privacy policy to subscribe.";
-  const successText = lang === "hu"
-    ? "Sikeres feliratkozás! Kérjük, erősítse meg e-mail címét a kapott levélben."
-    : "Successfully subscribed! Please confirm your email address in the message you received.";
-  const networkErrorText = lang === "hu"
-    ? "Hálózati hiba. Kérjük, próbálja újra később."
-    : "Network error. Please try again later.";
-  const genericErrorText = lang === "hu"
-    ? "Hiba történt a feliratkozás során."
-    : "An error occurred during subscription.";
-  const gdprLinkText = lang === "hu" ? "adatkezelési tájékoztató" : "privacy policy";
-  const gdprConsentPrefix = lang === "hu"
-    ? "Hozzájárulok az adataim kezeléséhez az "
-    : "I consent to data processing per the ";
-  const gdprConsentSuffix = lang === "hu" ? " szerint." : ".";
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTouched(true);
-    setError(null);
-
-    if (!isValidEmail || !gdpr || submitting) return;
-
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/newsletter/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email.trim(),
-          name: name.trim() || undefined,
-          gdprConsent: true,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error ?? genericErrorText);
-        return;
-      }
-
-      setEmail("");
-      setName("");
-      setGdpr(false);
-      setTouched(false);
-      setSubmitted(true);
-    } catch {
-      setError(networkErrorText);
-    } finally {
-      setSubmitting(false);
-    }
+  const onSubmit = async (e: React.FormEvent) => {
+    await handleSubmit(e, { name });
   };
 
   const labelClass =
@@ -119,32 +67,32 @@ export default function NewsletterSignup() {
         >
           {submitted && (
             <p className="text-gold font-semibold font-body text-lg">
-              {successText}
+              {t.newsletter.successConfirm}
             </p>
           )}
           {error && (
             <p className="text-red-200 font-semibold font-body text-sm">
-              {error}
+              {displayError}
             </p>
           )}
         </div>
 
         {!submitted && (
           <form
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
             className="max-w-md mx-auto mt-2"
             noValidate
           >
             <div className="mb-3 text-left">
               <label htmlFor={nameId} className={labelClass}>
-                {nameLabel}
+                {t.newsletter.nameLabel}
               </label>
               <input
                 id={nameId}
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={namePlaceholder}
+                placeholder={t.newsletter.namePlaceholder}
                 autoComplete="name"
                 disabled={submitting}
                 className="w-full px-4 py-3 rounded-lg bg-white border border-[#0B2340]/15 text-[#0B2340] placeholder:text-[#0B2340]/40 focus:outline-none focus:ring-2 focus:ring-[#4682B4] focus:ring-offset-2 focus:ring-offset-[#D8EEFF] focus:border-[#4682B4] disabled:opacity-60 disabled:cursor-not-allowed"
@@ -161,7 +109,7 @@ export default function NewsletterSignup() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => email.length > 0 && setTouched(true)}
-                  placeholder={emailPlaceholder}
+                  placeholder={t.newsletter.emailPlaceholder}
                   autoComplete="email"
                   required
                   aria-invalid={emailError || undefined}
@@ -195,7 +143,7 @@ export default function NewsletterSignup() {
                   role="alert"
                   className="mt-1 text-xs text-destructive"
                 >
-                  {emailInvalidText}
+                  {t.newsletter.emailInvalid}
                 </p>
               )}
             </div>
@@ -216,16 +164,16 @@ export default function NewsletterSignup() {
                   className="mt-0.5 rounded border-[#0B2340]/30 focus:ring-2 focus:ring-[#4682B4]"
                 />
                 <span>
-                  {gdprConsentPrefix}
+                  {t.newsletter.gdprConsentPrefix}
                   <a
                     href={localePath("/adatkezelesi-tajekoztato")}
                     className="underline hover:text-[#0B2340] focus:outline-none focus:ring-2 focus:ring-[#4682B4] rounded"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {gdprLinkText}
+                    {t.newsletter.gdprLinkText}
                   </a>
-                  {gdprConsentSuffix}
+                  {t.newsletter.gdprConsentSuffix}
                 </span>
               </label>
               {gdprError && (
@@ -234,7 +182,7 @@ export default function NewsletterSignup() {
                   role="alert"
                   className="mt-1 text-xs text-destructive text-center"
                 >
-                  {gdprInvalidText}
+                  {t.newsletter.gdprInvalid}
                 </p>
               )}
             </div>

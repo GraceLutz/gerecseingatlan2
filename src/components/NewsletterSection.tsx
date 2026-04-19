@@ -1,22 +1,24 @@
-import { useId, useState } from "react";
+import { useId } from "react";
 import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useNewsletterSubscription } from "@/hooks/useNewsletterSubscription";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/**
- * Footer newsletter signup section.
- * Visible label, inline validation error, and an ARIA live region for success —
- * preserves the existing submit flow (no network call yet).
- */
 const NewsletterSection = () => {
-  const { t, lang } = useLanguage();
-  const [email, setEmail] = useState("");
-  const [gdpr, setGdpr] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [touched, setTouched] = useState(false);
+  const { t } = useLanguage();
+  const {
+    email,
+    setEmail,
+    gdpr,
+    setGdpr,
+    submitted,
+    submitting,
+    error,
+    touched,
+    setTouched,
+    emailError,
+    gdprError,
+    handleSubmit,
+  } = useNewsletterSubscription();
 
   const uid = useId();
   const emailId = `${uid}-email`;
@@ -25,46 +27,14 @@ const NewsletterSection = () => {
   const gdprErrId = `${gdprId}-error`;
   const statusId = `${uid}-status`;
 
-  const isValidEmail = EMAIL_REGEX.test(email);
-  const emailError = touched && email.length > 0 && !isValidEmail;
-  const gdprError = touched && !gdpr;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTouched(true);
-    setError(null);
-    if (!isValidEmail || !gdpr || submitting) return;
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/newsletter/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), gdprConsent: true }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error ?? (lang === "hu" ? "Hiba történt." : "An error occurred."));
-        return;
-      }
-      setEmail("");
-      setGdpr(false);
-      setTouched(false);
-      setSubmitted(true);
-    } catch {
-      setError(lang === "hu" ? "Hálózati hiba." : "Network error.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const displayError =
+    error === "NETWORK_ERROR"
+      ? t.newsletter.networkError
+      : error === "GENERIC_ERROR"
+        ? t.newsletter.genericError
+        : error;
 
   const labelClass = "block text-left text-xs font-semibold text-primary-foreground/80 mb-1";
-
-  const emailInvalidText = lang === "hu"
-    ? "Kérjük, adjon meg érvényes e-mail címet."
-    : "Please enter a valid email address.";
-  const gdprInvalidText = lang === "hu"
-    ? "A feliratkozáshoz el kell fogadnia az adatkezelést."
-    : "You must accept the privacy policy to subscribe.";
 
   return (
     <section className="py-16 bg-[#4682B4]" aria-labelledby="newsletter-heading">
@@ -84,7 +54,7 @@ const NewsletterSection = () => {
           )}
           {error && (
             <p className="text-red-200 font-semibold font-body text-sm">
-              {error}
+              {displayError}
             </p>
           )}
         </div>
@@ -124,7 +94,7 @@ const NewsletterSection = () => {
               </div>
               {emailError && (
                 <p id={emailErrId} role="alert" className="mt-1 text-xs text-destructive">
-                  {emailInvalidText}
+                  {t.newsletter.emailInvalid}
                 </p>
               )}
             </div>
@@ -145,7 +115,7 @@ const NewsletterSection = () => {
               </label>
               {gdprError && (
                 <p id={gdprErrId} role="alert" className="mt-1 text-xs text-destructive text-center">
-                  {gdprInvalidText}
+                  {t.newsletter.gdprInvalid}
                 </p>
               )}
             </div>

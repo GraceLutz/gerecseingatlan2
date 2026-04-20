@@ -65,7 +65,7 @@ function toClientProperty(fp: FeedProperty): Property {
     titleHu: fp.title,
     titleEn: fp.title,
     descriptionHu: fp.description,
-    descriptionEn: "",
+    descriptionEn: fp.description,
     price: fp.price,
     type,
     status: fp.listingType === "kiado" ? "rent" : "sale",

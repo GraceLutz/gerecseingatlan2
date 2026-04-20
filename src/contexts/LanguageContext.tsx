@@ -98,18 +98,17 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const setLanguage = useCallback((newLang: Language) => {
     setLang(newLang);
     const currentPath = location.pathname;
+    const search = location.search;
 
     if (newLang === "en" && !currentPath.startsWith("/en")) {
-      // Switching HU → EN: translate HU slugs to EN slugs
       const translatedPath = currentPath === "/" ? "" : translateHuToEn(currentPath);
-      navigate("/en" + translatedPath);
+      navigate("/en" + translatedPath + search);
     } else if (newLang === "hu" && currentPath.startsWith("/en")) {
-      // Switching EN → HU: strip /en prefix and translate EN slugs to HU slugs
       const enPath = currentPath.replace(/^\/en/, "") || "/";
       const huPath = enPath === "/" ? "/" : translateEnToHu(enPath);
-      navigate(huPath);
+      navigate(huPath + search);
     }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, location.search, navigate]);
 
   const localePath = useCallback((path: string) => {
     if (lang === "en") {

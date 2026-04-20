@@ -1,5 +1,16 @@
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Phone, Mail } from "lucide-react";
+
+interface StaffApiMember {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  roleTitle: string;
+  photoUrl: string | null;
+  bio: string | null;
+}
 
 interface TeamMember {
   nameHu: string;
@@ -11,7 +22,7 @@ interface TeamMember {
   photo?: string;
 }
 
-const teamMembers: TeamMember[] = [
+const FALLBACK_MEMBERS: TeamMember[] = [
   {
     nameHu: "Gerecsei Tamás",
     nameEn: "Tamás Gerecsei",
@@ -47,12 +58,152 @@ const teamMembers: TeamMember[] = [
   },
 ];
 
-/**
- * Team section displaying team member cards with contact info.
- * Uses initials as avatar placeholders.
- */
 const TeamSection = () => {
   const { t, lang } = useLanguage();
+  const [apiMembers, setApiMembers] = useState<StaffApiMember[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/staff")
+      .then((res) => {
+        if (!res.ok) throw new Error("fetch failed");
+        return res.json();
+      })
+      .then((data) => {
+        if (data.staff && data.staff.length > 0) {
+          setApiMembers(data.staff);
+        }
+      })
+      .catch(() => {
+        // Fallback to hardcoded data silently
+      });
+  }, []);
+
+  const renderApiMembers = (members: StaffApiMember[]) => (
+    <>
+      {members.map((member) => {
+        const initials = member.name
+          .split(" ")
+          .map((n) => n[0])
+          .join("");
+
+        return (
+          <article
+            key={member.id}
+            className="bg-card rounded-xl p-6 shadow-sm border border-border text-center hover:shadow-md transition-shadow flex flex-col"
+          >
+            {member.photoUrl ? (
+              <img
+                src={member.photoUrl}
+                alt={member.name}
+                className="w-20 h-20 mx-auto mb-4 rounded-full object-cover"
+              />
+            ) : (
+              <div
+                className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center"
+                aria-hidden="true"
+              >
+                <span className="text-2xl font-heading font-bold text-primary">
+                  {initials}
+                </span>
+              </div>
+            )}
+            <h3 className="text-lg font-heading font-semibold text-foreground mb-1">
+              {member.name}
+            </h3>
+            <p className="text-sm text-gold font-semibold mb-4">
+              {member.roleTitle}
+            </p>
+            <div className="space-y-2 mt-auto pt-2">
+              {member.phone && (
+                <a
+                  href={`tel:${member.phone.replace(/\s/g, "")}`}
+                  className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                  aria-label={`${lang === "hu" ? "Telefonszám" : "Phone"}: ${member.phone}`}
+                >
+                  <Phone size={14} aria-hidden="true" />
+                  {member.phone}
+                </a>
+              )}
+              {member.email && (
+                <a
+                  href={`mailto:${member.email}`}
+                  className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                  aria-label={`${lang === "hu" ? "E-mail" : "Email"}: ${member.email}`}
+                >
+                  <Mail size={14} aria-hidden="true" />
+                  {member.email}
+                </a>
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </>
+  );
+
+  const renderFallbackMembers = () => (
+    <>
+      {FALLBACK_MEMBERS.map((member) => {
+        const name = lang === "hu" ? member.nameHu : member.nameEn;
+        const initials = name
+          .split(" ")
+          .map((n) => n[0])
+          .join("");
+
+        return (
+          <article
+            key={name}
+            className="bg-card rounded-xl p-6 shadow-sm border border-border text-center hover:shadow-md transition-shadow flex flex-col"
+          >
+            {member.photo ? (
+              <img
+                src={member.photo}
+                alt={name}
+                className="w-20 h-20 mx-auto mb-4 rounded-full object-cover"
+              />
+            ) : (
+              <div
+                className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center"
+                aria-hidden="true"
+              >
+                <span className="text-2xl font-heading font-bold text-primary">
+                  {initials}
+                </span>
+              </div>
+            )}
+            <h3 className="text-lg font-heading font-semibold text-foreground mb-1">
+              {name}
+            </h3>
+            <p className="text-sm text-gold font-semibold mb-4">
+              {lang === "hu" ? member.roleHu : member.roleEn}
+            </p>
+            <div className="space-y-2 mt-auto pt-2">
+              {member.phone && (
+                <a
+                  href={`tel:${member.phone.replace(/\s/g, "")}`}
+                  className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                  aria-label={`${lang === "hu" ? "Telefonszám" : "Phone"}: ${member.phone}`}
+                >
+                  <Phone size={14} aria-hidden="true" />
+                  {member.phone}
+                </a>
+              )}
+              {member.email && (
+                <a
+                  href={`mailto:${member.email}`}
+                  className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                  aria-label={`${lang === "hu" ? "E-mail" : "Email"}: ${member.email}`}
+                >
+                  <Mail size={14} aria-hidden="true" />
+                  {member.email}
+                </a>
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </>
+  );
 
   return (
     <section id="munkatarsaink" className="py-16 bg-light-bg" aria-labelledby="team-heading">
@@ -69,65 +220,7 @@ const TeamSection = () => {
             : "Our experienced professionals provide personalized assistance"}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
-          {teamMembers.map((member) => {
-            const name = lang === "hu" ? member.nameHu : member.nameEn;
-            const initials = name
-              .split(" ")
-              .map((n) => n[0])
-              .join("");
-
-            return (
-              <article
-                key={name}
-                className="bg-card rounded-xl p-6 shadow-sm border border-border text-center hover:shadow-md transition-shadow flex flex-col"
-              >
-                {member.photo ? (
-                  <img
-                    src={member.photo}
-                    alt={name}
-                    className="w-20 h-20 mx-auto mb-4 rounded-full object-cover"
-                  />
-                ) : (
-                  <div
-                    className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center"
-                    aria-hidden="true"
-                  >
-                    <span className="text-2xl font-heading font-bold text-primary">
-                      {initials}
-                    </span>
-                  </div>
-                )}
-                <h3 className="text-lg font-heading font-semibold text-foreground mb-1">
-                  {name}
-                </h3>
-                <p className="text-sm text-gold font-semibold mb-4">
-                  {lang === "hu" ? member.roleHu : member.roleEn}
-                </p>
-                <div className="space-y-2 mt-auto pt-2">
-                  {member.phone && (
-                    <a
-                      href={`tel:${member.phone.replace(/\s/g, "")}`}
-                      className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-                      aria-label={`${lang === "hu" ? "Telefonszám" : "Phone"}: ${member.phone}`}
-                    >
-                      <Phone size={14} aria-hidden="true" />
-                      {member.phone}
-                    </a>
-                  )}
-                  {member.email && (
-                    <a
-                      href={`mailto:${member.email}`}
-                      className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-                      aria-label={`${lang === "hu" ? "E-mail" : "Email"}: ${member.email}`}
-                    >
-                      <Mail size={14} aria-hidden="true" />
-                      {member.email}
-                    </a>
-                  )}
-                </div>
-              </article>
-            );
-          })}
+          {apiMembers ? renderApiMembers(apiMembers) : renderFallbackMembers()}
         </div>
       </div>
     </section>

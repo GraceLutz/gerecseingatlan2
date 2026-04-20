@@ -35,6 +35,10 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export default function UsersPage() {
+  useEffect(() => {
+    document.title = "Felhasználók | Gerecse Ingatlan Admin";
+  }, []);
+
   const [users, setUsers] = useState<User[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);

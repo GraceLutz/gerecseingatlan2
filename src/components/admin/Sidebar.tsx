@@ -2,19 +2,16 @@ import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
-  Home,
   FileText,
   Users,
   Calendar,
   Mail,
   UserCog,
-  Settings,
   LogOut,
 } from "lucide-react";
 
 const navItems = [
   { to: "/admin/dashboard", label: "Vezérlőpult", icon: LayoutDashboard },
-  { to: "/admin/ingatlanok", label: "Ingatlanok", icon: Home },
   { to: "/admin/tartalom", label: "Tartalom", icon: FileText },
   { to: "/admin/munkatarsak", label: "Munkatársak", icon: Users },
   { to: "/admin/naptar", label: "Naptár", icon: Calendar },
@@ -23,10 +20,6 @@ const navItems = [
 
 const adminOnlyItems = [
   { to: "/admin/felhasznalok", label: "Felhasználók", icon: UserCog },
-];
-
-const bottomItems = [
-  { to: "/admin/beallitasok", label: "Beállítások", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -85,23 +78,6 @@ export default function Sidebar() {
 
       <div className="border-t border-white/10 p-4">
         <ul className="space-y-1" role="list">
-          {bottomItems.map((item) => (
-            <li key={item.to}>
-              <NavLink
-                to={item.to}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                    isActive
-                      ? "bg-white/10 text-gold font-medium"
-                      : "text-white/70 hover:bg-white/5 hover:text-white"
-                  }`
-                }
-              >
-                <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                {item.label}
-              </NavLink>
-            </li>
-          ))}
           <li>
             <button
               onClick={logout}

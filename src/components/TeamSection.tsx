@@ -10,6 +10,8 @@ interface StaffApiMember {
   roleTitle: string;
   photoUrl: string | null;
   bio: string | null;
+  focalPointX: number;
+  focalPointY: number;
 }
 
 interface TeamMember {
@@ -96,7 +98,7 @@ const TeamSection = () => {
                 src={member.photoUrl}
                 alt={member.name}
                 className="w-20 h-20 mx-auto mb-4 rounded-full object-cover"
-                style={{ objectPosition: "center 25%" }}
+                style={{ objectPosition: `${member.focalPointX}% ${member.focalPointY}%` }}
               />
             ) : (
               <div

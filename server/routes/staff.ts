@@ -20,6 +20,8 @@ router.get("/", async (_req, res) => {
         showEmail: staff.showEmail,
         showPhone: staff.showPhone,
         sortOrder: staff.sortOrder,
+        focalPointX: staff.focalPointX,
+        focalPointY: staff.focalPointY,
       })
       .from(staff)
       .where(eq(staff.active, true))
@@ -33,6 +35,8 @@ router.get("/", async (_req, res) => {
       roleTitle: m.roleTitle,
       photoUrl: m.photoUrl,
       bio: m.bio,
+      focalPointX: m.focalPointX,
+      focalPointY: m.focalPointY,
     }));
 
     res.json({ staff: publicMembers });

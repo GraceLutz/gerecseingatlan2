@@ -39,6 +39,8 @@ const createStaffSchema = z.object({
   active: z.boolean().default(true),
   showEmail: z.boolean().default(true),
   showPhone: z.boolean().default(true),
+  focalPointX: z.number().int().min(0).max(100).default(50),
+  focalPointY: z.number().int().min(0).max(100).default(25),
   dashboardAccess: z.boolean().default(false),
 });
 
@@ -52,6 +54,8 @@ const updateStaffSchema = z.object({
   showEmail: z.boolean().optional(),
   showPhone: z.boolean().optional(),
   sortOrder: z.number().int().min(0).optional(),
+  focalPointX: z.number().int().min(0).max(100).optional(),
+  focalPointY: z.number().int().min(0).max(100).optional(),
 });
 
 const idSchema = z.string().uuid("Érvénytelen azonosító.");

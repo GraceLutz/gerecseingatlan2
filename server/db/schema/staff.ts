@@ -22,6 +22,8 @@ export const staff = pgTable("staff", {
   showEmail: boolean("show_email").notNull().default(true),
   showPhone: boolean("show_phone").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
+  focalPointX: integer("focal_point_x").notNull().default(50),
+  focalPointY: integer("focal_point_y").notNull().default(25),
   userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

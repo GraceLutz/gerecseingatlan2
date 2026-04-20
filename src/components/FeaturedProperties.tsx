@@ -60,7 +60,7 @@ const FeaturedProperties = () => {
         </h2>
         <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0">
           {displayProperties.map(property => (
-            <li key={property.id}>
+            <li key={property.id} className={property.featured ? "ring-2 ring-gold rounded-lg" : ""}>
               <PropertyCard property={property} />
             </li>
           ))}

@@ -19,10 +19,21 @@ const router = Router();
 
 router.use(requireRole("admin", "editor"));
 
+const PHONE_PATTERN = /^[+]?[\d\s\-()]{6,20}$/;
+
+const phoneSchema = z
+  .string()
+  .max(50)
+  .refine((v) => !v || PHONE_PATTERN.test(v), {
+    message: "Érvénytelen telefonszám formátum.",
+  })
+  .optional()
+  .nullable();
+
 const createStaffSchema = z.object({
   name: z.string().min(1, "A név megadása kötelező.").max(255),
   email: z.string().email("Érvénytelen e-mail cím.").max(320).optional().nullable(),
-  phone: z.string().max(50).optional().nullable(),
+  phone: phoneSchema,
   roleTitle: z.string().max(255).default("Ingatlanközvetítő"),
   bio: z.string().max(5000).optional().nullable(),
   active: z.boolean().default(true),
@@ -31,8 +42,8 @@ const createStaffSchema = z.object({
 
 const updateStaffSchema = z.object({
   name: z.string().min(1).max(255).optional(),
-  email: z.string().email().max(320).optional().nullable(),
-  phone: z.string().max(50).optional().nullable(),
+  email: z.string().email("Érvénytelen e-mail cím.").max(320).optional().nullable(),
+  phone: phoneSchema,
   roleTitle: z.string().max(255).optional(),
   bio: z.string().max(5000).optional().nullable(),
   active: z.boolean().optional(),
@@ -122,6 +133,18 @@ router.post("/", async (req, res) => {
     }
 
     const { dashboardAccess, ...staffData } = result.data;
+
+    if (staffData.email) {
+      const existingStaff = await db
+        .select({ id: staff.id })
+        .from(staff)
+        .where(eq(staff.email, staffData.email.toLowerCase()))
+        .limit(1);
+
+      if (existingStaff.length > 0) {
+        return res.status(409).json({ error: "Ez az e-mail cím már egy másik munkatárshoz tartozik." });
+      }
+    }
 
     let userId: string | null = null;
 

@@ -12,8 +12,19 @@ import {
   Eye,
   EyeOff,
   X,
+  CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface StaffMember {
   id: string;
@@ -39,6 +50,18 @@ interface StaffFormData {
   dashboardAccess: boolean;
 }
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  roleTitle?: string;
+}
+
+interface ConfirmAction {
+  type: "delete" | "deactivate" | "activate";
+  member: StaffMember;
+}
+
 const EMPTY_FORM: StaffFormData = {
   name: "",
   email: "",
@@ -49,21 +72,33 @@ const EMPTY_FORM: StaffFormData = {
   dashboardAccess: false,
 };
 
+const PHONE_PATTERN = /^[+]?[\d\s\-()]{6,20}$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function StaffPage() {
   const { csrfToken } = useAuth();
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showInactive, setShowInactive] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<StaffFormData>(EMPTY_FORM);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+
+  const showSuccess = (msg: string) => {
+    setSuccess(msg);
+    setError(null);
+    setTimeout(() => setSuccess(null), 4000);
+  };
 
   const fetchStaff = useCallback(async () => {
     setLoading(true);
@@ -88,9 +123,33 @@ export default function StaffPage() {
     fetchStaff();
   }, [fetchStaff]);
 
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
+
+    if (!form.name.trim()) {
+      errors.name = "A név megadása kötelező.";
+    }
+
+    if (form.email && !EMAIL_PATTERN.test(form.email)) {
+      errors.email = "Érvénytelen e-mail cím formátum.";
+    }
+
+    if (form.phone && !PHONE_PATTERN.test(form.phone)) {
+      errors.phone = "Érvénytelen telefonszám formátum. Példa: +36 30 123 4567";
+    }
+
+    if (form.dashboardAccess && !form.email) {
+      errors.email = "Dashboard hozzáféréshez e-mail cím megadása kötelező.";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const openCreateModal = () => {
     setEditingId(null);
     setForm(EMPTY_FORM);
+    setFormErrors({});
     setModalOpen(true);
   };
 
@@ -105,11 +164,14 @@ export default function StaffPage() {
       active: member.active,
       dashboardAccess: false,
     });
+    setFormErrors({});
     setModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     setSaving(true);
     setError(null);
     try {
@@ -118,7 +180,7 @@ export default function StaffPage() {
         : "/api/admin/staff";
       const method = editingId ? "PATCH" : "POST";
 
-      const body: any = { ...form };
+      const body: Record<string, unknown> = { ...form };
       if (!body.email) body.email = null;
       if (!body.phone) body.phone = null;
       if (!body.bio) body.bio = null;
@@ -139,6 +201,7 @@ export default function StaffPage() {
       }
 
       setModalOpen(false);
+      showSuccess(editingId ? "Munkatárs sikeresen módosítva." : "Munkatárs sikeresen létrehozva.");
       fetchStaff();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Hiba történt a mentés során.");
@@ -147,16 +210,16 @@ export default function StaffPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Biztosan törölni szeretné ezt a munkatársat?")) return;
-    setDeleting(id);
+  const handleDelete = async (member: StaffMember) => {
+    setDeleting(member.id);
     try {
-      const res = await fetch(`/api/admin/staff/${id}`, {
+      const res = await fetch(`/api/admin/staff/${member.id}`, {
         method: "DELETE",
         headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
         credentials: "include",
       });
       if (!res.ok) throw new Error("Hiba történt a törlés során.");
+      showSuccess(`${member.name} sikeresen törölve.`);
       fetchStaff();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Hiba történt a törlés során.");
@@ -177,18 +240,33 @@ export default function StaffPage() {
         body: JSON.stringify({ active: !member.active }),
       });
       if (!res.ok) throw new Error("Hiba történt a státusz módosításakor.");
+      showSuccess(
+        member.active
+          ? `${member.name} deaktiválva.`
+          : `${member.name} újra aktiválva.`
+      );
       fetchStaff();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Hiba történt a státusz módosításakor.");
     }
   };
 
-  const handlePhotoUpload = async (
-    memberId: string,
-    file: File
-  ) => {
-    if (!file.type.startsWith("image/")) {
-      setError("Csak képfájl tölthető fel.");
+  const handleConfirmAction = () => {
+    if (!confirmAction) return;
+    const { type, member } = confirmAction;
+    setConfirmAction(null);
+
+    if (type === "delete") {
+      handleDelete(member);
+    } else {
+      handleToggleActive(member);
+    }
+  };
+
+  const handlePhotoUpload = async (memberId: string, file: File) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Nem támogatott képformátum. Használjon JPEG, PNG vagy WebP formátumot.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
@@ -208,6 +286,7 @@ export default function StaffPage() {
         body: file,
       });
       if (!res.ok) throw new Error("Hiba történt a kép feltöltésekor.");
+      showSuccess("Profilkép sikeresen feltöltve.");
       fetchStaff();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Hiba történt a kép feltöltésekor.");
@@ -223,6 +302,11 @@ export default function StaffPage() {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+
+  const inputClass = (hasError: boolean) =>
+    `w-full px-3 py-2 border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors ${
+      hasError ? "border-destructive" : "border-border"
+    }`;
 
   return (
     <div className="space-y-6">
@@ -273,6 +357,17 @@ export default function StaffPage() {
         </label>
       </div>
 
+      {success && (
+        <div
+          className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 flex items-center gap-2"
+          role="status"
+          aria-live="polite"
+        >
+          <CheckCircle2 size={16} className="shrink-0" aria-hidden="true" />
+          {success}
+        </div>
+      )}
+
       {error && (
         <div
           className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
@@ -310,7 +405,6 @@ export default function StaffPage() {
               }`}
             >
               <div className="flex items-start gap-4">
-                {/* Photo / initials avatar */}
                 <div className="relative flex-shrink-0">
                   {member.photoUrl ? (
                     <img
@@ -328,7 +422,6 @@ export default function StaffPage() {
                       </span>
                     </div>
                   )}
-                  {/* Photo upload button */}
                   <label
                     className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/80 transition-colors"
                     aria-label="Profilkép feltöltése"
@@ -369,7 +462,6 @@ export default function StaffPage() {
                 </div>
               </div>
 
-              {/* Contact info */}
               <div className="mt-3 space-y-1.5">
                 {member.phone && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -401,7 +493,6 @@ export default function StaffPage() {
                 </p>
               )}
 
-              {/* Actions */}
               <div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
                 <button
                   onClick={() => openEditModal(member)}
@@ -412,7 +503,12 @@ export default function StaffPage() {
                   Szerkesztés
                 </button>
                 <button
-                  onClick={() => handleToggleActive(member)}
+                  onClick={() =>
+                    setConfirmAction({
+                      type: member.active ? "deactivate" : "activate",
+                      member,
+                    })
+                  }
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
                   aria-label={
                     member.active
@@ -433,7 +529,9 @@ export default function StaffPage() {
                   )}
                 </button>
                 <button
-                  onClick={() => handleDelete(member.id)}
+                  onClick={() =>
+                    setConfirmAction({ type: "delete", member })
+                  }
                   disabled={deleting === member.id}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ml-auto"
                   aria-label={`${member.name} törlése`}
@@ -449,6 +547,50 @@ export default function StaffPage() {
           ))}
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <AlertDialog
+        open={!!confirmAction}
+        onOpenChange={(open) => {
+          if (!open) setConfirmAction(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmAction?.type === "delete"
+                ? "Munkatárs törlése"
+                : confirmAction?.type === "deactivate"
+                  ? "Munkatárs deaktiválása"
+                  : "Munkatárs aktiválása"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmAction?.type === "delete"
+                ? `Biztosan törölni szeretné "${confirmAction.member.name}" munkatársat? Ez a művelet nem vonható vissza.`
+                : confirmAction?.type === "deactivate"
+                  ? `Biztosan deaktiválni szeretné "${confirmAction?.member.name}" munkatársat? A deaktivált munkatárs nem jelenik meg a nyilvános oldalon.`
+                  : `Biztosan aktiválni szeretné "${confirmAction?.member.name}" munkatársat?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Mégse</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmAction}
+              className={
+                confirmAction?.type === "delete"
+                  ? "bg-red-600 hover:bg-red-700 text-white"
+                  : ""
+              }
+            >
+              {confirmAction?.type === "delete"
+                ? "Törlés"
+                : confirmAction?.type === "deactivate"
+                  ? "Deaktiválás"
+                  : "Aktiválás"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Create / Edit Modal */}
       {modalOpen && (
@@ -478,25 +620,33 @@ export default function StaffPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            <form onSubmit={handleSubmit} className="p-5 space-y-4" noValidate>
               <div>
                 <label
                   htmlFor="staff-name"
                   className="block text-sm font-medium text-foreground mb-1"
                 >
-                  Név *
+                  Név <span className="text-destructive" aria-hidden="true">*</span>
                 </label>
                 <input
                   id="staff-name"
                   type="text"
-                  required
                   value={form.name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, name: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, name: e.target.value }));
+                    if (formErrors.name) setFormErrors((fe) => ({ ...fe, name: undefined }));
+                  }}
+                  className={inputClass(!!formErrors.name)}
                   placeholder="Teljes név"
+                  aria-required="true"
+                  aria-invalid={!!formErrors.name}
+                  aria-describedby={formErrors.name ? "staff-name-error" : undefined}
                 />
+                {formErrors.name && (
+                  <p id="staff-name-error" role="alert" className="mt-1 text-xs text-destructive">
+                    {formErrors.name}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -511,12 +661,20 @@ export default function StaffPage() {
                     id="staff-email"
                     type="email"
                     value={form.email}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, email: e.target.value }))
-                    }
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setForm((f) => ({ ...f, email: e.target.value }));
+                      if (formErrors.email) setFormErrors((fe) => ({ ...fe, email: undefined }));
+                    }}
+                    className={inputClass(!!formErrors.email)}
                     placeholder="pelda@email.hu"
+                    aria-invalid={!!formErrors.email}
+                    aria-describedby={formErrors.email ? "staff-email-error" : undefined}
                   />
+                  {formErrors.email && (
+                    <p id="staff-email-error" role="alert" className="mt-1 text-xs text-destructive">
+                      {formErrors.email}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label
@@ -529,12 +687,20 @@ export default function StaffPage() {
                     id="staff-phone"
                     type="tel"
                     value={form.phone}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, phone: e.target.value }))
-                    }
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setForm((f) => ({ ...f, phone: e.target.value }));
+                      if (formErrors.phone) setFormErrors((fe) => ({ ...fe, phone: undefined }));
+                    }}
+                    className={inputClass(!!formErrors.phone)}
                     placeholder="+36 30 123 4567"
+                    aria-invalid={!!formErrors.phone}
+                    aria-describedby={formErrors.phone ? "staff-phone-error" : undefined}
                   />
+                  {formErrors.phone && (
+                    <p id="staff-phone-error" role="alert" className="mt-1 text-xs text-destructive">
+                      {formErrors.phone}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -545,16 +711,21 @@ export default function StaffPage() {
                 >
                   Beosztás
                 </label>
-                <input
+                <select
                   id="staff-role"
-                  type="text"
                   value={form.roleTitle}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, roleTitle: e.target.value }))
                   }
                   className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Ingatlanközvetítő"
-                />
+                >
+                  <option value="Ingatlanközvetítő">Ingatlanközvetítő</option>
+                  <option value="Ügyvezető">Ügyvezető</option>
+                  <option value="Iroda vezető">Iroda vezető</option>
+                  <option value="Asszisztens">Asszisztens</option>
+                  <option value="Értékbecslő">Értékbecslő</option>
+                  <option value="Jogi tanácsadó">Jogi tanácsadó</option>
+                </select>
               </div>
 
               <div>

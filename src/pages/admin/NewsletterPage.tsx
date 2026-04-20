@@ -53,6 +53,11 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function NewsletterPage() {
   const { csrfToken } = useAuth();
+
+  useEffect(() => {
+    document.title = "Hírlevél | Gerecse Ingatlan Admin";
+  }, []);
+
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,

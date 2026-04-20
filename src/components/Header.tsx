@@ -116,8 +116,8 @@ const Header = () => {
 
   const isAboutActive = aboutSubLinks.some((s) => location.pathname === localePath(s.path));
 
-  const langLabel = lang === "hu" ? "Switch to English" : "Váltás magyarra";
-  const currencyLabel = currency === "HUF" ? "Switch to EUR" : "Váltás HUF-ra";
+  const langLabel = lang === "hu" ? t.common.switchToEnglish : t.common.switchToHungarian;
+  const currencyLabel = currency === "HUF" ? t.common.switchToEur : t.common.switchToHuf;
 
   // Shared focus-visible ring for keyboard users (WCAG 2.1 AA — 2.4.7 Focus Visible).
   // Ring offset matches the header bg (#FFFFF0) so the ring reads clearly against it.
@@ -152,13 +152,13 @@ const Header = () => {
           <Link to={localePath("/")} className={`flex items-center gap-2 mr-auto -ml-20 md:-ml-32 ${focusRing}`}>
             <img
               src={logo}
-              alt={lang === "hu" ? "Gerecse Ingatlan — Kezdőlap" : "Gerecse Ingatlan — Home"}
+              alt={t.common.logoAlt}
               className="h-40 md:h-56 -my-6 md:-my-10 rounded"
             />
           </Link>
 
           {/* Desktop navigation */}
-          <nav aria-label={lang === "hu" ? "Fő navigáció" : "Main navigation"} className="hidden lg:flex items-center gap-6">
+          <nav aria-label={t.common.mainNavigation} className="hidden lg:flex items-center gap-6">
             {/* Home link */}
             <Link
               to={localePath("/")}
@@ -320,10 +320,7 @@ const Header = () => {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            aria-label={menuOpen
-              ? (lang === "hu" ? "Menü bezárása" : "Close menu")
-              : (lang === "hu" ? "Menü megnyitása" : "Open menu")
-            }
+            aria-label={menuOpen ? t.common.closeMenu : t.common.openMenu}
           >
             {menuOpen ? <X size={28} aria-hidden="true" /> : <Menu size={28} aria-hidden="true" />}
           </button>
@@ -335,7 +332,7 @@ const Header = () => {
             id="mobile-menu"
             className="lg:hidden pb-4 border-t border-[#0B2340]/15"
           >
-            <nav aria-label={lang === "hu" ? "Mobil navigáció" : "Mobile navigation"} className="flex flex-col gap-2 pt-4">
+            <nav aria-label={t.common.mobileNavigation} className="flex flex-col gap-2 pt-4">
               {/* Home */}
               <Link
                 to={localePath("/")}

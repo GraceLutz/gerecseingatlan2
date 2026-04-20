@@ -334,6 +334,15 @@ export const en = {
     back: "Back",
     scrollToTop: "Scroll to top",
     skipToContent: "Skip to content",
+    mainNavigation: "Main navigation",
+    mobileNavigation: "Mobile navigation",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
+    logoAlt: "Gerecse Ingatlan — Home",
+    switchToEnglish: "Switch to English",
+    switchToHungarian: "Váltás magyarra",
+    switchToEur: "Switch to EUR",
+    switchToHuf: "Váltás HUF-ra",
   },
   admin: {
     properties: {

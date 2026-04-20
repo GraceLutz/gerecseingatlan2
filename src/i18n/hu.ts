@@ -334,6 +334,15 @@ export const hu = {
     back: "Vissza",
     scrollToTop: "Vissza az oldal tetejére",
     skipToContent: "Ugrás a tartalomhoz",
+    mainNavigation: "Fő navigáció",
+    mobileNavigation: "Mobil navigáció",
+    openMenu: "Menü megnyitása",
+    closeMenu: "Menü bezárása",
+    logoAlt: "Gerecse Ingatlan — Kezdőlap",
+    switchToEnglish: "Switch to English",
+    switchToHungarian: "Váltás magyarra",
+    switchToEur: "Switch to EUR",
+    switchToHuf: "Váltás HUF-ra",
   },
   admin: {
     properties: {

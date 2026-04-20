@@ -1,12 +1,27 @@
 import { Router } from "express";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
+import rateLimit from "express-rate-limit";
 import { db } from "../db/index";
 import { newsletterSubscribers } from "../db/schema/newsletter";
 import { sendNewsletterConfirmationEmail } from "../services/email";
 import { escapeHtml } from "../templates/shared";
 
 const router = Router();
+
+const subscribeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    const lang = (_req.headers["accept-language"] ?? "").includes("en") ? "en" : "hu";
+    const message = lang === "en"
+      ? "Too many attempts, please try again later."
+      : "Túl sok próbálkozás, kérjük próbálja újra később.";
+    res.status(429).json({ error: message });
+  },
+});
 
 const subscribeSchema = z.object({
   email: z.string().email("Érvénytelen e-mail cím.").max(320),
@@ -19,7 +34,7 @@ const subscribeSchema = z.object({
 });
 
 /** POST /api/newsletter/subscribe */
-router.post("/subscribe", async (req, res) => {
+router.post("/subscribe", subscribeLimiter, async (req, res) => {
   try {
     const result = subscribeSchema.safeParse(req.body);
     if (!result.success) {

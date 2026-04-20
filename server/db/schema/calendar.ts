@@ -43,5 +43,24 @@ export const calendarEvents = pgTable("calendar_events", {
   index("calendar_events_start_datetime_idx").on(table.startDatetime),
 ]);
 
+export const eventInvitees = pgTable("event_invitees", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  eventId: uuid("event_id")
+    .notNull()
+    .references(() => calendarEvents.id, { onDelete: "cascade" }),
+  staffId: uuid("staff_id")
+    .references(() => staff.id, { onDelete: "cascade" }),
+  email: varchar("email", { length: 320 }).notNull(),
+  notifiedAt: timestamp("notified_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+}, (table) => [
+  index("event_invitees_event_id_idx").on(table.eventId),
+  index("event_invitees_staff_id_idx").on(table.staffId),
+]);
+
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type NewCalendarEvent = typeof calendarEvents.$inferInsert;
+export type EventInvitee = typeof eventInvitees.$inferSelect;
+export type NewEventInvitee = typeof eventInvitees.$inferInsert;

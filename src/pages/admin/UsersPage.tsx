@@ -68,7 +68,7 @@ export default function UsersPage() {
       const res = await fetch(`/api/admin/users?${params}`, {
         credentials: "include",
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error("Hiba történt a felhasználók betöltésekor.");
       const data: UsersResponse = await res.json();
       setUsers(data.users);
       setTotal(data.pagination.total);

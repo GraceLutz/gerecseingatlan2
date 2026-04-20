@@ -123,6 +123,10 @@ export default function StaffPage() {
     fetchStaff();
   }, [fetchStaff]);
 
+  useEffect(() => {
+    document.title = "Munkatársak | Gerecse Ingatlan Admin";
+  }, []);
+
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
 

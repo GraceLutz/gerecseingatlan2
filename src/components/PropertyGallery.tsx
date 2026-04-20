@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, SyntheticEvent } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, X, Expand } from "lucide-react";
 import { Home } from "lucide-react";
@@ -80,6 +80,12 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
     };
   }, [lightboxOpen]);
 
+  const handleImageError = useCallback((e: SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.style.display = "none";
+    const placeholder = e.currentTarget.nextElementSibling as HTMLElement | null;
+    if (placeholder) placeholder.style.display = "flex";
+  }, []);
+
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
@@ -133,14 +139,18 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
             {images.map((src, i) => (
-              <div key={src} className="flex-[0_0_100%] min-w-0">
+              <div key={src} className="flex-[0_0_100%] min-w-0 relative">
                 <img
                   src={src}
                   alt={`${alt} — ${i + 1}/${images.length}`}
                   className="w-full aspect-video object-cover"
                   loading={i === 0 ? "eager" : "lazy"}
                   decoding="async"
+                  onError={handleImageError}
                 />
+                <div className="hidden w-full aspect-video items-center justify-center bg-muted" aria-hidden="true">
+                  <Home size={48} className="text-primary/20" />
+                </div>
               </div>
             ))}
           </div>
@@ -240,6 +250,7 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
             alt={`${alt} — ${activeIndex + 1}/${images.length}`}
             className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
+            onError={(e) => { e.currentTarget.style.opacity = "0.3"; }}
           />
 
           {images.length > 1 && (

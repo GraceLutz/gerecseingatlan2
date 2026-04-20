@@ -54,7 +54,7 @@ const PropertyDetailPage = () => {
   ].filter(Boolean) as { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; value: string | number }[];
 
   const seoTitle = `${title} – ${property.location} | Gerecse Ingatlan`;
-  const seoDescription = `${title} – ${property.location}. ${property.area} m², ${formatPrice(property.price)}. Gerecse Ingatlan.`;
+  const seoDescription = `${title} – ${property.location}.${property.area > 0 ? ` ${property.area} m²,` : ""} ${formatPrice(property.price)}. Gerecse Ingatlan.`;
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlanok/${property.id}`}>

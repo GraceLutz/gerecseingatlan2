@@ -43,7 +43,7 @@ export function formatHUF(amount: number): string {
 /**
  * Formats an EUR price for display.
  * @param amount - Amount in EUR
- * @returns Formatted string like "€174 750", or "€0" for invalid input
+ * @returns Formatted string like "€174.750", or "€0" for invalid input
  */
 export function formatEUR(amount: number): string {
   return "€" + new Intl.NumberFormat("de-DE").format(safeNumber(amount));

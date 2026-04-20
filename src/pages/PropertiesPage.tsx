@@ -4,7 +4,7 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { useProperties } from "@/hooks/useProperties";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyListItem from "@/components/PropertyListItem";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
 
@@ -152,7 +152,7 @@ const PropertiesPage = () => {
   const { t } = useLanguage();
   const { currency, toggleCurrency } = useCurrency();
   const { properties, locations } = useProperties();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [filters, setFilters] = useState<Filters>({
     location: searchParams.get("location") || "",
@@ -170,6 +170,20 @@ const PropertiesPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.location) params.set("location", filters.location);
+    if (filters.type) params.set("type", filters.type);
+    if (filters.status) params.set("status", filters.status);
+    if (filters.minPrice) params.set("minPrice", filters.minPrice);
+    if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
+    if (filters.minArea) params.set("minArea", filters.minArea);
+    if (filters.maxArea) params.set("maxArea", filters.maxArea);
+    if (filters.rooms) params.set("rooms", filters.rooms);
+    if (filters.idSearch) params.set("id", filters.idSearch);
+    setSearchParams(params, { replace: true });
+  }, [filters, setSearchParams]);
 
   const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
     setFilters(f => ({ ...f, [key]: value }));

@@ -35,6 +35,9 @@ interface StaffMember {
   photoUrl: string | null;
   bio: string | null;
   active: boolean;
+  showEmail: boolean;
+  showPhone: boolean;
+  sortOrder: number;
   userId: string | null;
   createdAt: string;
   updatedAt: string;
@@ -47,6 +50,8 @@ interface StaffFormData {
   roleTitle: string;
   bio: string;
   active: boolean;
+  showEmail: boolean;
+  showPhone: boolean;
   dashboardAccess: boolean;
 }
 
@@ -69,6 +74,8 @@ const EMPTY_FORM: StaffFormData = {
   roleTitle: "Ingatlanközvetítő",
   bio: "",
   active: true,
+  showEmail: true,
+  showPhone: true,
   dashboardAccess: false,
 };
 
@@ -166,6 +173,8 @@ export default function StaffPage() {
       roleTitle: member.roleTitle,
       bio: member.bio ?? "",
       active: member.active,
+      showEmail: member.showEmail,
+      showPhone: member.showPhone,
       dashboardAccess: false,
     });
     setFormErrors({});
@@ -749,6 +758,36 @@ export default function StaffPage() {
                   className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
                   placeholder="Rövid bemutatkozó szöveg..."
                 />
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-foreground">
+                  Nyilvános megjelenítés
+                </p>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.showEmail}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, showEmail: e.target.checked }))
+                    }
+                    className="rounded border-border"
+                  />
+                  <Mail size={14} className="text-muted-foreground" aria-hidden="true" />
+                  <span>E-mail cím megjelenítése a nyilvános oldalon</span>
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.showPhone}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, showPhone: e.target.checked }))
+                    }
+                    className="rounded border-border"
+                  />
+                  <Phone size={14} className="text-muted-foreground" aria-hidden="true" />
+                  <span>Telefonszám megjelenítése a nyilvános oldalon</span>
+                </label>
               </div>
 
               {!editingId && (

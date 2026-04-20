@@ -13,7 +13,7 @@ const TeamPage = () => {
     : "Meet the Gerecse Ingatlan team – experienced experts at your service.";
 
   return (
-    <Layout title={seoTitle} description={seoDescription} canonicalPath="/csapat">
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/munkatarsaink">
       <TeamSection />
     </Layout>
   );

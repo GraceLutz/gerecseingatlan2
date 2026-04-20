@@ -6,6 +6,7 @@ import {
   boolean,
   timestamp,
   index,
+  integer,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
@@ -18,6 +19,9 @@ export const staff = pgTable("staff", {
   photoUrl: text("photo_url"),
   bio: text("bio"),
   active: boolean("active").notNull().default(true),
+  showEmail: boolean("show_email").notNull().default(true),
+  showPhone: boolean("show_phone").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
   userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

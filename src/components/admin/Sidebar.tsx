@@ -49,7 +49,7 @@ export default function Sidebar() {
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+                  `flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
                     isActive
                       ? "bg-white/10 text-gold font-medium"
                       : "text-white/70 hover:bg-white/5 hover:text-white"
@@ -68,7 +68,7 @@ export default function Sidebar() {
                 <NavLink
                   to={item.to}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+                    `flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
                       isActive
                         ? "bg-white/10 text-gold font-medium"
                         : "text-white/70 hover:bg-white/5 hover:text-white"
@@ -90,7 +90,7 @@ export default function Sidebar() {
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+                  `flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
                     isActive
                       ? "bg-white/10 text-gold font-medium"
                       : "text-white/70 hover:bg-white/5 hover:text-white"
@@ -105,7 +105,7 @@ export default function Sidebar() {
           <li>
             <button
               onClick={logout}
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white"
+              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
               Kijelentkezés

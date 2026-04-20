@@ -6,7 +6,7 @@ import { Mail, Phone } from "lucide-react";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Footer = () => {
-  const { lang, t, localePath } = useLanguage();
+  const { t, localePath } = useLanguage();
   const [footerEmail, setFooterEmail] = useState("");
   const [footerGdpr, setFooterGdpr] = useState(false);
   const [footerSubmitted, setFooterSubmitted] = useState(false);
@@ -57,7 +57,7 @@ const Footer = () => {
           {/* Quick Links */}
           <div>
             <h3 className="text-lg font-heading font-bold text-gold mb-4">{t.footer.quickLinks}</h3>
-            <nav aria-label={lang === "hu" ? "Gyors linkek" : "Quick links"} className="space-y-2 text-sm">
+            <nav aria-label={t.footer.quickLinks} className="space-y-2 text-sm">
               <Link to={localePath("/")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.nav.home}</Link>
               <Link to={localePath("/bemutatkozas")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.nav.about}</Link>
               <Link to={localePath("/ingatlanok")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.nav.properties}</Link>
@@ -68,7 +68,7 @@ const Footer = () => {
           {/* Services */}
           <div>
             <h3 className="text-lg font-heading font-bold text-gold mb-4">{t.footer.services}</h3>
-            <nav aria-label={lang === "hu" ? "Szolgáltatások" : "Services"} className="space-y-2 text-sm">
+            <nav aria-label={t.footer.services} className="space-y-2 text-sm">
               <Link to={localePath("/ingatlan-ertekesites-berbeadas")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.services.salesTitle}</Link>
               <Link to={localePath("/ertekbecsles-ertekmeghatrozas")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.services.appraisalTitle}</Link>
               <Link to={localePath("/teljeskoru-jogi-hatter")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.services.legalTitle}</Link>
@@ -107,7 +107,7 @@ const Footer = () => {
                   />
                   <button
                     type="submit"
-                    aria-label={lang === "hu" ? "Feliratkozás a hírlevélre" : "Subscribe to newsletter"}
+                    aria-label={t.footer.subscribeLabel}
                     className="px-4 py-2 bg-gold text-accent-foreground font-semibold text-sm rounded hover:bg-gold/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4]"
                   >
                     OK
@@ -134,7 +134,7 @@ const Footer = () => {
 
         <div className="mt-10 pt-6 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-primary-foreground/60">
           <p>{t.footer.copyright}</p>
-          <nav aria-label={lang === "hu" ? "Jogi információk" : "Legal information"} className="flex flex-wrap gap-4">
+          <nav aria-label={t.footer.legalInfo} className="flex flex-wrap gap-4">
             <Link to={localePath("/impresszum")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.imprint}</Link>
             <Link to={localePath("/adatkezelesi-tajekoztato")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.privacy}</Link>
             <Link to={localePath("/cookie-tajekoztato")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.cookies}</Link>

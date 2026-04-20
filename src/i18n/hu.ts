@@ -202,6 +202,8 @@ export const hu = {
     cookies: "Sütik kezelése",
     imprint: "Impresszum",
     terms: "ÁSZF",
+    legalInfo: "Jogi információk",
+    subscribeLabel: "Feliratkozás a hírlevélre",
   },
   currency: {
     huf: "HUF",

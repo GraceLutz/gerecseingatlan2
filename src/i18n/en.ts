@@ -202,6 +202,8 @@ export const en = {
     cookies: "Cookie Settings",
     imprint: "Imprint",
     terms: "Terms",
+    legalInfo: "Legal information",
+    subscribeLabel: "Subscribe to newsletter",
   },
   currency: {
     huf: "HUF",

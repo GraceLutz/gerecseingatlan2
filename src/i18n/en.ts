@@ -89,7 +89,7 @@ export const en = {
     more: "Learn more",
     interestedCta: "Interested in our service?",
     salesTitle: "Property Sales & Rentals",
-    salesDesc: "Residential, commercial, and agricultural property sales and rentals.",
+    salesDesc: "Residential, commercial, and industrial property sales and rentals.",
     appraisalTitle: "Appraisal & Value Determination",
     appraisalDesc: "Official property appraisal and market value determination with expert involvement.",
     interiorTitle: "Interior Design & Visualization",

@@ -138,6 +138,10 @@ export default function UsersPage() {
   };
 
   const handleToggleActive = async (user: User) => {
+    const action = user.active ? "deaktiválni" : "aktiválni";
+    if (!window.confirm(`Biztosan szeretné ${action} a következő felhasználót: ${user.email}?`)) {
+      return;
+    }
     setSaving(true);
     setError(null);
     try {

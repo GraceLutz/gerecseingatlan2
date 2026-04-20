@@ -116,7 +116,9 @@ export default function Sidebar() {
         {user && (
           <div className="mt-4 rounded-md bg-white/5 p-3">
             <p className="text-xs text-white/80 truncate">{user.email}</p>
-            <p className="text-xs text-white/50 capitalize">{user.role}</p>
+            <p className="text-xs text-white/50">
+              {{ admin: "Adminisztrátor", editor: "Szerkesztő", viewer: "Megtekintő" }[user.role] ?? user.role}
+            </p>
           </div>
         )}
       </div>

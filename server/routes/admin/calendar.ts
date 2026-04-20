@@ -1,11 +1,18 @@
 import { Router } from "express";
 import { z } from "zod";
-import { eq, and, gte, lte, sql } from "drizzle-orm";
+import { eq, and, gte, lte, sql, inArray } from "drizzle-orm";
 import { db } from "../../db/index";
-import { calendarEvents } from "../../db/schema/calendar";
+import { calendarEvents, eventInvitees } from "../../db/schema/calendar";
 import { staff } from "../../db/schema/staff";
-import { activityLog } from "../../db/schema/users";
+import { activityLog, users } from "../../db/schema/users";
 import { requireRole } from "../../middleware/auth";
+import { sendEmail } from "../../services/email";
+import {
+  calendarInviteHtml,
+  calendarInviteText,
+  generateIcsContent,
+  type CalendarInviteParams,
+} from "../../templates/calendar_invite";
 
 const router = Router();
 
@@ -299,6 +306,187 @@ router.delete("/:id", async (req, res) => {
   } catch (error) {
     console.error("[admin/calendar] Delete error:", error);
     res.status(500).json({ error: "Hiba történt az esemény törlésekor." });
+  }
+});
+
+const inviteSchema = z.object({
+  staffIds: z.array(z.string().uuid()).min(1, "Legalább egy munkatársat válasszon ki."),
+});
+
+/** GET /api/admin/calendar/:eventId/invitees — list invitees for an event */
+router.get("/:eventId/invitees", async (req, res) => {
+  try {
+    const idResult = idSchema.safeParse(req.params.eventId);
+    if (!idResult.success) {
+      return res.status(400).json({ error: "Érvénytelen azonosító." });
+    }
+
+    const invitees = await db
+      .select({
+        id: eventInvitees.id,
+        eventId: eventInvitees.eventId,
+        staffId: eventInvitees.staffId,
+        email: eventInvitees.email,
+        staffName: staff.name,
+        notifiedAt: eventInvitees.notifiedAt,
+        createdAt: eventInvitees.createdAt,
+      })
+      .from(eventInvitees)
+      .leftJoin(staff, eq(eventInvitees.staffId, staff.id))
+      .where(eq(eventInvitees.eventId, idResult.data));
+
+    res.json({ invitees });
+  } catch (error) {
+    console.error("[admin/calendar] List invitees error:", error);
+    res.status(500).json({ error: "Hiba történt a meghívottak lekérdezésekor." });
+  }
+});
+
+/** POST /api/admin/calendar/:eventId/invitees — add invitees and send email notifications */
+router.post("/:eventId/invitees", async (req, res) => {
+  try {
+    const idResult = idSchema.safeParse(req.params.eventId);
+    if (!idResult.success) {
+      return res.status(400).json({ error: "Érvénytelen azonosító." });
+    }
+
+    const result = inviteSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({
+        error: result.error.issues[0]?.message ?? "Érvénytelen adatok.",
+      });
+    }
+
+    const [event] = await db
+      .select()
+      .from(calendarEvents)
+      .where(eq(calendarEvents.id, idResult.data))
+      .limit(1);
+
+    if (!event) {
+      return res.status(404).json({ error: "Esemény nem található." });
+    }
+
+    const staffMembers = await db
+      .select({ id: staff.id, name: staff.name, email: staff.email })
+      .from(staff)
+      .where(inArray(staff.id, result.data.staffIds));
+
+    if (staffMembers.length === 0) {
+      return res.status(400).json({ error: "A kiválasztott munkatársak nem találhatóak." });
+    }
+
+    const organizer = await db
+      .select({ name: users.name })
+      .from(users)
+      .where(eq(users.id, req.user!.id))
+      .limit(1);
+
+    const organizerName = organizer[0]?.name ?? "Gerecse Ingatlan";
+
+    const inviteParams: CalendarInviteParams = {
+      eventTitle: event.title,
+      startDatetime: event.startDatetime,
+      endDatetime: event.endDatetime,
+      location: event.location,
+      description: event.description,
+      organizerName,
+    };
+
+    const icsContent = generateIcsContent(inviteParams);
+    const created = [];
+
+    for (const member of staffMembers) {
+      if (!member.email) continue;
+
+      const existing = await db
+        .select({ id: eventInvitees.id })
+        .from(eventInvitees)
+        .where(
+          and(
+            eq(eventInvitees.eventId, idResult.data),
+            eq(eventInvitees.staffId, member.id),
+          )
+        )
+        .limit(1);
+
+      if (existing.length > 0) continue;
+
+      const [invitee] = await db
+        .insert(eventInvitees)
+        .values({
+          eventId: idResult.data,
+          staffId: member.id,
+          email: member.email,
+        })
+        .returning();
+
+      try {
+        await sendEmail({
+          to: member.email,
+          subject: `Naptár meghívó: ${event.title}`,
+          html: calendarInviteHtml(inviteParams),
+          text: calendarInviteText(inviteParams),
+          attachments: [{
+            filename: "invite.ics",
+            content: icsContent,
+            contentType: "text/calendar; method=REQUEST",
+          }],
+        });
+
+        await db
+          .update(eventInvitees)
+          .set({ notifiedAt: new Date() })
+          .where(eq(eventInvitees.id, invitee.id));
+      } catch (emailErr) {
+        console.error(`[admin/calendar] Failed to send invite to ${member.email}:`, emailErr);
+      }
+
+      created.push(invitee);
+    }
+
+    await db.insert(activityLog).values({
+      userId: req.user?.id ?? null,
+      action: "invitees_added",
+      entityType: "calendar_event",
+      entityId: event.id,
+      details: { inviteeCount: created.length, staffIds: result.data.staffIds },
+    });
+
+    res.status(201).json({ invitees: created, added: created.length });
+  } catch (error) {
+    console.error("[admin/calendar] Add invitees error:", error);
+    res.status(500).json({ error: "Hiba történt a meghívottak hozzáadásakor." });
+  }
+});
+
+/** DELETE /api/admin/calendar/:eventId/invitees/:inviteeId — remove an invitee */
+router.delete("/:eventId/invitees/:inviteeId", async (req, res) => {
+  try {
+    const eventIdResult = idSchema.safeParse(req.params.eventId);
+    const inviteeIdResult = idSchema.safeParse(req.params.inviteeId);
+    if (!eventIdResult.success || !inviteeIdResult.success) {
+      return res.status(400).json({ error: "Érvénytelen azonosító." });
+    }
+
+    const [deleted] = await db
+      .delete(eventInvitees)
+      .where(
+        and(
+          eq(eventInvitees.id, inviteeIdResult.data),
+          eq(eventInvitees.eventId, eventIdResult.data),
+        )
+      )
+      .returning();
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Meghívott nem található." });
+    }
+
+    res.json({ success: true, message: "Meghívott sikeresen eltávolítva." });
+  } catch (error) {
+    console.error("[admin/calendar] Remove invitee error:", error);
+    res.status(500).json({ error: "Hiba történt a meghívott eltávolításakor." });
   }
 });
 

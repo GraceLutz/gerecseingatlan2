@@ -335,7 +335,21 @@ const PropertiesPage = () => {
                   )}
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground py-12">{t.properties.noResults}</p>
+                <div className="text-center py-16 space-y-4">
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center" aria-hidden="true">
+                    <SlidersHorizontal size={28} className="text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground text-lg">{t.properties.noResults}</p>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={clearFilters}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary/5 transition-colors"
+                    >
+                      <X size={14} />
+                      {t.properties.clearFilters}
+                    </button>
+                  )}
+                </div>
               )}
 
               {/* Pagination with truncation */}

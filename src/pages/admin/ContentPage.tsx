@@ -40,6 +40,10 @@ interface GroupedBlocks {
 
 export default function ContentPage() {
   const { csrfToken } = useAuth();
+
+  useEffect(() => {
+    document.title = "Tartalom kezelés | Gerecse Ingatlan Admin";
+  }, []);
   const [blocks, setBlocks] = useState<ContentBlock[]>([]);
   const [grouped, setGrouped] = useState<GroupedBlocks>({});
   const [total, setTotal] = useState(0);

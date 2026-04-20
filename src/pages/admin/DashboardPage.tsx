@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -134,6 +135,10 @@ const STAT_CARDS = [
 ];
 
 export default function DashboardPage() {
+  useEffect(() => {
+    document.title = "Vezérlőpult | Gerecse Ingatlan Admin";
+  }, []);
+
   const stats = useQuery({
     queryKey: ["admin", "dashboard", "stats"],
     queryFn: fetchStats,

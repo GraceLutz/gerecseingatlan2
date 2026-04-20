@@ -85,6 +85,10 @@ function fromLocalDatetimeValue(local: string): string {
 
 export default function CalendarPage() {
   const { csrfToken } = useAuth();
+
+  useEffect(() => {
+    document.title = "Naptár | Gerecse Ingatlan Admin";
+  }, []);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);

@@ -62,10 +62,12 @@ const PropertyListItemComponent: React.FC<PropertyListItemProps> = ({ property }
           </h3>
           <p className="text-sm text-muted-foreground mb-2 line-clamp-1">{property.location}</p>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Maximize size={14} aria-hidden="true" />
-              <span>{property.area} {t.featured.sqm}</span>
-            </span>
+            {property.area > 0 && (
+              <span className="flex items-center gap-1">
+                <Maximize size={14} aria-hidden="true" />
+                <span>{property.area} {t.featured.sqm}</span>
+              </span>
+            )}
             {property.rooms > 0 && (
               <span className="flex items-center gap-1">
                 <BedDouble size={14} aria-hidden="true" />

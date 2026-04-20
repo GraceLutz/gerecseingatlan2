@@ -42,7 +42,7 @@ const PropertyDetailPage = () => {
   const statusLabel = property.status === "sale" ? t.featured.forSale : t.featured.forRent;
 
   const details = [
-    { icon: Maximize, label: t.properties.area, value: `${property.area} m²` },
+    property.area > 0 ? { icon: Maximize, label: t.properties.area, value: `${property.area} m²` } : null,
     property.lotSize ? { icon: Trees, label: t.properties.lotSize, value: `${property.lotSize} m²` } : null,
     property.rooms > 0 ? { icon: BedDouble, label: t.featured.rooms, value: property.rooms } : null,
     property.bathrooms > 0 ? { icon: Bath, label: t.properties.bathrooms, value: property.bathrooms } : null,

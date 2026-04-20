@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -13,10 +13,12 @@ const PropertyCardComponent: React.FC<PropertyCardProps> = ({ property }) => {
   const { lang, t, localePath } = useLanguage();
   const { formatPrice } = useCurrency();
 
+  const [imgError, setImgError] = useState(false);
+
   const title = lang === "hu" ? property.titleHu : property.titleEn;
   const statusLabel = property.status === "sale" ? t.featured.forSale : t.featured.forRent;
   const statusColor = property.status === "sale" ? "bg-primary" : "bg-gold";
-  const hasImage = property.images.length > 0;
+  const hasImage = property.images.length > 0 && !imgError;
 
   return (
     <article className="h-full">
@@ -33,6 +35,7 @@ const PropertyCardComponent: React.FC<PropertyCardProps> = ({ property }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
             decoding="async"
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center" aria-hidden="true">

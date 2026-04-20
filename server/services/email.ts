@@ -3,11 +3,18 @@ import { welcomeNewUserHtml, welcomeNewUserText } from "../templates/welcome_new
 import { passwordResetHtml, passwordResetText } from "../templates/password_reset";
 import { newsletterConfirmationHtml, newsletterConfirmationText } from "../templates/newsletter_confirmation";
 
+interface EmailAttachment {
+  filename: string;
+  content: string;
+  contentType: string;
+}
+
 interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
   text: string;
+  attachments?: EmailAttachment[];
 }
 
 /**
@@ -23,6 +30,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
       subject: options.subject,
       html: options.html,
       text: options.text,
+      ...(options.attachments?.length ? { attachments: options.attachments } : {}),
     });
   } catch (error) {
     if (!process.env.SMTP_HOST) {

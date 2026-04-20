@@ -157,7 +157,7 @@ const ContactPage = () => {
               {/* Social links */}
               <div className="flex gap-4 pt-2">
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/gerecseingatlan"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"

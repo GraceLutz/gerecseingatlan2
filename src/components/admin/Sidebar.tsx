@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/admin/dashboard", label: "Vezérlőpult", icon: LayoutDashboard },
   { to: "/admin/ingatlanok", label: "Ingatlanok", icon: Home },
   { to: "/admin/tartalom", label: "Tartalom", icon: FileText },
   { to: "/admin/munkatarsak", label: "Munkatársak", icon: Users },
@@ -35,12 +35,12 @@ export default function Sidebar() {
 
   return (
     <aside className="flex h-full w-64 flex-col bg-dark-navy text-white" aria-label="Admin navigáció">
-      <div className="border-b border-white/10 p-6">
+      <Link to="/admin/dashboard" className="block border-b border-white/10 p-6 hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold">
         <h2 className="font-heading text-lg font-bold text-gold">
           Gerecse Ingatlan
         </h2>
         <p className="mt-1 text-xs text-white/60">Admin</p>
-      </div>
+      </Link>
 
       <nav className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-1" role="list">

@@ -6,6 +6,9 @@ export const hu = {
     services: "Szolgáltatások",
     contact: "Kapcsolat",
     faq: "GYIK",
+    introduction: "Bemutatkozás",
+    team: "Munkatársaink",
+    testimonials: "Vélemények",
   },
   hero: {
     title: "Gerecse Ingatlan",
@@ -197,6 +200,8 @@ export const hu = {
     copyright: "© 2026 Gerecse Ingatlan. Minden jog fenntartva.",
     privacy: "Adatvédelem",
     cookies: "Sütik kezelése",
+    imprint: "Impresszum",
+    terms: "ÁSZF",
   },
   currency: {
     huf: "HUF",

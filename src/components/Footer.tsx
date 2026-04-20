@@ -24,14 +24,14 @@ const Footer = () => {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setFooterError(data.error ?? (lang === "hu" ? "Hiba történt." : "An error occurred."));
+        setFooterError(data.error ?? t.newsletter.genericError);
         return;
       }
       setFooterEmail("");
       setFooterGdpr(false);
       setFooterSubmitted(true);
     } catch {
-      setFooterError(lang === "hu" ? "Hálózati hiba." : "Network error.");
+      setFooterError(t.newsletter.networkError);
     }
   };
 
@@ -135,10 +135,10 @@ const Footer = () => {
         <div className="mt-10 pt-6 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-primary-foreground/60">
           <p>{t.footer.copyright}</p>
           <nav aria-label={lang === "hu" ? "Jogi információk" : "Legal information"} className="flex flex-wrap gap-4">
-            <Link to={localePath("/impresszum")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{lang === "hu" ? "Impresszum" : "Imprint"}</Link>
+            <Link to={localePath("/impresszum")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.imprint}</Link>
             <Link to={localePath("/adatkezelesi-tajekoztato")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.privacy}</Link>
             <Link to={localePath("/cookie-tajekoztato")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.cookies}</Link>
-            <Link to={localePath("/aszf")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{lang === "hu" ? "ÁSZF" : "Terms"}</Link>
+            <Link to={localePath("/aszf")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.terms}</Link>
           </nav>
         </div>
       </div>

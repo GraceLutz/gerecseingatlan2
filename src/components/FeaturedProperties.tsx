@@ -4,7 +4,7 @@ import PropertyCard from "./PropertyCard";
 import { Link } from "react-router-dom";
 
 const FeaturedProperties = () => {
-  const { t, lang, localePath } = useLanguage();
+  const { t, localePath } = useLanguage();
   const { properties, isLoading } = useProperties();
 
   // Show featured first; if none are featured, show all (up to 6)
@@ -45,9 +45,7 @@ const FeaturedProperties = () => {
             {t.featured.title}
           </h2>
           <p className="text-lg text-muted-foreground">
-            {lang === "hu"
-              ? "Hamarosan új ingatlanokkal bővül kínálatunk!"
-              : "New properties coming soon!"}
+            {t.featured.emptyState}
           </p>
         </div>
       </section>

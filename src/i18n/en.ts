@@ -6,6 +6,9 @@ export const en = {
     services: "Services",
     contact: "Contact",
     faq: "FAQ",
+    introduction: "Introduction",
+    team: "Our Team",
+    testimonials: "Testimonials",
   },
   hero: {
     title: "Gerecse Ingatlan",
@@ -197,6 +200,8 @@ export const en = {
     copyright: "© 2026 Gerecse Ingatlan. All rights reserved.",
     privacy: "Privacy Policy",
     cookies: "Cookie Settings",
+    imprint: "Imprint",
+    terms: "Terms",
   },
   currency: {
     huf: "HUF",

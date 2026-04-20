@@ -21,9 +21,9 @@ const Header = () => {
   const servicesTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const aboutSubLinks = [
-    { label: lang === "hu" ? "Bemutatkozás" : "Introduction", path: "/bemutatkozas" },
-    { label: lang === "hu" ? "Munkatársaink" : "Our Team", path: "/munkatarsaink" },
-    { label: lang === "hu" ? "Vélemények" : "Testimonials", path: "/velemenyek" },
+    { label: t.nav.introduction, path: "/bemutatkozas" },
+    { label: t.nav.team, path: "/munkatarsaink" },
+    { label: t.nav.testimonials, path: "/velemenyek" },
   ];
 
   const serviceSubLinks = [

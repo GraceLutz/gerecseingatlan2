@@ -1,5 +1,5 @@
 import { getTransporter, getMailFrom } from "../mailer";
-import { welcomeNewUserHtml, welcomeNewUserText } from "../templates/welcome_new_user";
+import { welcomeNewUserHtml, welcomeNewUserText, inviteEmailHtml, inviteEmailText } from "../templates/welcome_new_user";
 import { passwordResetHtml, passwordResetText } from "../templates/password_reset";
 import { newsletterConfirmationHtml, newsletterConfirmationText } from "../templates/newsletter_confirmation";
 
@@ -85,5 +85,25 @@ export async function sendNewsletterConfirmationEmail(params: NewsletterConfirma
     subject: "Hírlevél feliratkozás megerősítése – Gerecse Ingatlan",
     html: newsletterConfirmationHtml(params),
     text: newsletterConfirmationText(params),
+  });
+}
+
+interface InviteEmailParams {
+  email: string;
+  inviteUrl: string;
+  inviterName?: string;
+  lang?: "hu" | "en";
+}
+
+export async function sendInviteEmail(params: InviteEmailParams): Promise<void> {
+  const subject = params.lang === "en"
+    ? "Invitation to Gerecse Ingatlan – Gerecse Ingatlan"
+    : "Meghívó a Gerecse Ingatlan csapatába – Gerecse Ingatlan";
+
+  await sendEmail({
+    to: params.email,
+    subject,
+    html: inviteEmailHtml(params),
+    text: inviteEmailText(params),
   });
 }

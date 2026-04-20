@@ -133,6 +133,48 @@ function parseCookie(cookieHeader: string, name: string): string | undefined {
   return match ? decodeURIComponent(match[1]) : undefined;
 }
 
+/**
+ * Validates an invite token from the URL, loads the associated user record,
+ * and attaches it to `req.user`. Used for the accept-invite/set-password flow.
+ * Responds with 400/404 if the token is missing, invalid, or already used.
+ *
+ * Requires `inviteToken` and `inviteStatus` columns on the users table.
+ * If the schema hasn't been migrated yet, returns 503.
+ */
+export async function validateInviteToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const token = req.params.token || req.body?.token;
+  if (!token || typeof token !== "string" || token.length < 32) {
+    res.status(400).json({ error: "Érvénytelen meghívó link." });
+    return;
+  }
+
+  // Schema fields added by migration — guard against pre-migration usage
+  const usersTable = users as any;
+  if (!usersTable.inviteToken || !usersTable.inviteStatus) {
+    res.status(503).json({ error: "A meghívó funkció még nincs aktiválva." });
+    return;
+  }
+
+  const result = await db
+    .select()
+    .from(users)
+    .where(
+      and(
+        eq(usersTable.inviteToken, token),
+        eq(usersTable.inviteStatus, "pending"),
+      ),
+    )
+    .limit(1);
+
+  if (result.length === 0) {
+    res.status(404).json({ error: "A meghívó link érvénytelen vagy már felhasználták." });
+    return;
+  }
+
+  req.user = result[0];
+  next();
+}
+
 // CSRF token utilities
 const CSRF_COOKIE = "csrf_token";
 const CSRF_HEADER = "x-csrf-token";

@@ -13,6 +13,7 @@ const contactSchema = z.object({
   subject: z.string().min(2),
   message: z.string().min(10),
   gdpr: z.literal(true),
+  honeypot: z.string().optional(),
 });
 
 type ContactFormData = z.infer<typeof contactSchema>;
@@ -52,6 +53,7 @@ const ContactPage = () => {
           phone: data.phone || "",
           subject: data.subject,
           message: data.message,
+          honeypot: data.honeypot || "",
         }),
       });
       if (!res.ok) {
@@ -279,6 +281,18 @@ const ContactPage = () => {
                     aria-invalid={!!errors.message}
                   />
                   {fieldError("message")}
+                </div>
+
+                {/* Honeypot - hidden from real users */}
+                <div className="hidden" aria-hidden="true">
+                  <label htmlFor="contact-website">Website</label>
+                  <input
+                    id="contact-website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    {...register("honeypot")}
+                  />
                 </div>
 
                 <div className="flex items-start gap-2">

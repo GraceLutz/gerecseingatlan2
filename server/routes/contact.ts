@@ -12,7 +12,13 @@ const formLimiter = rateLimit({
   limit: 5,
   standardHeaders: "draft-7",
   legacyHeaders: false,
-  message: { error: "Túl sok űrlapbeküldés, kérjük próbálja újra később." },
+  handler: (_req, res) => {
+    const lang = (_req.headers["accept-language"] ?? "").includes("en") ? "en" : "hu";
+    const message = lang === "en"
+      ? "Too many submissions, please try again later."
+      : "Túl sok űrlapbeküldés, kérjük próbálja újra később.";
+    res.status(429).json({ error: message });
+  },
 });
 
 const contactFormSchema = z.object({

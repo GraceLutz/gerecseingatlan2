@@ -67,7 +67,10 @@ const PropertyContactForm: React.FC<PropertyContactFormProps> = ({ propertyId, p
     },
   });
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const onSubmit = async (data: ContactFormData) => {
+    setSubmitError(null);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -78,6 +81,7 @@ const PropertyContactForm: React.FC<PropertyContactFormProps> = ({ propertyId, p
           phone: data.phone || "",
           subject: `${lang === "hu" ? "Érdeklődés" : "Inquiry"}: ${propertyId}`,
           message: data.message || defaultMessage,
+          honeypot: "",
         }),
       });
       if (!res.ok) {
@@ -86,8 +90,12 @@ const PropertyContactForm: React.FC<PropertyContactFormProps> = ({ propertyId, p
       }
       setSubmitted(true);
     } catch (err) {
-      console.error("[PropertyContactForm] Submit failed", err);
-      setSubmitted(true);
+      const message = err instanceof Error ? err.message : String(err);
+      setSubmitError(
+        lang === "hu"
+          ? `Hiba történt az üzenet küldésekor: ${message}`
+          : `Error sending message: ${message}`
+      );
     }
   };
 
@@ -118,6 +126,12 @@ const PropertyContactForm: React.FC<PropertyContactFormProps> = ({ propertyId, p
       <p className="text-xs text-muted-foreground truncate" title={propertyTitle}>
         {propertyId}
       </p>
+
+      {submitError && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm" role="alert" aria-live="assertive">
+          {submitError}
+        </div>
+      )}
 
       {submitted ? (
         <div className="py-8 text-center" role="status" aria-live="polite">

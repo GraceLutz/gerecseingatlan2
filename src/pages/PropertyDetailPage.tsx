@@ -57,7 +57,7 @@ const PropertyDetailPage = () => {
   const seoDescription = `${title} – ${property.location}.${property.area > 0 ? ` ${property.area} m²,` : ""} ${formatPrice(property.price)}. Gerecse Ingatlan.`;
 
   return (
-    <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlanok/${property.id}`}>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlan/${property.id}`}>
       {/* Page header */}
       <section className="bg-dark-green py-12">
         <div className="container mx-auto px-4">

@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
-import { eq, ilike, and, gte, lte, sql, inArray, count } from "drizzle-orm";
+import { eq, ilike, and, gte, lte, sql, inArray, count, desc } from "drizzle-orm";
 import { db } from "../../db/index";
-import { newsletterSubscribers } from "../../db/schema/newsletter";
+import { newsletterSubscribers, newsletterCampaigns } from "../../db/schema/newsletter";
 import { activityLog } from "../../db/schema/users";
 import { requireRole } from "../../middleware/auth";
+import { sendEmail } from "../../services/email";
+import { newsletterCampaignHtml, newsletterCampaignText } from "../../templates/newsletter_campaign";
 
 const router = Router();
 
@@ -195,6 +197,200 @@ router.delete("/:id", async (req, res) => {
   } catch (error) {
     console.error("[admin/newsletter] Delete error:", error);
     res.status(500).json({ error: "Hiba történt a törlés során." });
+  }
+});
+
+/* ========================= CAMPAIGNS ========================= */
+
+const campaignSchema = z.object({
+  subject: z.string().min(1).max(500),
+  preheader: z.string().max(255).optional(),
+  body: z.string().min(1).max(50000),
+});
+
+/** GET /api/admin/newsletter/campaigns — list campaigns */
+router.get("/campaigns", async (req, res) => {
+  try {
+    const campaigns = await db
+      .select()
+      .from(newsletterCampaigns)
+      .orderBy(desc(newsletterCampaigns.createdAt));
+
+    res.json({ campaigns });
+  } catch (error) {
+    console.error("[admin/newsletter] Campaigns list error:", error);
+    res.status(500).json({ error: "Hiba történt a kampányok lekérdezésekor." });
+  }
+});
+
+/** POST /api/admin/newsletter/campaigns — create a campaign */
+router.post("/campaigns", async (req, res) => {
+  try {
+    const result = campaignSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: "Érvénytelen kampány adatok.", details: result.error.flatten() });
+    }
+
+    const [campaign] = await db
+      .insert(newsletterCampaigns)
+      .values({
+        subject: result.data.subject,
+        preheader: result.data.preheader || null,
+        body: result.data.body,
+      })
+      .returning();
+
+    res.status(201).json({ campaign });
+  } catch (error) {
+    console.error("[admin/newsletter] Campaign create error:", error);
+    res.status(500).json({ error: "Hiba történt a kampány létrehozásakor." });
+  }
+});
+
+/** POST /api/admin/newsletter/campaigns/:id/test-send — send test to logged-in user */
+router.post("/campaigns/:id/test-send", async (req, res) => {
+  try {
+    const idResult = z.string().uuid().safeParse(req.params.id);
+    if (!idResult.success) {
+      return res.status(400).json({ error: "Érvénytelen kampány azonosító." });
+    }
+
+    const [campaign] = await db
+      .select()
+      .from(newsletterCampaigns)
+      .where(eq(newsletterCampaigns.id, idResult.data));
+
+    if (!campaign) {
+      return res.status(404).json({ error: "Kampány nem található." });
+    }
+
+    const userEmail = req.user!.email;
+    const baseUrl = process.env.BASE_URL || "https://gerecseingatlan.hu";
+    const unsubscribeUrl = `${baseUrl}/leiratkozas?email=${encodeURIComponent(userEmail)}`;
+
+    await sendEmail({
+      to: userEmail,
+      subject: `[TESZT] ${campaign.subject}`,
+      html: newsletterCampaignHtml({
+        subject: campaign.subject,
+        preheader: campaign.preheader || undefined,
+        body: campaign.body,
+        unsubscribeUrl,
+      }),
+      text: newsletterCampaignText({
+        subject: campaign.subject,
+        preheader: campaign.preheader || undefined,
+        body: campaign.body,
+        unsubscribeUrl,
+      }),
+    });
+
+    res.json({ success: true, message: `Teszt levél elküldve: ${userEmail}` });
+  } catch (error) {
+    console.error("[admin/newsletter] Test send error:", error);
+    res.status(500).json({ error: "Hiba történt a teszt levél küldésekor." });
+  }
+});
+
+/** POST /api/admin/newsletter/campaigns/:id/send — send to all confirmed subscribers */
+router.post("/campaigns/:id/send", async (req, res) => {
+  try {
+    const idResult = z.string().uuid().safeParse(req.params.id);
+    if (!idResult.success) {
+      return res.status(400).json({ error: "Érvénytelen kampány azonosító." });
+    }
+
+    const [campaign] = await db
+      .select()
+      .from(newsletterCampaigns)
+      .where(eq(newsletterCampaigns.id, idResult.data));
+
+    if (!campaign) {
+      return res.status(404).json({ error: "Kampány nem található." });
+    }
+
+    if (campaign.status === "sent") {
+      return res.status(409).json({ error: "Ez a kampány már el lett küldve." });
+    }
+
+    const subscribers = await db
+      .select({ email: newsletterSubscribers.email })
+      .from(newsletterSubscribers)
+      .where(eq(newsletterSubscribers.status, "confirmed"));
+
+    if (subscribers.length === 0) {
+      return res.status(400).json({ error: "Nincs megerősített feliratkozó." });
+    }
+
+    const baseUrl = process.env.BASE_URL || "https://gerecseingatlan.hu";
+    let sentCount = 0;
+
+    for (const sub of subscribers) {
+      try {
+        const unsubscribeUrl = `${baseUrl}/leiratkozas?email=${encodeURIComponent(sub.email)}`;
+        await sendEmail({
+          to: sub.email,
+          subject: campaign.subject,
+          html: newsletterCampaignHtml({
+            subject: campaign.subject,
+            preheader: campaign.preheader || undefined,
+            body: campaign.body,
+            unsubscribeUrl,
+          }),
+          text: newsletterCampaignText({
+            subject: campaign.subject,
+            preheader: campaign.preheader || undefined,
+            body: campaign.body,
+            unsubscribeUrl,
+          }),
+        });
+        sentCount++;
+      } catch (err) {
+        console.error(`[admin/newsletter] Failed to send to ${sub.email}:`, err);
+      }
+    }
+
+    await db
+      .update(newsletterCampaigns)
+      .set({
+        status: "sent",
+        sentAt: new Date(),
+        sentBy: req.user!.id,
+        recipientCount: sentCount,
+      })
+      .where(eq(newsletterCampaigns.id, campaign.id));
+
+    await db.insert(activityLog).values({
+      userId: req.user!.id,
+      action: "newsletter_campaign_sent",
+      entityType: "newsletter_campaign",
+      entityId: campaign.id,
+      details: { subject: campaign.subject, recipientCount: sentCount },
+    });
+
+    res.json({
+      success: true,
+      message: `Kampány elküldve ${sentCount} címzettnek.`,
+      recipientCount: sentCount,
+    });
+  } catch (error) {
+    console.error("[admin/newsletter] Campaign send error:", error);
+    res.status(500).json({ error: "Hiba történt a kampány küldésekor." });
+  }
+});
+
+/** GET /api/admin/newsletter/campaigns/recipient-count — get count of confirmed subscribers */
+router.get("/campaigns/recipient-count", async (req, res) => {
+  try {
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(newsletterSubscribers)
+      .where(eq(newsletterSubscribers.status, "confirmed"));
+
+    res.json({ count: total });
+  } catch (error) {
+    console.error("[admin/newsletter] Recipient count error:", error);
+    res.status(500).json({ error: "Hiba történt." });
   }
 });
 

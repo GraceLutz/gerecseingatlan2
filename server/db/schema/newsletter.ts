@@ -5,6 +5,7 @@ import {
   varchar,
   timestamp,
   text,
+  integer,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
@@ -42,3 +43,29 @@ export const newsletterSubscribers = pgTable(
 
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type NewNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;
+
+export const campaignStatusEnum = pgEnum("campaign_status", [
+  "draft",
+  "sent",
+]);
+
+export const newsletterCampaigns = pgTable("newsletter_campaigns", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  preheader: varchar("preheader", { length: 255 }),
+  body: text("body").notNull(),
+  status: campaignStatusEnum("campaign_status").notNull().default("draft"),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  sentBy: uuid("sent_by"),
+  recipientCount: integer("recipient_count").default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export type NewsletterCampaign = typeof newsletterCampaigns.$inferSelect;
+export type NewNewsletterCampaign = typeof newsletterCampaigns.$inferInsert;

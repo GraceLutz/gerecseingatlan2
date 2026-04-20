@@ -159,6 +159,15 @@ app.use("/api/calendar", calendarPublicRoutes);
 app.use("/api", contactRoutes);
 app.use("/api/properties", propertiesRoutes);
 
+// ─── Global API error handler (JSON, never HTML) ─────────────
+app.use("/api", (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error("[API Error]", err.message);
+  const status = (err as unknown as { status?: number }).status || 500;
+  res.status(status).json({
+    error: isProduction ? "Szerverhiba történt." : err.message,
+  });
+});
+
 // ─── Vite / Static serving ──────────────────────────────────
 
 async function start() {

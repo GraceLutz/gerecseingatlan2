@@ -6,12 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
+  const { login, user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     document.title = "Bejelentkezés | Gerecse Ingatlan Admin";
   }, []);
-
-  const { login, user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
 
   if (authLoading) {
     return (
@@ -24,10 +28,6 @@ export default function LoginPage() {
   if (user) {
     return <Navigate to="/admin/dashboard" replace />;
   }
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

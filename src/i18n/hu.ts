@@ -333,6 +333,7 @@ export const hu = {
     close: "Bezárás",
     back: "Vissza",
     scrollToTop: "Vissza az oldal tetejére",
+    skipToContent: "Ugrás a tartalomhoz",
   },
   admin: {
     properties: {

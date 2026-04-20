@@ -17,8 +17,8 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, title, description, canonicalPath }) => {
-  const { lang } = useLanguage();
-  const skipLabel = lang === "hu" ? "Ugrás a tartalomhoz" : "Skip to content";
+  const { t } = useLanguage();
+  const skipLabel = t.common.skipToContent;
 
   return (
     <div className="min-h-screen flex flex-col">

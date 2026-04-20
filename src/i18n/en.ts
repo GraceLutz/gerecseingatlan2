@@ -333,6 +333,7 @@ export const en = {
     close: "Close",
     back: "Back",
     scrollToTop: "Scroll to top",
+    skipToContent: "Skip to content",
   },
   admin: {
     properties: {

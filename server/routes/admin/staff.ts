@@ -37,6 +37,8 @@ const createStaffSchema = z.object({
   roleTitle: z.string().max(255).default("Ingatlanközvetítő"),
   bio: z.string().max(5000).optional().nullable(),
   active: z.boolean().default(true),
+  showEmail: z.boolean().default(true),
+  showPhone: z.boolean().default(true),
   dashboardAccess: z.boolean().default(false),
 });
 
@@ -47,6 +49,9 @@ const updateStaffSchema = z.object({
   roleTitle: z.string().max(255).optional(),
   bio: z.string().max(5000).optional().nullable(),
   active: z.boolean().optional(),
+  showEmail: z.boolean().optional(),
+  showPhone: z.boolean().optional(),
+  sortOrder: z.number().int().min(0).optional(),
 });
 
 const idSchema = z.string().uuid("Érvénytelen azonosító.");

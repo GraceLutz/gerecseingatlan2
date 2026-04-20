@@ -16,6 +16,7 @@ import newsletterPublicRoutes from "./routes/newsletter";
 import calendarPublicRoutes from "./routes/calendar";
 import contactRoutes from "./routes/contact";
 import propertiesRoutes, { feedAdminRouter } from "./routes/properties";
+import staffPublicRoutes from "./routes/staff";
 import { requireAuth, validateCsrf } from "./middleware/auth";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -158,6 +159,7 @@ app.use("/api/newsletter", newsletterPublicRoutes);
 app.use("/api/calendar", calendarPublicRoutes);
 app.use("/api", contactRoutes);
 app.use("/api/properties", propertiesRoutes);
+app.use("/api/staff", staffPublicRoutes);
 
 // ─── Global API error handler (JSON, never HTML) ─────────────
 app.use("/api", (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

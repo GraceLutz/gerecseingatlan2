@@ -131,9 +131,14 @@
   }
 }
 
-/* Smooth scroll */
+/* Smooth scroll and prevent horizontal overflow on mobile */
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 /* Animations */

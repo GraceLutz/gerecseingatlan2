@@ -11,6 +11,7 @@ import {
   Calendar as CalendarIcon,
   Filter,
   Link as LinkIcon,
+  Users,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -34,7 +35,16 @@ interface CalendarEvent {
 interface StaffMember {
   id: string;
   name: string;
+  email: string | null;
   active: boolean;
+}
+
+interface Invitee {
+  id: string;
+  staffId: string | null;
+  staffName: string | null;
+  email: string;
+  notifiedAt: string | null;
 }
 
 interface EventFormData {
@@ -104,6 +114,10 @@ export default function CalendarPage() {
   const [saving, setSaving] = useState(false);
   const [deletingEvent, setDeletingEvent] = useState(false);
 
+  const [invitees, setInvitees] = useState<Invitee[]>([]);
+  const [selectedInviteeIds, setSelectedInviteeIds] = useState<string[]>([]);
+  const [savingInvitees, setSavingInvitees] = useState(false);
+
   const calendarRef = useRef<FullCalendar>(null);
   const currentRangeRef = useRef<{ start: string; end: string }>({ start: "", end: "" });
 
@@ -141,6 +155,57 @@ export default function CalendarPage() {
     []
   );
 
+  const fetchInvitees = useCallback(async (eventId: string) => {
+    try {
+      const res = await fetch(`/api/admin/calendar/${eventId}/invitees`, { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+      setInvitees(data.invitees);
+    } catch {
+      /* non-critical */
+    }
+  }, []);
+
+  const handleAddInvitees = async (eventId: string) => {
+    if (selectedInviteeIds.length === 0) return;
+    setSavingInvitees(true);
+    try {
+      const res = await fetch(`/api/admin/calendar/${eventId}/invitees`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        },
+        credentials: "include",
+        body: JSON.stringify({ staffIds: selectedInviteeIds }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Hiba történt a meghívottak hozzáadásakor.");
+      }
+      setSelectedInviteeIds([]);
+      fetchInvitees(eventId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a meghívottak hozzáadásakor.");
+    } finally {
+      setSavingInvitees(false);
+    }
+  };
+
+  const handleRemoveInvitee = async (eventId: string, inviteeId: string) => {
+    try {
+      const res = await fetch(`/api/admin/calendar/${eventId}/invitees/${inviteeId}`, {
+        method: "DELETE",
+        headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Hiba történt a meghívott eltávolításakor.");
+      fetchInvitees(eventId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Hiba történt a meghívott eltávolításakor.");
+    }
+  };
+
   useEffect(() => {
     fetchStaff();
     fetchEvents();
@@ -170,6 +235,8 @@ export default function CalendarPage() {
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     setEditingEvent(null);
+    setInvitees([]);
+    setSelectedInviteeIds([]);
     setForm({
       ...EMPTY_FORM,
       startDatetime: toLocalDatetimeValue(selectInfo.startStr),
@@ -181,6 +248,8 @@ export default function CalendarPage() {
   const handleEventClick = (clickInfo: EventClickArg) => {
     const event = clickInfo.event.extendedProps as CalendarEvent;
     setEditingEvent(event);
+    setSelectedInviteeIds([]);
+    fetchInvitees(event.id);
     setForm({
       title: event.title,
       description: event.description ?? "",
@@ -661,6 +730,76 @@ export default function CalendarPage() {
                   )}
                 </div>
               </div>
+
+              {/* Invitees section — only for existing events */}
+              {editingEvent && (
+                <div className="border-t border-border pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Users size={16} className="text-muted-foreground" aria-hidden="true" />
+                    <span className="text-sm font-medium text-foreground">
+                      Meghívottak ({invitees.length})
+                    </span>
+                  </div>
+
+                  {invitees.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {invitees.map((inv) => (
+                        <span
+                          key={inv.id}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
+                        >
+                          {inv.staffName ?? inv.email}
+                          {inv.notifiedAt && (
+                            <span className="text-green-600" title="Értesítve" aria-label="Értesítve">✓</span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveInvitee(editingEvent.id, inv.id)}
+                            className="ml-0.5 hover:text-red-500 transition-colors"
+                            aria-label={`${inv.staffName ?? inv.email} eltávolítása`}
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <select
+                      multiple
+                      value={selectedInviteeIds}
+                      onChange={(e) => {
+                        const selected = Array.from(e.target.selectedOptions, (o) => o.value);
+                        setSelectedInviteeIds(selected);
+                      }}
+                      className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      aria-label="Munkatársak kiválasztása meghíváshoz"
+                    >
+                      {staffList
+                        .filter((s) => s.email && !invitees.some((inv) => inv.staffId === s.id))
+                        .map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => handleAddInvitees(editingEvent.id)}
+                      disabled={selectedInviteeIds.length === 0 || savingInvitees}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    >
+                      {savingInvitees ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Plus size={14} />
+                      )}
+                      Meghívás
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-between pt-2">
                 <div>

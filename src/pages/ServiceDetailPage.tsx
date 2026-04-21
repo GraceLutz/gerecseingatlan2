@@ -1,11 +1,11 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentBlock, useContentArray } from "@/contexts/ContentContext";
 import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft, CheckCircle, Send } from "lucide-react";
 import { services, getServiceBySlug } from "@/data/services";
 
-/** EN slug → HU slug mapping for service pages */
 const enToHuServiceSlug: Record<string, string> = {
   "property-sales-and-rentals": "ingatlan-ertekesites-berbeadas",
   "appraisal-and-valuation": "ertekbecsles-ertekmeghatrozas",
@@ -14,38 +14,6 @@ const enToHuServiceSlug: Record<string, string> = {
   "loans-and-subsidies": "hitel-allami-tamogatasok",
   "energy-certificate": "energetikai-tanusitvany",
   "electrical-safety-inspection": "villamos-biztonsagi-felulvizsgalat",
-};
-
-/** Benefits data per service slug (not in shared data since only used here) */
-const benefitsMap: Record<string, { hu: string[]; en: string[] }> = {
-  "ingatlan-ertekesites-berbeadas": {
-    hu: ["Ingyenes ingatlan értékelés", "Professzionális fotózás és hirdetés", "Teljes körű ügyintézés", "Szerződéskötés segítése"],
-    en: ["Free property evaluation", "Professional photography and advertising", "Full administrative support", "Contract assistance"],
-  },
-  "ertekbecsles-ertekmeghatrozas": {
-    hu: ["Hivatalos, akkreditált értékbecslők", "Hiteligényléshez elfogadott", "Piaci összehasonlító elemzés", "Gyors és pontos értékelés"],
-    en: ["Official, accredited appraisers", "Accepted for mortgage applications", "Market comparative analysis", "Fast and accurate valuation"],
-  },
-  "belsoepiteszet-latvanyterv": {
-    hu: ["3D látványtervezés", "Teljes belsőépítészeti koncepció", "Referencia munkák bemutatása", "Közvetített szolgáltatás"],
-    en: ["3D visualization", "Complete interior design concept", "Reference work showcase", "Brokered service"],
-  },
-  "teljeskoru-jogi-hatter": {
-    hu: ["Tapasztalt ingatlan ügyvédek", "Tulajdoni lap ellenőrzés", "Teljes jogi háttér biztosítása", "Hagyatéki ügyek intézése"],
-    en: ["Experienced real estate lawyers", "Title deed verification", "Complete legal support", "Inheritance proceedings"],
-  },
-  "hitel-allami-tamogatasok": {
-    hu: ["Bankfüggetlen tanácsadás", "CSOK és Babaváró ügyintézés", "Személyre szabott hitelajánlatok"],
-    en: ["Bank-independent advice", "CSOK and Babaváró processing", "Personalized loan offers"],
-  },
-  "energetikai-tanusitvany": {
-    hu: ["Akkreditált szakértők", "Gyors ügyintézés", "Jogszabálynak megfelelő tanúsítvány", "Adásvételhez és bérbeadáshoz egyaránt"],
-    en: ["Accredited specialists", "Fast processing", "Legally compliant certificate", "For both sales and rentals"],
-  },
-  "villamos-biztonsagi-felulvizsgalat": {
-    hu: ["Szakképzett felülvizsgálók", "Hivatalos jegyzőkönyv", "Lakó- és ipari ingatlanokhoz", "Jogszabályi megfelelőség"],
-    en: ["Certified inspectors", "Official report", "For residential and industrial properties", "Legal compliance"],
-  },
 };
 
 const ServiceDetailPage = () => {
@@ -65,13 +33,23 @@ const ServiceDetailPage = () => {
     );
   }
 
-  const title = t.services[service.titleKey];
+  return <ServiceContent service={service} resolvedSlug={resolvedSlug!} />;
+};
+
+function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof getServiceBySlug> & {}; resolvedSlug: string }) {
+  const { lang, t, localePath } = useLanguage();
+  const pagePath = `/${resolvedSlug}`;
+
+  const { content: title } = useContentBlock(pagePath, "service.title", t.services[service.titleKey]);
+  const { content: subtitle } = useContentBlock(pagePath, "service.subtitle", "");
+  const { content: ctaLabel } = useContentBlock(pagePath, "service.cta.label", t.services.interestedCta);
+  const { content: benefitsTitle } = useContentBlock(pagePath, "service.benefits.title", t.serviceDetail.benefits);
+  const { items: paragraphs } = useContentArray(pagePath, "service.paragraphs", lang === "hu" ? service.contentHu : service.contentEn);
+  const { items: benefits } = useContentArray(pagePath, "service.benefits", []);
+
+  const Icon = service.icon;
   const seoTitle = `${title} – Gerecse Ingatlan`;
   const seoDescription = `${title} ${t.serviceDetail.seoDescriptionSuffix}`;
-  const content = lang === "hu" ? service.contentHu : service.contentEn;
-  const benefitData = resolvedSlug ? benefitsMap[resolvedSlug] : undefined;
-  const benefits = benefitData ? (lang === "hu" ? benefitData.hu : benefitData.en) : [];
-  const Icon = service.icon;
 
   const relatedServices = services.filter((s) => s.slug !== resolvedSlug).slice(0, 3);
 
@@ -83,9 +61,22 @@ const ServiceDetailPage = () => {
             <Icon size={28} className="text-gold" aria-hidden="true" />
           </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground">
+        <h1
+          className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground"
+          data-editable="service.title"
+          data-page={pagePath}
+        >
           {title}
         </h1>
+        {subtitle && (
+          <p
+            className="mt-3 text-lg text-primary-foreground/80"
+            data-editable="service.subtitle"
+            data-page={pagePath}
+          >
+            {subtitle}
+          </p>
+        )}
       </section>
 
       <section className="py-16 bg-background">
@@ -98,11 +89,13 @@ const ServiceDetailPage = () => {
             {t.nav.home}
           </Link>
 
-          <div className="space-y-4 mb-12">
-            {content.map((paragraph, i) => (
+          <div className="space-y-4 mb-12" data-editable="service.paragraphs" data-page={pagePath}>
+            {paragraphs.map((paragraph, i) => (
               <p
                 key={i}
                 className="text-muted-foreground font-body leading-relaxed text-base"
+                data-editable={`service.paragraphs[${i}]`}
+                data-page={pagePath}
               >
                 {paragraph}
               </p>
@@ -110,9 +103,13 @@ const ServiceDetailPage = () => {
           </div>
 
           {benefits.length > 0 && (
-            <div className="mb-12 p-6 bg-light-bg rounded-xl">
-              <h2 className="text-lg font-heading font-bold text-dark-green mb-4">
-                {t.serviceDetail.benefits}
+            <div className="mb-12 p-6 bg-light-bg rounded-xl" data-editable="service.benefits" data-page={pagePath}>
+              <h2
+                className="text-lg font-heading font-bold text-dark-green mb-4"
+                data-editable="service.benefits.title"
+                data-page={pagePath}
+              >
+                {benefitsTitle}
               </h2>
               <ul className="space-y-3">
                 {benefits.map((benefit, i) => (
@@ -122,7 +119,11 @@ const ServiceDetailPage = () => {
                       className="text-gold shrink-0 mt-0.5"
                       aria-hidden="true"
                     />
-                    <span className="text-muted-foreground font-body">
+                    <span
+                      className="text-muted-foreground font-body"
+                      data-editable={`service.benefits[${i}]`}
+                      data-page={pagePath}
+                    >
                       {benefit}
                     </span>
                   </li>
@@ -135,14 +136,20 @@ const ServiceDetailPage = () => {
             <InteriorContactForm />
           ) : (
             <div className="p-8 bg-dark-green rounded-xl text-center">
-              <p className="text-lg font-heading font-semibold text-primary-foreground mb-4">
+              <p
+                className="text-lg font-heading font-semibold text-primary-foreground mb-4"
+                data-editable="service.cta.text"
+                data-page={pagePath}
+              >
                 {t.services.interestedCta}
               </p>
               <Link
                 to={localePath("/kapcsolat")}
                 className="inline-block px-8 py-3 bg-gold text-white font-semibold rounded-lg hover:bg-gold/90 transition-colors"
+                data-editable="service.cta.label"
+                data-page={pagePath}
               >
-                {t.contact.title}
+                {ctaLabel}
               </Link>
             </div>
           )}
@@ -184,7 +191,7 @@ const ServiceDetailPage = () => {
       </section>
     </Layout>
   );
-};
+}
 
 const InteriorContactForm: React.FC = () => {
   const { t } = useLanguage();

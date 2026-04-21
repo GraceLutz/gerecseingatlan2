@@ -1,40 +1,73 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentBlock } from "@/contexts/ContentContext";
 import { Building2, Mail, Phone, Globe, Server } from "lucide-react";
 
-/**
- * Impresszum (Legal Notice / Imprint) page.
- *
- * Required by Hungarian law (2001. évi CVIII. törvény – Ekertv.) for all
- * commercial websites. Displays company identity, registration details,
- * tax number, contact information and hosting provider data.
- */
+const PAGE = "/impresszum";
+
 const ImpresszumPage = () => {
   const { lang } = useLanguage();
   const isHu = lang === "hu";
 
-  const title = isHu
+  const { content: heroTitle } = useContentBlock(PAGE, "page.title", isHu ? "Impresszum" : "Legal Notice");
+  const { content: heroSubtitle } = useContentBlock(PAGE, "page.subtitle", isHu
+    ? "Jogszabályi kötelezettség a 2001. évi CVIII. törvény (Ekertv.) alapján"
+    : "Legal obligation under Hungarian Act CVIII of 2001");
+
+  const { content: companyHeading } = useContentBlock(PAGE, "company.heading", isHu ? "Szolgáltató adatai" : "Service Provider");
+  const { content: companyNameLabel } = useContentBlock(PAGE, "company.nameLabel", isHu ? "Cégnév" : "Company name");
+  const { content: companyName } = useContentBlock(PAGE, "company.name", "Gerecse Ingatlan Kft.");
+  const { content: companyAddressLabel } = useContentBlock(PAGE, "company.addressLabel", isHu ? "Székhely" : "Registered office");
+  const { content: companyAddress } = useContentBlock(PAGE, "company.address", "2890 Tata, Példa utca 1.");
+  const { content: companyRegLabel } = useContentBlock(PAGE, "company.regLabel", isHu ? "Cégjegyzékszám" : "Company registration no.");
+  const { content: companyRegNumber } = useContentBlock(PAGE, "company.regNumber", "11-09-XXXXXX");
+  const { content: companyTaxLabel } = useContentBlock(PAGE, "company.taxLabel", isHu ? "Adószám" : "Tax number");
+  const { content: companyTaxNumber } = useContentBlock(PAGE, "company.taxNumber", "XXXXXXXX-X-XX");
+  const { content: companyCourtLabel } = useContentBlock(PAGE, "company.courtLabel", isHu ? "Nyilvántartó bíróság" : "Court of registration");
+  const { content: companyCourt } = useContentBlock(PAGE, "company.court", isHu ? "Tatabányai Törvényszék Cégbírósága" : "Company Court of Tatabánya");
+  const { content: companyRepLabel } = useContentBlock(PAGE, "company.repLabel", isHu ? "Képviselő" : "Representative");
+  const { content: companyRep } = useContentBlock(PAGE, "company.rep", isHu ? "Gerecse Ingatlan ügyvezető" : "Managing Director");
+
+  const { content: contactHeading } = useContentBlock(PAGE, "contact.heading", isHu ? "Elérhetőségek" : "Contact Information");
+  const { content: contactPhone } = useContentBlock(PAGE, "contact.phone", "+36 70 613 2658");
+  const { content: contactEmail } = useContentBlock(PAGE, "contact.email", "info@gerecseingatlan.hu");
+  const { content: contactWebsite } = useContentBlock(PAGE, "contact.website", "gerecseingatlan.hu");
+
+  const { content: hostingHeading } = useContentBlock(PAGE, "hosting.heading", isHu ? "Tárhelyszolgáltató" : "Hosting Provider");
+  const { content: hostingNameLabel } = useContentBlock(PAGE, "hosting.nameLabel", isHu ? "Név" : "Name");
+  const { content: hostingName } = useContentBlock(PAGE, "hosting.name", "[Tárhelyszolgáltató neve]");
+  const { content: hostingAddressLabel } = useContentBlock(PAGE, "hosting.addressLabel", isHu ? "Cím" : "Address");
+  const { content: hostingAddress } = useContentBlock(PAGE, "hosting.address", "[Tárhelyszolgáltató címe]");
+  const { content: hostingWebLabel } = useContentBlock(PAGE, "hosting.webLabel", isHu ? "Weboldal" : "Website");
+  const { content: hostingWebsite } = useContentBlock(PAGE, "hosting.website", "[Tárhelyszolgáltató weboldala]");
+
+  const { content: copyrightHeading } = useContentBlock(PAGE, "copyright.heading", isHu ? "Szerzői jogok" : "Copyright");
+  const { content: copyrightText } = useContentBlock(PAGE, "copyright.text", isHu
+    ? "A weboldalon megjelenő tartalmak (szövegek, képek, grafikák, logók) a Gerecse Ingatlan Kft. szellemi tulajdonát képezik. Ezek másolása, terjesztése vagy bármilyen felhasználása kizárólag a Gerecse Ingatlan Kft. előzetes írásos engedélyével lehetséges."
+    : "All content on this website (texts, images, graphics, logos) is the intellectual property of Gerecse Ingatlan Kft. Copying, distribution or any use of these materials is only permitted with prior written consent of Gerecse Ingatlan Kft.");
+
+  const { content: lastUpdated } = useContentBlock(PAGE, "page.lastUpdated", isHu
+    ? "Utolsó frissítés: 2026. április 16."
+    : "Last updated: 16 April 2026");
+
+  const seoTitle = isHu
     ? "Impresszum – Gerecse Ingatlan"
     : "Legal Notice – Gerecse Ingatlan";
-  const description = isHu
+  const seoDescription = isHu
     ? "A Gerecse Ingatlan impresszuma: céginformációk, elérhetőségek, tárhelyszolgáltató adatai a 2001. évi CVIII. törvény szerint."
     : "Legal notice of Gerecse Ingatlan: company information, contact details, and hosting provider data.";
 
   return (
-    <Layout title={title} description={description} canonicalPath="/impresszum">
-      {/* Hero */}
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/impresszum">
       <section className="bg-dark-green py-16 text-center">
-        <h1 className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground">
-          {isHu ? "Impresszum" : "Legal Notice"}
+        <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground">
+          {heroTitle}
         </h1>
-        <p className="text-primary-foreground/70 font-body mt-2 max-w-xl mx-auto px-4">
-          {isHu
-            ? "Jogszabályi kötelezettség a 2001. évi CVIII. törvény (Ekertv.) alapján"
-            : "Legal obligation under Hungarian Act CVIII of 2001"}
+        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body mt-2 max-w-xl mx-auto px-4">
+          {heroSubtitle}
         </p>
       </section>
 
-      {/* Content */}
       <section className="py-16 bg-light-bg">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto space-y-10">
@@ -44,50 +77,46 @@ const ImpresszumPage = () => {
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Building2 size={20} className="text-primary" aria-hidden="true" />
                 </div>
-                <h2 className="text-xl font-heading font-bold text-dark-navy">
-                  {isHu ? "Szolgáltató adatai" : "Service Provider"}
+                <h2 data-editable="company.heading" data-page={PAGE} className="text-xl font-heading font-bold text-dark-navy">
+                  {companyHeading}
                 </h2>
               </div>
               <dl className="space-y-3 font-body text-gray-700 text-sm leading-relaxed">
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Cégnév" : "Company name"}
+                  <dt data-editable="company.nameLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {companyNameLabel}
                   </dt>
-                  <dd>Gerecse Ingatlan Kft.</dd>
+                  <dd data-editable="company.name" data-page={PAGE}>{companyName}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Székhely" : "Registered office"}
+                  <dt data-editable="company.addressLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {companyAddressLabel}
                   </dt>
-                  <dd>2890 Tata, Példa utca 1.</dd>
+                  <dd data-editable="company.address" data-page={PAGE}>{companyAddress}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Cégjegyzékszám" : "Company registration no."}
+                  <dt data-editable="company.regLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {companyRegLabel}
                   </dt>
-                  <dd>11-09-XXXXXX</dd>
+                  <dd data-editable="company.regNumber" data-page={PAGE}>{companyRegNumber}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Adószám" : "Tax number"}
+                  <dt data-editable="company.taxLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {companyTaxLabel}
                   </dt>
-                  <dd>XXXXXXXX-X-XX</dd>
+                  <dd data-editable="company.taxNumber" data-page={PAGE}>{companyTaxNumber}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Nyilvántartó bíróság" : "Court of registration"}
+                  <dt data-editable="company.courtLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {companyCourtLabel}
                   </dt>
-                  <dd>
-                    {isHu
-                      ? "Tatabányai Törvényszék Cégbírósága"
-                      : "Company Court of Tatabánya"}
-                  </dd>
+                  <dd data-editable="company.court" data-page={PAGE}>{companyCourt}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Képviselő" : "Representative"}
+                  <dt data-editable="company.repLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {companyRepLabel}
                   </dt>
-                  <dd>{isHu ? "Gerecse Ingatlan ügyvezető" : "Managing Director"}</dd>
+                  <dd data-editable="company.rep" data-page={PAGE}>{companyRep}</dd>
                 </div>
               </dl>
             </article>
@@ -98,44 +127,44 @@ const ImpresszumPage = () => {
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Phone size={20} className="text-primary" aria-hidden="true" />
                 </div>
-                <h2 className="text-xl font-heading font-bold text-dark-navy">
-                  {isHu ? "Elérhetőségek" : "Contact Information"}
+                <h2 data-editable="contact.heading" data-page={PAGE} className="text-xl font-heading font-bold text-dark-navy">
+                  {contactHeading}
                 </h2>
               </div>
               <dl className="space-y-3 font-body text-gray-700 text-sm leading-relaxed">
                 <div className="flex items-center gap-2">
                   <Phone size={16} className="text-primary shrink-0" aria-hidden="true" />
                   <dt className="sr-only">{isHu ? "Telefon" : "Phone"}</dt>
-                  <dd>
+                  <dd data-editable="contact.phone" data-page={PAGE}>
                     <a
-                      href="tel:+36706132658"
+                      href={`tel:${contactPhone.replace(/\s/g, "")}`}
                       className="hover:text-primary transition-colors"
                     >
-                      +36 70 613 2658
+                      {contactPhone}
                     </a>
                   </dd>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail size={16} className="text-primary shrink-0" aria-hidden="true" />
                   <dt className="sr-only">E-mail</dt>
-                  <dd>
+                  <dd data-editable="contact.email" data-page={PAGE}>
                     <a
-                      href="mailto:info@gerecseingatlan.hu"
+                      href={`mailto:${contactEmail}`}
                       className="hover:text-primary transition-colors"
                     >
-                      info@gerecseingatlan.hu
+                      {contactEmail}
                     </a>
                   </dd>
                 </div>
                 <div className="flex items-center gap-2">
                   <Globe size={16} className="text-primary shrink-0" aria-hidden="true" />
                   <dt className="sr-only">{isHu ? "Weboldal" : "Website"}</dt>
-                  <dd>
+                  <dd data-editable="contact.website" data-page={PAGE}>
                     <a
-                      href="https://gerecseingatlan.hu"
+                      href={`https://${contactWebsite}`}
                       className="hover:text-primary transition-colors"
                     >
-                      gerecseingatlan.hu
+                      {contactWebsite}
                     </a>
                   </dd>
                 </div>
@@ -148,49 +177,45 @@ const ImpresszumPage = () => {
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Server size={20} className="text-primary" aria-hidden="true" />
                 </div>
-                <h2 className="text-xl font-heading font-bold text-dark-navy">
-                  {isHu ? "Tárhelyszolgáltató" : "Hosting Provider"}
+                <h2 data-editable="hosting.heading" data-page={PAGE} className="text-xl font-heading font-bold text-dark-navy">
+                  {hostingHeading}
                 </h2>
               </div>
               <dl className="space-y-3 font-body text-gray-700 text-sm leading-relaxed">
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Név" : "Name"}
+                  <dt data-editable="hosting.nameLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {hostingNameLabel}
                   </dt>
-                  <dd>[Tárhelyszolgáltató neve]</dd>
+                  <dd data-editable="hosting.name" data-page={PAGE}>{hostingName}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Cím" : "Address"}
+                  <dt data-editable="hosting.addressLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {hostingAddressLabel}
                   </dt>
-                  <dd>[Tárhelyszolgáltató címe]</dd>
+                  <dd data-editable="hosting.address" data-page={PAGE}>{hostingAddress}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-dark-navy">
-                    {isHu ? "Weboldal" : "Website"}
+                  <dt data-editable="hosting.webLabel" data-page={PAGE} className="font-semibold text-dark-navy">
+                    {hostingWebLabel}
                   </dt>
-                  <dd>[Tárhelyszolgáltató weboldala]</dd>
+                  <dd data-editable="hosting.website" data-page={PAGE}>{hostingWebsite}</dd>
                 </div>
               </dl>
             </article>
 
-            {/* Disclaimer */}
+            {/* Copyright */}
             <article className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
-              <h2 className="text-xl font-heading font-bold text-dark-navy mb-4">
-                {isHu ? "Szerzői jogok" : "Copyright"}
+              <h2 data-editable="copyright.heading" data-page={PAGE} className="text-xl font-heading font-bold text-dark-navy mb-4">
+                {copyrightHeading}
               </h2>
-              <p className="font-body text-gray-700 text-sm leading-relaxed">
-                {isHu
-                  ? "A weboldalon megjelenő tartalmak (szövegek, képek, grafikák, logók) a Gerecse Ingatlan Kft. szellemi tulajdonát képezik. Ezek másolása, terjesztése vagy bármilyen felhasználása kizárólag a Gerecse Ingatlan Kft. előzetes írásos engedélyével lehetséges."
-                  : "All content on this website (texts, images, graphics, logos) is the intellectual property of Gerecse Ingatlan Kft. Copying, distribution or any use of these materials is only permitted with prior written consent of Gerecse Ingatlan Kft."}
+              <p data-editable="copyright.text" data-page={PAGE} className="font-body text-gray-700 text-sm leading-relaxed">
+                {copyrightText}
               </p>
             </article>
 
             {/* Last updated */}
-            <p className="text-center text-xs text-gray-500 font-body">
-              {isHu
-                ? "Utolsó frissítés: 2026. április 16."
-                : "Last updated: 16 April 2026"}
+            <p data-editable="page.lastUpdated" data-page={PAGE} className="text-center text-xs text-gray-500 font-body">
+              {lastUpdated}
             </p>
           </div>
         </div>

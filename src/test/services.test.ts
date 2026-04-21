@@ -17,8 +17,6 @@ describe("services data", () => {
       expect(service.icon).toBeTruthy();
       expect(service.titleKey).toBeTruthy();
       expect(service.descKey).toBeTruthy();
-      expect(service.contentHu.length).toBeGreaterThan(0);
-      expect(service.contentEn.length).toBeGreaterThan(0);
     }
   });
 

@@ -48,7 +48,7 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
   const { content: ctaText } = useContentBlock(pagePath, "service.cta.text", t.services.interestedCta);
   const { content: benefitsTitle } = useContentBlock(pagePath, "service.benefits.title", t.serviceDetail.benefits);
   const { content: otherServicesTitle } = useContentBlock(pagePath, "service.otherServices", t.serviceDetail.otherServices);
-  const { items: paragraphs } = useContentArray(pagePath, "service.paragraphs", lang === "hu" ? service.contentHu : service.contentEn);
+  const { items: paragraphs } = useContentArray(pagePath, "service.paragraphs", []);
   const { items: benefits } = useContentArray(pagePath, "service.benefits", []);
 
   const Icon = service.icon;
@@ -206,6 +206,8 @@ const InteriorContactForm: React.FC = () => {
   const { content: addressLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.addressLabel", t.serviceDetail.addressLabel);
   const { content: messageLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.messageLabel", t.serviceDetail.messageLabel);
   const { content: submitButton } = useContentBlock(INTERIOR_PAGE, "service.interior.form.submitButton", t.serviceDetail.submitButton);
+  const { content: submittingText } = useContentBlock(INTERIOR_PAGE, "service.interior.form.submitting", t.serviceDetail.submitting);
+  const { content: dataNotice } = useContentBlock(INTERIOR_PAGE, "service.interior.form.dataNotice", t.serviceDetail.dataNotice);
   const { content: successMessage } = useContentBlock(INTERIOR_PAGE, "service.interior.form.successMessage", t.serviceDetail.successMessage);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -351,10 +353,14 @@ const InteriorContactForm: React.FC = () => {
           data-page={INTERIOR_PAGE}
         >
           <Send size={16} aria-hidden="true" />
-          {submitting ? t.serviceDetail.submitting : submitButton}
+          {submitting ? submittingText : submitButton}
         </button>
-        <p className="text-xs text-muted-foreground text-center">
-          {t.serviceDetail.dataNotice}
+        <p
+          className="text-xs text-muted-foreground text-center"
+          data-editable="service.interior.form.dataNotice"
+          data-page={INTERIOR_PAGE}
+        >
+          {dataNotice}
         </p>
       </form>
     </div>

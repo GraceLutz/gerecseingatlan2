@@ -3,7 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock, useContentArray } from "@/contexts/ContentContext";
 import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
-import { ArrowLeft, CheckCircle, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { services, getServiceBySlug } from "@/data/services";
 import EditableButton from "@/components/EditableButton";
 import EditableText from "@/components/EditableText";

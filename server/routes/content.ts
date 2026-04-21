@@ -16,6 +16,14 @@ const pagePathSchema = z
  * Returns all content blocks for a given page path.
  * Publicly accessible — used by EditableText on the frontend.
  * Supports ?lang=hu|en for bilingual content.
+ *
+ * BILINGUAL CONTENT CONTRACT:
+ * DB stores contentType "json" with content like {"hu":"...", "en":"..."}.
+ * This route extracts the requested language value before returning:
+ *   - String values → contentType "text"
+ *   - Array values (paragraphs, benefits) → contentType "json-array" (stringified)
+ * The frontend's useContentArray hook relies on contentType "json-array"
+ * to parse arrays. Breaking this contract causes blank service pages.
  */
 router.get("/{*pagePath}", async (req, res) => {
   try {

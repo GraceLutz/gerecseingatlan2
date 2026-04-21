@@ -45,7 +45,9 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
 
   const { content: title } = useContentBlock(pagePath, "service.title", t.services[service.titleKey]);
   const { content: subtitle } = useContentBlock(pagePath, "service.subtitle", "");
+  const { content: ctaText } = useContentBlock(pagePath, "service.cta.text", t.services.interestedCta);
   const { content: benefitsTitle } = useContentBlock(pagePath, "service.benefits.title", t.serviceDetail.benefits);
+  const { content: otherServicesTitle } = useContentBlock(pagePath, "service.otherServices", t.serviceDetail.otherServices);
   const { items: paragraphs } = useContentArray(pagePath, "service.paragraphs", lang === "hu" ? service.contentHu : service.contentEn);
   const { items: benefits } = useContentArray(pagePath, "service.benefits", []);
 
@@ -132,7 +134,7 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
                 data-editable="service.cta.text"
                 data-page={pagePath}
               >
-                {t.services.interestedCta}
+                {ctaText}
               </p>
               <EditableButton
                 pagePath={pagePath}
@@ -147,8 +149,12 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
 
           {relatedServices.length > 0 && (
             <div className="mt-16">
-              <h2 className="text-xl font-heading font-bold text-dark-green mb-6">
-                {t.serviceDetail.otherServices}
+              <h2
+                className="text-xl font-heading font-bold text-dark-green mb-6"
+                data-editable="service.otherServices"
+                data-page={pagePath}
+              >
+                {otherServicesTitle}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {relatedServices.map((rel) => {
@@ -184,11 +190,23 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
   );
 }
 
+const INTERIOR_PAGE = "/belsoepiteszet-latvanyterv";
+
 const InteriorContactForm: React.FC = () => {
   const { t } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const { content: formTitle } = useContentBlock(INTERIOR_PAGE, "service.interior.form.title", t.serviceDetail.interiorFormTitle);
+  const { content: formSubtitle } = useContentBlock(INTERIOR_PAGE, "service.interior.form.subtitle", t.serviceDetail.interiorFormSubtitle);
+  const { content: nameLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.nameLabel", t.serviceDetail.nameLabel);
+  const { content: emailLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.emailLabel", "E-mail");
+  const { content: phoneLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.phoneLabel", t.serviceDetail.phoneLabel);
+  const { content: addressLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.addressLabel", t.serviceDetail.addressLabel);
+  const { content: messageLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.messageLabel", t.serviceDetail.messageLabel);
+  const { content: submitButton } = useContentBlock(INTERIOR_PAGE, "service.interior.form.submitButton", t.serviceDetail.submitButton);
+  const { content: successMessage } = useContentBlock(INTERIOR_PAGE, "service.interior.form.successMessage", t.serviceDetail.successMessage);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -233,8 +251,12 @@ const InteriorContactForm: React.FC = () => {
   if (submitted) {
     return (
       <div className="p-8 bg-light-bg rounded-xl text-center" role="status" aria-live="polite">
-        <p className="text-lg font-heading font-semibold text-dark-green">
-          {t.serviceDetail.successMessage}
+        <p
+          className="text-lg font-heading font-semibold text-dark-green"
+          data-editable="service.interior.form.successMessage"
+          data-page={INTERIOR_PAGE}
+        >
+          {successMessage}
         </p>
       </div>
     );
@@ -244,11 +266,19 @@ const InteriorContactForm: React.FC = () => {
 
   return (
     <div className="p-8 bg-light-bg rounded-xl">
-      <h2 className="text-xl font-heading font-bold text-dark-green mb-2">
-        {t.serviceDetail.interiorFormTitle}
+      <h2
+        className="text-xl font-heading font-bold text-dark-green mb-2"
+        data-editable="service.interior.form.title"
+        data-page={INTERIOR_PAGE}
+      >
+        {formTitle}
       </h2>
-      <p className="text-sm text-muted-foreground mb-6">
-        {t.serviceDetail.interiorFormSubtitle}
+      <p
+        className="text-sm text-muted-foreground mb-6"
+        data-editable="service.interior.form.subtitle"
+        data-page={INTERIOR_PAGE}
+      >
+        {formSubtitle}
       </p>
 
       {submitError && (
@@ -259,32 +289,57 @@ const InteriorContactForm: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="interior-name" className="block text-sm font-semibold text-foreground mb-1">
-            {t.serviceDetail.nameLabel} *
+          <label
+            htmlFor="interior-name"
+            className="block text-sm font-semibold text-foreground mb-1"
+            data-editable="service.interior.form.nameLabel"
+            data-page={INTERIOR_PAGE}
+          >
+            {nameLabel} *
           </label>
           <input id="interior-name" name="name" type="text" required className={fieldClass} />
         </div>
         <div>
-          <label htmlFor="interior-email" className="block text-sm font-semibold text-foreground mb-1">
-            E-mail *
+          <label
+            htmlFor="interior-email"
+            className="block text-sm font-semibold text-foreground mb-1"
+            data-editable="service.interior.form.emailLabel"
+            data-page={INTERIOR_PAGE}
+          >
+            {emailLabel} *
           </label>
           <input id="interior-email" name="email" type="email" required className={fieldClass} />
         </div>
         <div>
-          <label htmlFor="interior-phone" className="block text-sm font-semibold text-foreground mb-1">
-            {t.serviceDetail.phoneLabel}
+          <label
+            htmlFor="interior-phone"
+            className="block text-sm font-semibold text-foreground mb-1"
+            data-editable="service.interior.form.phoneLabel"
+            data-page={INTERIOR_PAGE}
+          >
+            {phoneLabel}
           </label>
           <input id="interior-phone" name="phone" type="tel" className={fieldClass} />
         </div>
         <div>
-          <label htmlFor="interior-address" className="block text-sm font-semibold text-foreground mb-1">
-            {t.serviceDetail.addressLabel}
+          <label
+            htmlFor="interior-address"
+            className="block text-sm font-semibold text-foreground mb-1"
+            data-editable="service.interior.form.addressLabel"
+            data-page={INTERIOR_PAGE}
+          >
+            {addressLabel}
           </label>
           <input id="interior-address" name="address" type="text" className={fieldClass} />
         </div>
         <div>
-          <label htmlFor="interior-message" className="block text-sm font-semibold text-foreground mb-1">
-            {t.serviceDetail.messageLabel} *
+          <label
+            htmlFor="interior-message"
+            className="block text-sm font-semibold text-foreground mb-1"
+            data-editable="service.interior.form.messageLabel"
+            data-page={INTERIOR_PAGE}
+          >
+            {messageLabel} *
           </label>
           <textarea id="interior-message" name="message" required rows={4} className={fieldClass} />
         </div>
@@ -292,9 +347,11 @@ const InteriorContactForm: React.FC = () => {
           type="submit"
           disabled={submitting}
           className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          data-editable="service.interior.form.submitButton"
+          data-page={INTERIOR_PAGE}
         >
           <Send size={16} aria-hidden="true" />
-          {submitting ? t.serviceDetail.submitting : t.serviceDetail.submitButton}
+          {submitting ? t.serviceDetail.submitting : submitButton}
         </button>
         <p className="text-xs text-muted-foreground text-center">
           {t.serviceDetail.dataNotice}

@@ -1,10 +1,13 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentBlock } from "@/contexts/ContentContext";
 import { Phone, Mail, Clock, Facebook } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useRef, useEffect } from "react";
+
+const PAGE = "/kapcsolat";
 
 const contactSchema = z.object({
   name: z.string().min(2),
@@ -20,6 +23,32 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 const ContactPage = () => {
   const { t, lang } = useLanguage();
+
+  const { content: pageTitle } = useContentBlock(PAGE, "page.title", t.contact.title);
+  const { content: pageSubtitle } = useContentBlock(PAGE, "page.subtitle", t.contact.subtitle);
+
+  const { content: phoneLabel } = useContentBlock(PAGE, "contact.info.phone.label", t.contact.phone);
+  const { content: phoneNumber } = useContentBlock(PAGE, "contact.info.phone.value", "+36 70 613 2658");
+  const { content: emailLabel } = useContentBlock(PAGE, "contact.info.email.label", t.contact.email);
+  const { content: emailAddress } = useContentBlock(PAGE, "contact.info.email.value", "info@gerecseingatlan.hu");
+  const { content: hoursLabel } = useContentBlock(PAGE, "contact.info.hours.label", t.contact.openingHours);
+  const { content: hoursWeekdays } = useContentBlock(PAGE, "contact.info.hours.weekdays", t.contact.weekdays);
+  const { content: hoursSaturday } = useContentBlock(PAGE, "contact.info.hours.saturday", t.contact.saturday);
+  const { content: hoursSunday } = useContentBlock(PAGE, "contact.info.hours.sunday", t.contact.sunday);
+  const { content: facebookLabel } = useContentBlock(PAGE, "contact.info.facebook.label", t.contact.facebookLabel);
+
+  const { content: formTitle } = useContentBlock(PAGE, "contact.form.title", t.contact.subtitle);
+  const { content: nameLabel } = useContentBlock(PAGE, "contact.form.name.label", t.contact.name);
+  const { content: formEmailLabel } = useContentBlock(PAGE, "contact.form.email.label", t.contact.email);
+  const { content: formPhoneLabel } = useContentBlock(PAGE, "contact.form.phone.label", t.contact.phone);
+  const { content: subjectLabel } = useContentBlock(PAGE, "contact.form.subject.label", t.contact.subject);
+  const { content: messageLabel } = useContentBlock(PAGE, "contact.form.message.label", t.contact.message);
+  const { content: gdprText } = useContentBlock(PAGE, "contact.form.gdpr", t.contact.gdprConsent);
+  const { content: submitLabel } = useContentBlock(PAGE, "contact.form.submit", t.contact.send);
+  const { content: submittingLabel } = useContentBlock(PAGE, "contact.form.submitting", t.contact.sending);
+  const { content: successMessage } = useContentBlock(PAGE, "contact.form.success", t.contact.successMessage);
+  const { content: errorPrefix } = useContentBlock(PAGE, "contact.form.errorPrefix", t.contact.sendErrorPrefix);
+
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -66,7 +95,7 @@ const ContactPage = () => {
       timeoutRef.current = setTimeout(() => setSubmitted(false), 8000);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setSubmitError(`${t.contact.sendErrorPrefix}${message}`);
+      setSubmitError(`${errorPrefix}${message}`);
     } finally {
       setSubmitting(false);
     }
@@ -93,11 +122,11 @@ const ContactPage = () => {
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/kapcsolat">
       <section className="bg-dark-green py-20 text-center">
-        <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground">
-          {t.contact.title}
+        <h1 data-editable="page.title" data-page={PAGE} className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground">
+          {pageTitle}
         </h1>
-        <p className="text-primary-foreground/70 font-body mt-2">
-          {t.contact.subtitle}
+        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body mt-2">
+          {pageSubtitle}
         </p>
       </section>
 
@@ -111,14 +140,15 @@ const ContactPage = () => {
                   <Phone size={22} className="text-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="font-heading font-semibold text-foreground mb-1">
-                    {t.contact.phone}
+                  <h3 data-editable="contact.info.phone.label" data-page={PAGE} className="font-heading font-semibold text-foreground mb-1">
+                    {phoneLabel}
                   </h3>
                   <a
                     href="tel:+36706132658"
+                    data-editable="contact.info.phone.value" data-page={PAGE}
                     className="text-muted-foreground text-sm hover:text-primary transition-colors"
                   >
-                    +36 70 613 2658
+                    {phoneNumber}
                   </a>
                 </div>
               </div>
@@ -128,14 +158,15 @@ const ContactPage = () => {
                   <Mail size={22} className="text-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="font-heading font-semibold text-foreground mb-1">
-                    {t.contact.email}
+                  <h3 data-editable="contact.info.email.label" data-page={PAGE} className="font-heading font-semibold text-foreground mb-1">
+                    {emailLabel}
                   </h3>
                   <a
-                    href="mailto:info@gerecseingatlan.hu"
+                    href={`mailto:${emailAddress}`}
+                    data-editable="contact.info.email.value" data-page={PAGE}
                     className="text-muted-foreground text-sm hover:text-primary transition-colors"
                   >
-                    info@gerecseingatlan.hu
+                    {emailAddress}
                   </a>
                 </div>
               </div>
@@ -145,12 +176,12 @@ const ContactPage = () => {
                   <Clock size={22} className="text-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="font-heading font-semibold text-foreground mb-1">
-                    {t.contact.openingHours}
+                  <h3 data-editable="contact.info.hours.label" data-page={PAGE} className="font-heading font-semibold text-foreground mb-1">
+                    {hoursLabel}
                   </h3>
-                  <p className="text-muted-foreground text-sm">{t.contact.weekdays}</p>
-                  <p className="text-muted-foreground text-sm">{t.contact.saturday}</p>
-                  <p className="text-muted-foreground text-sm">{t.contact.sunday}</p>
+                  <p data-editable="contact.info.hours.weekdays" data-page={PAGE} className="text-muted-foreground text-sm">{hoursWeekdays}</p>
+                  <p data-editable="contact.info.hours.saturday" data-page={PAGE} className="text-muted-foreground text-sm">{hoursSaturday}</p>
+                  <p data-editable="contact.info.hours.sunday" data-page={PAGE} className="text-muted-foreground text-sm">{hoursSunday}</p>
                 </div>
               </div>
 
@@ -161,7 +192,7 @@ const ContactPage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                  aria-label={t.contact.facebookLabel}
+                  aria-label={facebookLabel}
                 >
                   <Facebook size={18} className="text-primary" />
                 </a>
@@ -171,8 +202,8 @@ const ContactPage = () => {
 
             {/* Form */}
             <div className="bg-card rounded-xl p-8 shadow-md border border-border">
-              <h2 className="text-xl font-heading font-bold text-dark-green mb-6">
-                {t.contact.subtitle}
+              <h2 data-editable="contact.form.title" data-page={PAGE} className="text-xl font-heading font-bold text-dark-green mb-6">
+                {formTitle}
               </h2>
 
               {submitted && (
@@ -180,8 +211,9 @@ const ContactPage = () => {
                   className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm"
                   role="status"
                   aria-live="polite"
+                  data-editable="contact.form.success" data-page={PAGE}
                 >
-                  {t.contact.successMessage}
+                  {successMessage}
                 </div>
               )}
 
@@ -203,9 +235,10 @@ const ContactPage = () => {
                 <div>
                   <label
                     htmlFor="contact-name"
+                    data-editable="contact.form.name.label" data-page={PAGE}
                     className="text-sm font-semibold text-foreground mb-1 block"
                   >
-                    {t.contact.name} *
+                    {nameLabel} *
                   </label>
                   <input
                     id="contact-name"
@@ -220,9 +253,10 @@ const ContactPage = () => {
                 <div>
                   <label
                     htmlFor="contact-email"
+                    data-editable="contact.form.email.label" data-page={PAGE}
                     className="text-sm font-semibold text-foreground mb-1 block"
                   >
-                    {t.contact.email} *
+                    {formEmailLabel} *
                   </label>
                   <input
                     id="contact-email"
@@ -237,9 +271,10 @@ const ContactPage = () => {
                 <div>
                   <label
                     htmlFor="contact-phone"
+                    data-editable="contact.form.phone.label" data-page={PAGE}
                     className="text-sm font-semibold text-foreground mb-1 block"
                   >
-                    {t.contact.phone}
+                    {formPhoneLabel}
                   </label>
                   <input
                     id="contact-phone"
@@ -252,9 +287,10 @@ const ContactPage = () => {
                 <div>
                   <label
                     htmlFor="contact-subject"
+                    data-editable="contact.form.subject.label" data-page={PAGE}
                     className="text-sm font-semibold text-foreground mb-1 block"
                   >
-                    {t.contact.subject} *
+                    {subjectLabel} *
                   </label>
                   <input
                     id="contact-subject"
@@ -269,9 +305,10 @@ const ContactPage = () => {
                 <div>
                   <label
                     htmlFor="contact-message"
+                    data-editable="contact.form.message.label" data-page={PAGE}
                     className="text-sm font-semibold text-foreground mb-1 block"
                   >
-                    {t.contact.message} *
+                    {messageLabel} *
                   </label>
                   <textarea
                     id="contact-message"
@@ -305,9 +342,10 @@ const ContactPage = () => {
                   />
                   <label
                     htmlFor="contact-gdpr"
+                    data-editable="contact.form.gdpr" data-page={PAGE}
                     className="text-sm text-muted-foreground"
                   >
-                    {t.contact.gdprConsent}
+                    {gdprText}
                   </label>
                 </div>
                 {fieldError("gdpr")}
@@ -315,9 +353,10 @@ const ContactPage = () => {
                 <button
                   type="submit"
                   disabled={submitting}
+                  data-editable="contact.form.submit" data-page={PAGE}
                   className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-main-green/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {submitting ? t.contact.sending : t.contact.send}
+                  {submitting ? submittingLabel : submitLabel}
                 </button>
               </form>
             </div>

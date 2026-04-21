@@ -48,6 +48,7 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
   const { content: ctaText } = useContentBlock(pagePath, "service.cta.text", t.services.interestedCta);
   const { content: benefitsTitle } = useContentBlock(pagePath, "service.benefits.title", t.serviceDetail.benefits);
   const { content: otherServicesTitle } = useContentBlock(pagePath, "service.otherServices", t.serviceDetail.otherServices);
+  const { content: moreText } = useContentBlock(pagePath, "service.moreLink", t.services.more);
   const { items: paragraphs } = useContentArray(pagePath, "service.paragraphs", []);
   const { items: benefits } = useContentArray(pagePath, "service.benefits", []);
 
@@ -175,8 +176,12 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
                           {t.services[rel.titleKey]}
                         </h3>
                       </div>
-                      <span className="text-xs text-primary font-semibold group-hover:text-gold transition-colors">
-                        {t.services.more} →
+                      <span
+                        className="text-xs text-primary font-semibold group-hover:text-gold transition-colors"
+                        data-editable="service.moreLink"
+                        data-page={pagePath}
+                      >
+                        {moreText} →
                       </span>
                     </Link>
                   );

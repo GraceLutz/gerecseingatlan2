@@ -1,10 +1,30 @@
 import { useId, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentBlock } from "@/contexts/ContentContext";
 import { useNewsletterSubscription } from "@/hooks/useNewsletterSubscription";
+
+const PAGE = "/";
 
 export default function NewsletterSignup() {
   const { t, localePath } = useLanguage();
+
+  const { content: nlTitle } = useContentBlock(PAGE, "newsletter.title", t.newsletter.title);
+  const { content: nlSubtitle } = useContentBlock(PAGE, "newsletter.subtitle", t.newsletter.subtitle);
+  const { content: nlSuccessConfirm } = useContentBlock(PAGE, "newsletter.successConfirm", t.newsletter.successConfirm);
+  const { content: nlNameLabel } = useContentBlock(PAGE, "newsletter.nameLabel", t.newsletter.nameLabel);
+  const { content: nlNamePlaceholder } = useContentBlock(PAGE, "newsletter.namePlaceholder", t.newsletter.namePlaceholder);
+  const { content: nlPlaceholder } = useContentBlock(PAGE, "newsletter.placeholder", t.newsletter.placeholder);
+  const { content: nlEmailPlaceholder } = useContentBlock(PAGE, "newsletter.emailPlaceholder", t.newsletter.emailPlaceholder);
+  const { content: nlButton } = useContentBlock(PAGE, "newsletter.button", t.newsletter.button);
+  const { content: nlEmailInvalid } = useContentBlock(PAGE, "newsletter.emailInvalid", t.newsletter.emailInvalid);
+  const { content: nlGdprConsentPrefix } = useContentBlock(PAGE, "newsletter.gdprConsentPrefix", t.newsletter.gdprConsentPrefix);
+  const { content: nlGdprLinkText } = useContentBlock(PAGE, "newsletter.gdprLinkText", t.newsletter.gdprLinkText);
+  const { content: nlGdprConsentSuffix } = useContentBlock(PAGE, "newsletter.gdprConsentSuffix", t.newsletter.gdprConsentSuffix);
+  const { content: nlGdprInvalid } = useContentBlock(PAGE, "newsletter.gdprInvalid", t.newsletter.gdprInvalid);
+  const { content: nlNetworkError } = useContentBlock(PAGE, "newsletter.networkError", t.newsletter.networkError);
+  const { content: nlGenericError } = useContentBlock(PAGE, "newsletter.genericError", t.newsletter.genericError);
+
   const [name, setName] = useState("");
   const {
     email,
@@ -31,9 +51,9 @@ export default function NewsletterSignup() {
 
   const displayError =
     error === "NETWORK_ERROR"
-      ? t.newsletter.networkError
+      ? nlNetworkError
       : error === "GENERIC_ERROR"
-        ? t.newsletter.genericError
+        ? nlGenericError
         : error;
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -51,12 +71,14 @@ export default function NewsletterSignup() {
       <div className="container mx-auto px-4 text-center">
         <h2
           id="newsletter-heading"
+          data-editable="newsletter.title"
+          data-page={PAGE}
           className="text-2xl md:text-3xl font-heading font-bold text-gold mb-3"
         >
-          {t.newsletter.title}
+          {nlTitle}
         </h2>
-        <p className="text-gold/90 font-body mb-8 max-w-lg mx-auto">
-          {t.newsletter.subtitle}
+        <p data-editable="newsletter.subtitle" data-page={PAGE} className="text-gold/90 font-body mb-8 max-w-lg mx-auto">
+          {nlSubtitle}
         </p>
 
         <div
@@ -66,8 +88,8 @@ export default function NewsletterSignup() {
           className="min-h-[1.5rem]"
         >
           {submitted && (
-            <p className="text-gold font-semibold font-body text-lg">
-              {t.newsletter.successConfirm}
+            <p data-editable="newsletter.successConfirm" data-page={PAGE} className="text-gold font-semibold font-body text-lg">
+              {nlSuccessConfirm}
             </p>
           )}
           {error && (
@@ -85,14 +107,14 @@ export default function NewsletterSignup() {
           >
             <div className="mb-3 text-left">
               <label htmlFor={nameId} className={labelClass}>
-                {t.newsletter.nameLabel}
+                {nlNameLabel}
               </label>
               <input
                 id={nameId}
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={t.newsletter.namePlaceholder}
+                placeholder={nlNamePlaceholder}
                 autoComplete="name"
                 disabled={submitting}
                 className="w-full px-4 py-3 rounded-lg bg-white border border-[#0B2340]/15 text-[#0B2340] placeholder:text-[#0B2340]/40 focus:outline-none focus:ring-2 focus:ring-[#4682B4] focus:ring-offset-2 focus:ring-offset-[#D8EEFF] focus:border-[#4682B4] disabled:opacity-60 disabled:cursor-not-allowed"
@@ -100,7 +122,7 @@ export default function NewsletterSignup() {
             </div>
             <div className="mb-3 text-left">
               <label htmlFor={emailId} className={labelClass}>
-                {t.newsletter.placeholder}
+                {nlPlaceholder}
               </label>
               <div className="flex gap-2">
                 <input
@@ -109,7 +131,7 @@ export default function NewsletterSignup() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => email.length > 0 && setTouched(true)}
-                  placeholder={t.newsletter.emailPlaceholder}
+                  placeholder={nlEmailPlaceholder}
                   autoComplete="email"
                   required
                   aria-invalid={emailError || undefined}
@@ -134,7 +156,7 @@ export default function NewsletterSignup() {
                       aria-hidden="true"
                     />
                   )}
-                  <span>{t.newsletter.button}</span>
+                  <span data-editable="newsletter.button" data-page={PAGE}>{nlButton}</span>
                 </button>
               </div>
               {emailError && (
@@ -143,7 +165,7 @@ export default function NewsletterSignup() {
                   role="alert"
                   className="mt-1 text-xs text-destructive"
                 >
-                  {t.newsletter.emailInvalid}
+                  {nlEmailInvalid}
                 </p>
               )}
             </div>
@@ -164,16 +186,16 @@ export default function NewsletterSignup() {
                   className="mt-0.5 rounded border-[#0B2340]/30 focus:ring-2 focus:ring-[#4682B4]"
                 />
                 <span>
-                  {t.newsletter.gdprConsentPrefix}
+                  {nlGdprConsentPrefix}
                   <a
                     href={localePath("/adatkezelesi-tajekoztato")}
                     className="underline hover:text-[#0B2340] focus:outline-none focus:ring-2 focus:ring-[#4682B4] rounded"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {t.newsletter.gdprLinkText}
+                    {nlGdprLinkText}
                   </a>
-                  {t.newsletter.gdprConsentSuffix}
+                  {nlGdprConsentSuffix}
                 </span>
               </label>
               {gdprError && (
@@ -182,7 +204,7 @@ export default function NewsletterSignup() {
                   role="alert"
                   className="mt-1 text-xs text-destructive text-center"
                 >
-                  {t.newsletter.gdprInvalid}
+                  {nlGdprInvalid}
                 </p>
               )}
             </div>

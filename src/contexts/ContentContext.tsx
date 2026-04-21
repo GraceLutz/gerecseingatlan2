@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
+import { useLanguage } from "./LanguageContext";
 
 interface ContentBlock {
   content: string;
@@ -31,12 +32,14 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [pages, setPages] = useState<Record<string, ContentPageData>>({});
   const [isAdmin, setIsAdmin] = useState(false);
   const fetchingRef = useRef<Set<string>>(new Set());
+  const { lang } = useLanguage();
 
   const fetchPageContent = useCallback(async (pagePath: string) => {
     const normalizedPath = `/${pagePath.replace(/^\//, "")}`;
+    const cacheKey = `${normalizedPath}:${lang}`;
 
-    if (fetchingRef.current.has(normalizedPath)) return;
-    fetchingRef.current.add(normalizedPath);
+    if (fetchingRef.current.has(cacheKey)) return;
+    fetchingRef.current.add(cacheKey);
 
     setPages((prev) => ({
       ...prev,
@@ -49,7 +52,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const res = await fetch(
-        `/api/content/${encodeURIComponent(normalizedPath.slice(1))}`
+        `/api/content/${encodeURIComponent(normalizedPath.slice(1))}?lang=${lang}`
       );
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
@@ -73,9 +76,9 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
         },
       }));
     } finally {
-      fetchingRef.current.delete(normalizedPath);
+      fetchingRef.current.delete(cacheKey);
     }
-  }, []);
+  }, [lang]);
 
   const getPageContent = useCallback(
     (pagePath: string): ContentPageData => {
@@ -134,4 +137,34 @@ export function useContentBlock(
     contentType: block?.contentType ?? "text",
     loading: pageData.loading,
   };
+}
+
+export function useContentArray<T = string>(
+  pagePath: string,
+  blockKey: string,
+  fallback: T[]
+): { items: T[]; loading: boolean } {
+  const { getPageContent, fetchPageContent } = useContent();
+  const pageData = getPageContent(pagePath);
+  const fetchedRef = useRef(false);
+
+  React.useEffect(() => {
+    if (!fetchedRef.current) {
+      fetchedRef.current = true;
+      fetchPageContent(pagePath);
+    }
+  }, [pagePath, fetchPageContent]);
+
+  const block = pageData.blocks[blockKey];
+
+  if (!block) return { items: fallback, loading: pageData.loading };
+
+  if (block.contentType === "json-array") {
+    try {
+      const parsed = JSON.parse(block.content);
+      if (Array.isArray(parsed)) return { items: parsed, loading: false };
+    } catch {}
+  }
+
+  return { items: fallback, loading: pageData.loading };
 }

@@ -54,7 +54,7 @@ async function saveVersionAndPrune(
 
 const updateBlockSchema = z.object({
   content: z.string(),
-  contentType: z.enum(["text", "html", "markdown"]).optional(),
+  contentType: z.enum(["text", "html", "markdown", "json"]).optional(),
 });
 
 const createBlockSchema = z.object({
@@ -69,7 +69,54 @@ const createBlockSchema = z.object({
     .max(255)
     .regex(/^[a-zA-Z0-9._-]+$/),
   content: z.string(),
-  contentType: z.enum(["text", "html", "markdown"]).default("text"),
+  contentType: z.enum(["text", "html", "markdown", "json"]).default("text"),
+});
+
+/**
+ * GET /api/admin/content/pages
+ * Returns distinct page paths with block counts for the sidebar.
+ */
+router.get("/pages", async (_req, res) => {
+  try {
+    const pages = await db
+      .select({
+        pagePath: contentBlocks.pagePath,
+        blockCount: sql<number>`count(*)`,
+      })
+      .from(contentBlocks)
+      .groupBy(contentBlocks.pagePath)
+      .orderBy(contentBlocks.pagePath);
+
+    res.json({ pages });
+  } catch (error) {
+    console.error("[api/admin/content] Pages list error:", error);
+    res.status(500).json({ error: "Hiba történt az oldalak betöltésekor." });
+  }
+});
+
+/**
+ * GET /api/admin/content/page/:pagePath
+ * Returns all blocks for a specific page path.
+ * Use empty string or "/" for root page.
+ */
+router.get("/page/{*pagePath}", async (req, res) => {
+  try {
+    const paramValue = (req.params as Record<string, string | string[]>).pagePath;
+    const raw = Array.isArray(paramValue) ? paramValue.join("/") : paramValue || "";
+    const pagePath = "/" + raw.replace(/^\/+/, "").replace(/\/+$/, "");
+    const normalizedPath = pagePath === "/" ? "/" : pagePath;
+
+    const blocks = await db
+      .select()
+      .from(contentBlocks)
+      .where(eq(contentBlocks.pagePath, normalizedPath))
+      .orderBy(contentBlocks.blockKey);
+
+    res.json({ blocks, pagePath: normalizedPath });
+  } catch (error) {
+    console.error("[api/admin/content] Page blocks error:", error);
+    res.status(500).json({ error: "Hiba történt a blokkok betöltésekor." });
+  }
 });
 
 /**
@@ -190,7 +237,7 @@ router.patch(
           .max(255)
           .regex(/^[a-zA-Z0-9._-]+$/),
         content: z.string(),
-        contentType: z.enum(["text", "html", "markdown"]).optional(),
+        contentType: z.enum(["text", "html", "markdown", "json"]).optional(),
       });
 
       const parsed = schema.safeParse(req.body);

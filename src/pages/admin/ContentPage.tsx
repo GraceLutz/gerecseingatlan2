@@ -1,451 +1,271 @@
-import { useState, useEffect, useCallback } from "react";
-import { Search, ChevronDown, ChevronRight, History, RotateCcw, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+  FileText, Home, Info, Building2, Users, Mail, HelpCircle,
+  Briefcase, MessageSquare, Monitor, Tablet, Smartphone,
+  Save, Eye, Pencil, X, ArrowLeft,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { PAGE_REGISTRY } from "./content/pageRegistry";
+import InlineEditPanel from "./content/InlineEditPanel";
 
-interface ContentBlock {
-  id: string;
-  pagePath: string;
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Home, Info, Building2, Users, Mail, HelpCircle, Briefcase, MessageSquare, FileText,
+};
+
+type DeviceMode = "desktop" | "tablet" | "mobile";
+type EditorMode = "edit" | "preview";
+
+interface EditTarget {
   blockKey: string;
+  pagePath: string;
   content: string;
-  contentType: string;
-  updatedAt: string;
-  updatedBy: string | null;
+  tagName: string;
 }
 
-interface ContentVersion {
-  id: string;
-  blockId: string;
-  content: string;
-  contentType: string;
-  version: number;
-  editedBy: string | null;
-  createdAt: string;
-}
+const DEVICE_WIDTHS: Record<DeviceMode, string> = {
+  desktop: "100%",
+  tablet: "768px",
+  mobile: "375px",
+};
 
-interface GroupedBlocks {
-  [pagePath: string]: ContentBlock[];
-}
 
 export default function ContentPage() {
   const { csrfToken } = useAuth();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const [selectedPath, setSelectedPath] = useState("/");
+  const [iframeLang, setIframeLang] = useState<"hu" | "en">("hu");
+  const [device, setDevice] = useState<DeviceMode>("desktop");
+  const [mode, setMode] = useState<EditorMode>("edit");
+  const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
+  const [hasUnsaved, setHasUnsaved] = useState(false);
+  const [iframeReady, setIframeReady] = useState(false);
 
   useEffect(() => {
-    document.title = "Tartalom kezelés | Gerecse Ingatlan Admin";
+    document.title = "Vizuális szerkesztő | Gerecse Ingatlan Admin";
   }, []);
-  const [blocks, setBlocks] = useState<ContentBlock[]>([]);
-  const [grouped, setGrouped] = useState<GroupedBlocks>({});
-  const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set());
-  const [editingBlock, setEditingBlock] = useState<ContentBlock | null>(null);
-  const [editContent, setEditContent] = useState("");
-  const [versions, setVersions] = useState<ContentVersion[]>([]);
-  const [showVersions, setShowVersions] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchBlocks = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      params.set("limit", "100");
-
-      const res = await fetch(`/api/admin/content?${params}`, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setBlocks(data.blocks);
-      setGrouped(data.grouped);
-      setTotal(data.total);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Hiba történt a betöltés során."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [search]);
+  const getIframeUrl = useCallback((path: string) => {
+    const langPrefix = iframeLang === "en" ? "/en" : "";
+    const base = path === "/" ? "/" : path;
+    return `${langPrefix}${base}?editMode=${mode === "edit" ? "1" : "0"}`;
+  }, [iframeLang, mode]);
 
   useEffect(() => {
-    fetchBlocks();
-  }, [fetchBlocks]);
+    setIframeReady(false);
+    setEditTarget(null);
+  }, [selectedPath, iframeLang, mode]);
 
-  const togglePage = (pagePath: string) => {
-    setExpandedPages((prev) => {
-      const next = new Set(prev);
-      if (next.has(pagePath)) {
-        next.delete(pagePath);
-      } else {
-        next.add(pagePath);
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (!event.data || typeof event.data.type !== "string") return;
+
+      switch (event.data.type) {
+        case "ve:ready":
+          setIframeReady(true);
+          break;
+        case "ve:element-clicked":
+          if (mode === "edit") {
+            setEditTarget(event.data.payload);
+          }
+          break;
       }
-      return next;
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [mode]);
+
+  const handleSave = async (blockKey: string, pagePath: string, content: string) => {
+    const res = await fetch("/api/admin/content/by-path", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+      },
+      credentials: "include",
+      body: JSON.stringify({ pagePath, blockKey, content, contentType: "json" }),
     });
-  };
 
-  const startEdit = (block: ContentBlock) => {
-    setEditingBlock(block);
-    setEditContent(block.content);
-  };
-
-  const saveEdit = async () => {
-    if (!editingBlock) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/admin/content/${editingBlock.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", ...(csrfToken ? { "x-csrf-token": csrfToken } : {}) },
-        credentials: "include",
-        body: JSON.stringify({ content: editContent }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Mentés sikertelen (${res.status})`);
-      }
-      setEditingBlock(null);
-      fetchBlocks();
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Hiba történt a mentés során."
-      );
-    } finally {
-      setSaving(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || `Mentés sikertelen (${res.status})`);
     }
+
+    // Update the iframe content live
+    iframeRef.current?.contentWindow?.postMessage({
+      type: "ve:update-content",
+      payload: { blockKey, pagePath, content: getLangContent(content, iframeLang) },
+    }, "*");
+
+    setHasUnsaved(false);
   };
 
-  const loadVersions = async (blockId: string) => {
-    if (showVersions === blockId) {
-      setShowVersions(null);
-      return;
-    }
-    try {
-      const res = await fetch(`/api/admin/content/${blockId}`, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setVersions(data.versions);
-      setShowVersions(blockId);
-    } catch (err) {
-      setError("Nem sikerült a verziók betöltése.");
-    }
+  const handleClose = () => {
+    setEditTarget(null);
+    iframeRef.current?.contentWindow?.postMessage({ type: "ve:deselect" }, "*");
   };
 
-  const rollback = async (blockId: string, versionId: string) => {
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch(
-        `/api/admin/content/${blockId}/rollback/${versionId}`,
-        {
-          method: "POST",
-          headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
-          credentials: "include",
-        }
-      );
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(
-          data.error || `Visszaállítás sikertelen (${res.status})`
-        );
-      }
-      setShowVersions(null);
-      fetchBlocks();
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Hiba történt a visszaállítás során."
-      );
-    } finally {
-      setSaving(false);
-    }
+  const navigateIframe = (path: string) => {
+    setSelectedPath(path);
   };
 
-  const deleteBlock = async (blockId: string) => {
-    if (!window.confirm("Biztosan törölni szeretné ezt a tartalmat?")) return;
-    try {
-      const res = await fetch(`/api/admin/content/${blockId}`, {
-        method: "DELETE",
-        headers: csrfToken ? { "x-csrf-token": csrfToken } : {},
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Törlés sikertelen (${res.status})`);
-      }
-      fetchBlocks();
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Hiba történt a törlés során."
-      );
-    }
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString("hu-HU", {
-      timeZone: "Europe/Budapest",
-    });
-  };
-
-  const pageGroups = Object.keys(grouped).sort();
+  const allPages = PAGE_REGISTRY;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Tartalom kezelés
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Összesen {total} tartalom blokk
-          </p>
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+      {/* Sidebar - Page list */}
+      <aside className="w-56 border-r border-gray-200 bg-gray-50/50 overflow-y-auto flex-shrink-0">
+        <div className="p-3 border-b border-gray-200">
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Oldalak</h2>
         </div>
-      </div>
-
-      {error && (
-        <div
-          className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded"
-          role="alert"
-        >
-          {error}
-          <button
-            type="button"
-            onClick={() => setError(null)}
-            className="ml-2 text-red-900 font-bold"
-            aria-label="Hiba bezárása"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Keresés oldal, blokk vagy tartalom szerint..."
-            className="pl-10"
-            aria-label="Tartalom keresése"
-          />
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="text-center py-12" role="status" aria-label="Betöltés">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-          <p className="mt-2 text-gray-500">Tartalom betöltése...</p>
-        </div>
-      ) : pageGroups.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <p>Nincs találat.</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {pageGroups.map((pagePath) => {
-            const pageBlocks = grouped[pagePath] ?? [];
-            const isExpanded = expandedPages.has(pagePath);
-
+        <nav className="p-2 space-y-0.5">
+          {allPages.map((page) => {
+            const Icon = ICON_MAP[page.icon] || FileText;
+            const isActive = selectedPath === page.path;
             return (
-              <div
-                key={pagePath}
-                className="border border-gray-200 rounded-lg overflow-hidden"
+              <button
+                key={page.path}
+                type="button"
+                onClick={() => navigateIframe(page.path)}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-left text-sm transition-colors ${
+                  isActive ? "bg-blue-100 text-blue-800 font-medium" : "text-gray-700 hover:bg-gray-100"
+                }`}
               >
-                <button
-                  type="button"
-                  onClick={() => togglePage(pagePath)}
-                  className="w-full flex items-center gap-2 px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
-                  aria-expanded={isExpanded}
-                >
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                  )}
-                  <span className="font-semibold text-gray-900">
-                    {pagePath}
-                  </span>
-                  <span className="text-sm text-gray-500 ml-auto">
-                    {pageBlocks.length} blokk
-                  </span>
-                </button>
-
-                {isExpanded && (
-                  <div className="divide-y divide-gray-100">
-                    {pageBlocks.map((block) => (
-                      <div key={block.id} className="px-4 py-3">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <code className="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded text-blue-700">
-                                {block.blockKey}
-                              </code>
-                              <Badge variant="secondary">
-                                {block.contentType}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-gray-700 truncate max-w-xl">
-                              {block.content.slice(0, 150)}
-                              {block.content.length > 150 ? "..." : ""}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              Módosítva: {formatDate(block.updatedAt)}
-                            </p>
-                          </div>
-                          <div className="flex gap-1 flex-shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => startEdit(block)}
-                              aria-label={`${block.blockKey} szerkesztése`}
-                              title="Szerkesztés"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => loadVersions(block.id)}
-                              aria-label={`${block.blockKey} verziói`}
-                              title="Verziók"
-                            >
-                              <History className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => deleteBlock(block.id)}
-                              className="text-destructive hover:text-destructive"
-                              aria-label={`${block.blockKey} törlése`}
-                              title="Törlés"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Version history panel */}
-                        {showVersions === block.id && (
-                          <div className="mt-3 ml-4 border-l-2 border-gray-200 pl-4">
-                            <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                              Korábbi verziók
-                            </h4>
-                            {versions.length === 0 ? (
-                              <p className="text-sm text-gray-400">
-                                Nincs korábbi verzió.
-                              </p>
-                            ) : (
-                              <div className="space-y-2">
-                                {versions.map((v) => (
-                                  <div
-                                    key={v.id}
-                                    className="flex items-start justify-between gap-2 bg-gray-50 p-2 rounded"
-                                  >
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-xs text-gray-500">
-                                        v{v.version} —{" "}
-                                        {formatDate(v.createdAt)}
-                                      </p>
-                                      <p className="text-sm text-gray-600 truncate">
-                                        {v.content.slice(0, 100)}
-                                        {v.content.length > 100 ? "..." : ""}
-                                      </p>
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        rollback(block.id, v.id)
-                                      }
-                                      disabled={saving}
-                                      className="p-1 text-orange-600 hover:bg-orange-50 rounded disabled:opacity-50"
-                                      aria-label={`Visszaállítás v${v.version}-re`}
-                                      title={`Visszaállítás v${v.version}`}
-                                    >
-                                      <RotateCcw className="h-3.5 w-3.5" />
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                <Icon className="h-3.5 w-3.5 flex-shrink-0" />
+                <span className="flex-1 truncate text-xs">{page.nameHu}</span>
+              </button>
             );
           })}
-        </div>
-      )}
+        </nav>
+      </aside>
 
-      {/* Edit dialog */}
-      <Dialog
-        open={!!editingBlock}
-        onOpenChange={(open) => {
-          if (!open) setEditingBlock(null);
-        }}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Tartalom szerkesztése</DialogTitle>
-            {editingBlock && (
-              <DialogDescription>
-                {editingBlock.pagePath} /{" "}
-                <code className="bg-muted px-1 rounded text-foreground">
-                  {editingBlock.blockKey}
-                </code>
-              </DialogDescription>
-            )}
-          </DialogHeader>
-          <div className="py-4">
-            <label htmlFor="content-editor" className="sr-only">
-              Tartalom
-            </label>
-            <Textarea
-              id="content-editor"
-              value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-              className="min-h-[12rem] font-mono text-sm resize-y"
-              placeholder="Tartalom..."
-            />
+      {/* Main editor area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top toolbar */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white flex-shrink-0">
+          <div className="flex items-center gap-3">
+            {/* Language toggle */}
+            <div className="flex rounded-md border border-gray-300 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setIframeLang("hu")}
+                className={`px-3 py-1 text-xs font-medium transition-colors ${
+                  iframeLang === "hu" ? "bg-blue-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                HU
+              </button>
+              <button
+                type="button"
+                onClick={() => setIframeLang("en")}
+                className={`px-3 py-1 text-xs font-medium transition-colors ${
+                  iframeLang === "en" ? "bg-blue-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                EN
+              </button>
+            </div>
+
+            {/* Device preview */}
+            <div className="flex rounded-md border border-gray-300 overflow-hidden">
+              {([["desktop", Monitor], ["tablet", Tablet], ["mobile", Smartphone]] as const).map(([d, Icon]) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setDevice(d)}
+                  className={`p-1.5 transition-colors ${
+                    device === d ? "bg-blue-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                  }`}
+                  title={d}
+                >
+                  <Icon className="h-4 w-4" />
+                </button>
+              ))}
+            </div>
+
+            {/* Edit/Preview toggle */}
+            <div className="flex rounded-md border border-gray-300 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setMode("edit")}
+                className={`flex items-center gap-1 px-3 py-1 text-xs font-medium transition-colors ${
+                  mode === "edit" ? "bg-blue-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Pencil className="h-3 w-3" /> Szerkesztés
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("preview")}
+                className={`flex items-center gap-1 px-3 py-1 text-xs font-medium transition-colors ${
+                  mode === "preview" ? "bg-blue-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Eye className="h-3 w-3" /> Előnézet
+              </button>
+            </div>
           </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditingBlock(null)}
+
+          <div className="flex items-center gap-2">
+            {hasUnsaved && (
+              <span className="text-xs text-orange-600 font-medium">Mentetlen módosítások</span>
+            )}
+            <a
+              href="/admin/tartalom-lista"
+              className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
             >
-              Mégse
-            </Button>
-            <Button onClick={saveEdit} disabled={saving}>
-              {saving ? "Mentés..." : "Mentés"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <ArrowLeft className="h-3 w-3" /> Lista nézet
+            </a>
+          </div>
+        </div>
+
+        {/* Iframe + Edit panel container */}
+        <div className="flex-1 flex overflow-hidden bg-gray-100">
+          {/* Iframe container */}
+          <div className="flex-1 flex items-start justify-center p-4 overflow-auto">
+            <div
+              className="bg-white shadow-lg rounded-lg overflow-hidden transition-all duration-300"
+              style={{
+                width: DEVICE_WIDTHS[device],
+                maxWidth: "100%",
+                height: device === "desktop" ? "100%" : "auto",
+                minHeight: device !== "desktop" ? "600px" : undefined,
+              }}
+            >
+              <iframe
+                ref={iframeRef}
+                src={getIframeUrl(selectedPath)}
+                className="w-full h-full border-0"
+                style={{ minHeight: "calc(100vh - 10rem)" }}
+                title="Visual Editor"
+              />
+            </div>
+          </div>
+
+          {/* Inline edit panel (slides in from the right) */}
+          {editTarget && (
+            <InlineEditPanel
+              target={editTarget}
+              lang={iframeLang}
+              csrfToken={csrfToken}
+              onSave={handleSave}
+              onClose={handleClose}
+              onUnsavedChange={() => setHasUnsaved(true)}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
+}
+
+function getLangContent(jsonContent: string, lang: "hu" | "en"): string {
+  try {
+    const parsed = JSON.parse(jsonContent);
+    return parsed[lang] ?? parsed["hu"] ?? jsonContent;
+  } catch {
+    return jsonContent;
+  }
 }

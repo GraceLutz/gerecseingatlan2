@@ -336,6 +336,7 @@ for (const svc of serviceData) {
   blocks.push({ pagePath, blockKey: "service.cta.label", content: bi(svc.ctaLabelHu, svc.ctaLabelEn), contentType: "json" });
   blocks.push({ pagePath, blockKey: "service.cta.url", content: bi(svc.ctaUrlHu, svc.ctaUrlEn), contentType: "json" });
   blocks.push({ pagePath, blockKey: "service.otherServices", content: bi(svc.otherServicesTitleHu, svc.otherServicesTitleEn), contentType: "json" });
+  blocks.push({ pagePath, blockKey: "service.moreLink", content: bi("Részletek", "More"), contentType: "json" });
 }
 
 // ═══════════════════════════════════════════════════════

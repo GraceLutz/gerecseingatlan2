@@ -123,7 +123,7 @@ export default function EditableButton({
 
   if (!isAdmin) {
     return (
-      <a href={url} className={className}>
+      <a href={url} className={className} data-editable={labelKey} data-page={pagePath}>
         {label}
       </a>
     );
@@ -133,6 +133,7 @@ export default function EditableButton({
     <span
       className="group relative inline-block"
       data-editable={labelKey}
+      data-page={pagePath}
     >
       <button
         type="button"

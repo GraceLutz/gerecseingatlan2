@@ -153,7 +153,7 @@ export default function EditableList({
 
   if (!isAdmin) {
     return (
-      <ListTag className={className}>
+      <ListTag className={className} data-editable={blockKey} data-page={pagePath}>
         {localItems.map((item, i) => (
           <li key={i} className={itemClassName}>
             {item}
@@ -164,7 +164,7 @@ export default function EditableList({
   }
 
   return (
-    <div className="relative" data-editable={blockKey}>
+    <div className="relative" data-editable={blockKey} data-page={pagePath}>
       <ListTag className={className}>
         {localItems.map((item, i) => (
           <li

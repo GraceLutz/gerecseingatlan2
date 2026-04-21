@@ -191,17 +191,20 @@ export default function EditableText({
       return (
         <Tag
           className={className}
+          data-editable={blockKey}
+          data-page={pagePath}
           dangerouslySetInnerHTML={{ __html: content }}
         />
       );
     }
-    return <Tag className={className}>{content}</Tag>;
+    return <Tag className={className} data-editable={blockKey} data-page={pagePath}>{content}</Tag>;
   }
 
   return (
     <span
       className={`group relative inline-block ${className}`}
       data-editable={blockKey}
+      data-page={pagePath}
     >
       {isEditing ? (
         <>

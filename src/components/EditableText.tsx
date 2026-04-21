@@ -1,11 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useContent, useContentBlock } from "@/contexts/ContentContext";
 import { Pencil, Check, X, Bold, Italic, Link } from "lucide-react";
-
-function getCsrfToken(): string | null {
-  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
+import { getCsrfToken } from "@/lib/csrf";
 
 interface EditableTextProps {
   pagePath: string;

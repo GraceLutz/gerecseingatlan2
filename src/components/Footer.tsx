@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentBlock } from "@/contexts/ContentContext";
 import { Mail, Phone } from "lucide-react";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const PAGE = "/footer";
 
 const Footer = () => {
   const { t, localePath } = useLanguage();
@@ -11,6 +14,17 @@ const Footer = () => {
   const [footerGdpr, setFooterGdpr] = useState(false);
   const [footerSubmitted, setFooterSubmitted] = useState(false);
   const [footerError, setFooterError] = useState<string | null>(null);
+
+  const { content: contactTitle } = useContentBlock(PAGE, "contact.title", t.contact.title);
+  const { content: quickLinksTitle } = useContentBlock(PAGE, "quickLinks.title", t.footer.quickLinks);
+  const { content: servicesTitle } = useContentBlock(PAGE, "services.title", t.footer.services);
+  const { content: newsletterTitle } = useContentBlock(PAGE, "newsletter.title", t.footer.newsletter);
+  const { content: newsletterSubtitle } = useContentBlock(PAGE, "newsletter.subtitle", t.newsletter.subtitle);
+  const { content: copyright } = useContentBlock(PAGE, "copyright", t.footer.copyright);
+  const { content: imprintLabel } = useContentBlock(PAGE, "imprint", t.footer.imprint);
+  const { content: privacyLabel } = useContentBlock(PAGE, "privacy", t.footer.privacy);
+  const { content: cookiesLabel } = useContentBlock(PAGE, "cookies", t.footer.cookies);
+  const { content: termsLabel } = useContentBlock(PAGE, "terms", t.footer.terms);
 
   const handleFooterNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +55,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Contact */}
           <div>
-            <h3 className="text-lg font-heading font-bold text-gold mb-4">{t.contact.title}</h3>
+            <h3 data-editable="contact.title" data-page="/footer" className="text-lg font-heading font-bold text-gold mb-4">{contactTitle}</h3>
             <address className="not-italic space-y-3 text-sm text-primary-foreground/80">
               <div className="flex items-center gap-2">
                 <Phone size={16} className="shrink-0" aria-hidden="true" />
@@ -56,8 +70,8 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-heading font-bold text-gold mb-4">{t.footer.quickLinks}</h3>
-            <nav aria-label={t.footer.quickLinks} className="space-y-2 text-sm">
+            <h3 data-editable="quickLinks.title" data-page="/footer" className="text-lg font-heading font-bold text-gold mb-4">{quickLinksTitle}</h3>
+            <nav aria-label={quickLinksTitle} className="space-y-2 text-sm">
               <Link to={localePath("/")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.nav.home}</Link>
               <Link to={localePath("/bemutatkozas")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.nav.about}</Link>
               <Link to={localePath("/ingatlanok")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.nav.properties}</Link>
@@ -67,8 +81,8 @@ const Footer = () => {
 
           {/* Services */}
           <div>
-            <h3 className="text-lg font-heading font-bold text-gold mb-4">{t.footer.services}</h3>
-            <nav aria-label={t.footer.services} className="space-y-2 text-sm">
+            <h3 data-editable="services.title" data-page="/footer" className="text-lg font-heading font-bold text-gold mb-4">{servicesTitle}</h3>
+            <nav aria-label={servicesTitle} className="space-y-2 text-sm">
               <Link to={localePath("/ingatlan-ertekesites-berbeadas")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.services.salesTitle}</Link>
               <Link to={localePath("/ertekbecsles-ertekmeghatrozas")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.services.appraisalTitle}</Link>
               <Link to={localePath("/teljeskoru-jogi-hatter")} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.services.legalTitle}</Link>
@@ -80,8 +94,8 @@ const Footer = () => {
 
           {/* Newsletter */}
           <div>
-            <h3 id="footer-newsletter-heading" className="text-lg font-heading font-bold text-gold mb-4">{t.footer.newsletter}</h3>
-            <p className="text-sm text-primary-foreground/80 mb-3">{t.newsletter.subtitle}</p>
+            <h3 id="footer-newsletter-heading" data-editable="newsletter.title" data-page="/footer" className="text-lg font-heading font-bold text-gold mb-4">{newsletterTitle}</h3>
+            <p data-editable="newsletter.subtitle" data-page="/footer" className="text-sm text-primary-foreground/80 mb-3">{newsletterSubtitle}</p>
             {footerSubmitted ? (
               <p className="text-sm text-gold font-semibold" role="status" aria-live="polite">
                 ✓ {t.newsletter.success}
@@ -133,12 +147,12 @@ const Footer = () => {
         </div>
 
         <div className="mt-10 pt-6 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-primary-foreground/60">
-          <p>{t.footer.copyright}</p>
+          <p data-editable="copyright" data-page="/footer">{copyright}</p>
           <nav aria-label={t.footer.legalInfo} className="flex flex-wrap gap-4">
-            <Link to={localePath("/impresszum")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.imprint}</Link>
-            <Link to={localePath("/adatkezelesi-tajekoztato")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.privacy}</Link>
-            <Link to={localePath("/cookie-tajekoztato")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.cookies}</Link>
-            <Link to={localePath("/aszf")} className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{t.footer.terms}</Link>
+            <Link to={localePath("/impresszum")} data-editable="imprint" data-page="/footer" className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{imprintLabel}</Link>
+            <Link to={localePath("/adatkezelesi-tajekoztato")} data-editable="privacy" data-page="/footer" className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{privacyLabel}</Link>
+            <Link to={localePath("/cookie-tajekoztato")} data-editable="cookies" data-page="/footer" className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{cookiesLabel}</Link>
+            <Link to={localePath("/aszf")} data-editable="terms" data-page="/footer" className="hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{termsLabel}</Link>
           </nav>
         </div>
       </div>

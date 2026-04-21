@@ -62,7 +62,7 @@ export default function EditableList({
             pagePath: `/${pagePath.replace(/^\//, "")}`,
             blockKey,
             content: JSON.stringify(newItems),
-            contentType: "json-array",
+            contentType: "json",
           }),
         });
         if (!res.ok) {

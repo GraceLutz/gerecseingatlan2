@@ -5,6 +5,9 @@ import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft, CheckCircle, Send } from "lucide-react";
 import { services, getServiceBySlug } from "@/data/services";
+import EditableButton from "@/components/EditableButton";
+import EditableText from "@/components/EditableText";
+import EditableList from "@/components/EditableList";
 
 const enToHuServiceSlug: Record<string, string> = {
   "property-sales-and-rentals": "ingatlan-ertekesites-berbeadas",
@@ -42,7 +45,6 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
 
   const { content: title } = useContentBlock(pagePath, "service.title", t.services[service.titleKey]);
   const { content: subtitle } = useContentBlock(pagePath, "service.subtitle", "");
-  const { content: ctaLabel } = useContentBlock(pagePath, "service.cta.label", t.services.interestedCta);
   const { content: benefitsTitle } = useContentBlock(pagePath, "service.benefits.title", t.serviceDetail.benefits);
   const { items: paragraphs } = useContentArray(pagePath, "service.paragraphs", lang === "hu" ? service.contentHu : service.contentEn);
   const { items: benefits } = useContentArray(pagePath, "service.benefits", []);
@@ -89,21 +91,21 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
             {t.nav.home}
           </Link>
 
-          <div className="space-y-4 mb-12" data-editable="service.paragraphs" data-page={pagePath}>
+          <div className="space-y-4 mb-12">
             {paragraphs.map((paragraph, i) => (
-              <p
+              <EditableText
                 key={i}
+                pagePath={pagePath}
+                blockKey={`service.paragraphs[${i}]`}
+                fallback={paragraph}
+                as="p"
                 className="text-muted-foreground font-body leading-relaxed text-base"
-                data-editable={`service.paragraphs[${i}]`}
-                data-page={pagePath}
-              >
-                {paragraph}
-              </p>
+              />
             ))}
           </div>
 
           {benefits.length > 0 && (
-            <div className="mb-12 p-6 bg-light-bg rounded-xl" data-editable="service.benefits" data-page={pagePath}>
+            <div className="mb-12 p-6 bg-light-bg rounded-xl">
               <h2
                 className="text-lg font-heading font-bold text-dark-green mb-4"
                 data-editable="service.benefits.title"
@@ -111,24 +113,13 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
               >
                 {benefitsTitle}
               </h2>
-              <ul className="space-y-3">
-                {benefits.map((benefit, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <CheckCircle
-                      size={18}
-                      className="text-gold shrink-0 mt-0.5"
-                      aria-hidden="true"
-                    />
-                    <span
-                      className="text-muted-foreground font-body"
-                      data-editable={`service.benefits[${i}]`}
-                      data-page={pagePath}
-                    >
-                      {benefit}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <EditableList
+                pagePath={pagePath}
+                blockKey="service.benefits"
+                fallback={benefits}
+                className="space-y-3"
+                itemClassName="flex items-start gap-3 text-muted-foreground font-body"
+              />
             </div>
           )}
 
@@ -143,14 +134,14 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
               >
                 {t.services.interestedCta}
               </p>
-              <Link
-                to={localePath("/kapcsolat")}
+              <EditableButton
+                pagePath={pagePath}
+                labelKey="service.cta.label"
+                urlKey="service.cta.url"
+                fallbackLabel={t.services.interestedCta}
+                fallbackUrl={localePath("/kapcsolat")}
                 className="inline-block px-8 py-3 bg-gold text-white font-semibold rounded-lg hover:bg-gold/90 transition-colors"
-                data-editable="service.cta.label"
-                data-page={pagePath}
-              >
-                {ctaLabel}
-              </Link>
+              />
             </div>
           )}
 

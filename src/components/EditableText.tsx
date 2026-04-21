@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useContent, useContentBlock } from "@/contexts/ContentContext";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, Bold, Italic, Link } from "lucide-react";
 
 function getCsrfToken(): string | null {
   const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
@@ -20,8 +20,7 @@ const AUTO_SAVE_INTERVAL = 10000;
 
 /**
  * Inline-editable content block.
- * Public visitors see plain rendered content.
- * Admins see hover outlines + pencil icon for inline editing.
+ * Supports plain text and HTML with a floating formatting toolbar.
  */
 export default function EditableText({
   pagePath,
@@ -37,6 +36,8 @@ export default function EditableText({
     blockKey,
     fallback
   );
+
+  const isHtml = contentType === "html" || defaultContentType === "html";
 
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(content);
@@ -88,11 +89,21 @@ export default function EditableText({
     [pagePath, blockKey, contentType, defaultContentType]
   );
 
+  const readDraft = useCallback(() => {
+    if (!editableRef.current) return "";
+    return isHtml
+      ? editableRef.current.innerHTML
+      : (editableRef.current.textContent ?? "");
+  }, [isHtml]);
+
   const startEditing = useCallback(() => {
     setIsEditing(true);
     setError(null);
     setTimeout(() => {
       if (editableRef.current) {
+        if (isHtml) {
+          editableRef.current.innerHTML = draft;
+        }
         editableRef.current.focus();
       }
     }, 0);
@@ -102,7 +113,7 @@ export default function EditableText({
         saveContent(draftRef.current);
       }
     }, AUTO_SAVE_INTERVAL);
-  }, [content, saveContent]);
+  }, [content, draft, isHtml, saveContent]);
 
   const stopEditing = useCallback(
     (save: boolean) => {
@@ -116,20 +127,22 @@ export default function EditableText({
       } else if (!save) {
         setDraft(content);
         if (editableRef.current) {
-          editableRef.current.textContent = content;
+          if (isHtml) {
+            editableRef.current.innerHTML = content;
+          } else {
+            editableRef.current.textContent = content;
+          }
         }
       }
     },
-    [draft, content, saveContent]
+    [draft, content, isHtml, saveContent]
   );
 
   const handleInput = useCallback(() => {
-    if (editableRef.current) {
-      const newContent = editableRef.current.textContent ?? "";
-      setDraft(newContent);
-      draftRef.current = newContent;
-    }
-  }, []);
+    const newContent = readDraft();
+    setDraft(newContent);
+    draftRef.current = newContent;
+  }, [readDraft]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -144,6 +157,22 @@ export default function EditableText({
     },
     [stopEditing, contentType]
   );
+
+  const execFormat = useCallback(
+    (command: string, value?: string) => {
+      document.execCommand(command, false, value);
+      handleInput();
+      editableRef.current?.focus();
+    },
+    [handleInput]
+  );
+
+  const handleLinkInsert = useCallback(() => {
+    const url = window.prompt("Link URL:");
+    if (url) {
+      execFormat("createLink", url);
+    }
+  }, [execFormat]);
 
   useEffect(() => {
     return () => {
@@ -162,7 +191,7 @@ export default function EditableText({
   }
 
   if (!isAdmin) {
-    if (contentType === "html") {
+    if (isHtml) {
       return (
         <Tag
           className={className}
@@ -173,11 +202,57 @@ export default function EditableText({
     return <Tag className={className}>{content}</Tag>;
   }
 
-  // Admin view with editing capabilities
   return (
-    <span className={`group relative inline-block ${className}`}>
+    <span
+      className={`group relative inline-block ${className}`}
+      data-editable={blockKey}
+    >
       {isEditing ? (
         <>
+          {isHtml && (
+            <div
+              className="absolute -top-10 left-0 flex gap-1 z-50 bg-white border border-gray-200 rounded shadow-lg p-1"
+              role="toolbar"
+              aria-label="Szövegformázás"
+            >
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  execFormat("bold");
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Félkövér"
+                title="Félkövér"
+              >
+                <Bold className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  execFormat("italic");
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Dőlt"
+                title="Dőlt"
+              >
+                <Italic className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleLinkInsert();
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Link"
+                title="Link"
+              >
+                <Link className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
           <Tag
             ref={editableRef as React.Ref<HTMLElement>}
             contentEditable
@@ -190,9 +265,9 @@ export default function EditableText({
             aria-label={`${blockKey} szerkesztése`}
             aria-multiline={contentType !== "text"}
           >
-            {draft}
+            {isHtml ? undefined : draft}
           </Tag>
-          <span className="absolute -top-8 right-0 flex gap-1 z-50">
+          <span className={`absolute ${isHtml ? "-top-[3.5rem]" : "-top-8"} right-0 flex gap-1 z-50`}>
             <button
               type="button"
               onClick={(e) => {
@@ -224,7 +299,7 @@ export default function EditableText({
         </>
       ) : (
         <>
-          {contentType === "html" ? (
+          {isHtml ? (
             <Tag dangerouslySetInnerHTML={{ __html: content }} />
           ) : (
             <Tag>{content}</Tag>

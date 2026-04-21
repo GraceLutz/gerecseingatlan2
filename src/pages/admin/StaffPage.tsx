@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { safeJson } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -209,7 +210,7 @@ export default function StaffPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data.error ?? "Hiba történt a mentés során.");
       }
 

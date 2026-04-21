@@ -12,3 +12,13 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+/**
+ * Safely parses a fetch Response as JSON, handling empty bodies gracefully.
+ * Returns {} for empty responses instead of crashing with "Unexpected end of JSON input".
+ */
+export async function safeJson<T = Record<string, unknown>>(res: Response): Promise<T> {
+  const text = await res.text();
+  if (!text) return {} as T;
+  return JSON.parse(text) as T;
+}

@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { safeJson } from "@/lib/utils";
 
 import type { EventClickArg, DateSelectArg, EventDropArg } from "@fullcalendar/core";
 
@@ -125,8 +126,8 @@ export default function CalendarPage() {
     try {
       const res = await fetch("/api/admin/staff?active=true", { credentials: "include" });
       if (!res.ok) return;
-      const data = await res.json();
-      setStaffList(data.staff);
+      const data = await safeJson<{ staff?: StaffMember[] }>(res);
+      setStaffList(data.staff ?? []);
       setVisibleStaff(new Set(data.staff.map((s: StaffMember) => s.id)));
     } catch {
       /* staff list fetch is non-critical */
@@ -144,8 +145,8 @@ export default function CalendarPage() {
 
         const res = await fetch(`/api/admin/calendar?${params}`, { credentials: "include" });
         if (!res.ok) throw new Error("Hiba történt az események betöltésekor.");
-        const data = await res.json();
-        setEvents(data.events);
+        const data = await safeJson<{ events?: CalendarEvent[] }>(res);
+        setEvents(data.events ?? []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Hiba történt az események betöltésekor.");
       } finally {
@@ -159,8 +160,8 @@ export default function CalendarPage() {
     try {
       const res = await fetch(`/api/admin/calendar/${eventId}/invitees`, { credentials: "include" });
       if (!res.ok) return;
-      const data = await res.json();
-      setInvitees(data.invitees);
+      const data = await safeJson<{ invitees?: Invitee[] }>(res);
+      setInvitees(data.invitees ?? []);
     } catch {
       /* non-critical */
     }
@@ -180,7 +181,7 @@ export default function CalendarPage() {
         body: JSON.stringify({ staffIds: selectedInviteeIds }),
       });
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data.error ?? "Hiba történt a meghívottak hozzáadásakor.");
       }
       setSelectedInviteeIds([]);
@@ -332,7 +333,7 @@ export default function CalendarPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data.error ?? "Hiba történt a mentés során.");
       }
 

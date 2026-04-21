@@ -30,18 +30,50 @@ router.get("/", async (_req, res) => {
     const publicMembers = members.map((m) => ({
       id: m.id,
       name: m.name,
-      email: m.showEmail ? m.email : null,
-      phone: m.showPhone ? m.phone : null,
+      email: m.showEmail !== false ? m.email : null,
+      phone: m.showPhone !== false ? m.phone : null,
       roleTitle: m.roleTitle,
       photoUrl: m.photoUrl,
       bio: m.bio,
-      focalPointX: m.focalPointX,
-      focalPointY: m.focalPointY,
+      focalPointX: m.focalPointX ?? 50,
+      focalPointY: m.focalPointY ?? 25,
     }));
 
     res.json({ staff: publicMembers });
-  } catch {
-    res.status(500).json({ error: "Hiba történt a munkatársak betöltésekor." });
+  } catch (error) {
+    console.error("[staff] Public endpoint error:", error);
+    // Fallback: try basic query without new columns (pre-migration compatibility)
+    try {
+      const members = await db
+        .select({
+          id: staff.id,
+          name: staff.name,
+          email: staff.email,
+          phone: staff.phone,
+          roleTitle: staff.roleTitle,
+          photoUrl: staff.photoUrl,
+          bio: staff.bio,
+        })
+        .from(staff)
+        .where(eq(staff.active, true))
+        .orderBy(asc(staff.name));
+
+      const publicMembers = members.map((m) => ({
+        id: m.id,
+        name: m.name,
+        email: m.email,
+        phone: m.phone,
+        roleTitle: m.roleTitle,
+        photoUrl: m.photoUrl,
+        bio: m.bio,
+        focalPointX: 50,
+        focalPointY: 25,
+      }));
+
+      res.json({ staff: publicMembers });
+    } catch {
+      res.status(500).json({ error: "Hiba történt a munkatársak betöltésekor." });
+    }
   }
 });
 

@@ -1,9 +1,13 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentBlock } from "@/contexts/ContentContext";
 import { Link } from "react-router-dom";
 import heroBg from "@/assets/header2.jpg";
 
 const HeroSection = () => {
   const { t, localePath } = useLanguage();
+  const { content: heroTitle } = useContentBlock("/", "hero.title", t.hero.title);
+  const { content: heroSubtitle } = useContentBlock("/", "hero.subtitle", t.hero.subtitle);
+  const { content: heroCta } = useContentBlock("/", "hero.cta", t.hero.cta);
 
   return (
     <section
@@ -31,18 +35,22 @@ const HeroSection = () => {
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pb-28 pt-48 md:pt-64">
         <h1
           id="hero-title"
+          data-editable="hero.title"
+          data-page="/"
           className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-primary-foreground mb-4 drop-shadow-lg"
         >
-          {t.hero.title}
+          {heroTitle}
         </h1>
-        <p className="text-lg md:text-xl text-primary-foreground/90 font-body mb-8 drop-shadow">
-          {t.hero.subtitle}
+        <p data-editable="hero.subtitle" data-page="/" className="text-lg md:text-xl text-primary-foreground/90 font-body mb-8 drop-shadow">
+          {heroSubtitle}
         </p>
         <Link
           to={localePath("/ingatlanok")}
+          data-editable="hero.cta"
+          data-page="/"
           className="inline-block px-8 py-3.5 bg-accent text-accent-foreground font-semibold text-lg rounded-lg hover:bg-accent/90 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
         >
-          {t.hero.cta}
+          {heroCta}
         </Link>
       </div>
 

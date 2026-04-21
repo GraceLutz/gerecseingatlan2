@@ -161,6 +161,11 @@ app.use("/api", contactRoutes);
 app.use("/api/properties", propertiesRoutes);
 app.use("/api/staff", staffPublicRoutes);
 
+// ─── API 404 catch-all (JSON, never empty body or HTML) ─────────────
+app.all("/api/{*splat}", (_req: express.Request, res: express.Response) => {
+  res.status(404).json({ error: "Az API végpont nem található." });
+});
+
 // ─── Global API error handler (JSON, never HTML) ─────────────
 app.use("/api", (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error("[API Error]", err.message);

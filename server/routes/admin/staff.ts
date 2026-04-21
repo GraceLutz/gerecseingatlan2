@@ -266,7 +266,7 @@ router.delete("/:id", async (req, res) => {
     const [deleted] = await db
       .delete(staff)
       .where(eq(staff.id, idResult.data))
-      .returning();
+      .returning({ id: staff.id, name: staff.name, photoUrl: staff.photoUrl });
 
     if (!deleted) {
       return res.status(404).json({ error: "Munkatárs nem található." });

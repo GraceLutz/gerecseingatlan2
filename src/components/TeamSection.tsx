@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentBlock } from "@/contexts/ContentContext";
 import { Phone, Mail } from "lucide-react";
 
 interface StaffApiMember {
@@ -26,30 +27,6 @@ interface TeamMember {
 
 const FALLBACK_MEMBERS: TeamMember[] = [
   {
-    nameHu: "Gerecsei Tamás",
-    nameEn: "Tamás Gerecsei",
-    roleHu: "Ügyvezető, ingatlanközvetítő",
-    roleEn: "Managing Director, Real Estate Agent",
-    phone: "+36 30 123 4567",
-    email: "tamas@gerecseingatlan.hu",
-  },
-  {
-    nameHu: "Horváth Katalin",
-    nameEn: "Katalin Horváth",
-    roleHu: "Ingatlanközvetítő",
-    roleEn: "Real Estate Agent",
-    phone: "+36 30 234 5678",
-    email: "katalin@gerecseingatlan.hu",
-  },
-  {
-    nameHu: "Tóth Gábor",
-    nameEn: "Gábor Tóth",
-    roleHu: "Értékbecslés, jogi tanácsadás",
-    roleEn: "Valuation & Legal Advisory",
-    phone: "+36 30 345 6789",
-    email: "gabor@gerecseingatlan.hu",
-  },
-  {
     nameHu: "Csonka Szilvia",
     nameEn: "Szilvia Csonka",
     roleHu: "Ingatlanközvetítő",
@@ -62,6 +39,10 @@ const FALLBACK_MEMBERS: TeamMember[] = [
 
 const TeamSection = () => {
   const { t, lang } = useLanguage();
+  const { content: teamTitle } = useContentBlock("/munkatarsaink", "page.title", t.about.team);
+  const { content: teamSubtitle } = useContentBlock("/munkatarsaink", "page.subtitle",
+    lang === "hu" ? "Tapasztalt szakembereink személyre szabott segítséget nyújtanak" : "Our experienced professionals provide personalized assistance"
+  );
   const [apiMembers, setApiMembers] = useState<StaffApiMember[] | null>(null);
 
   useEffect(() => {
@@ -214,14 +195,14 @@ const TeamSection = () => {
       <div className="container mx-auto px-4">
         <h2
           id="team-heading"
+          data-editable="page.title"
+          data-page="/munkatarsaink"
           className="text-3xl md:text-4xl font-heading font-bold text-dark-green text-center mb-3"
         >
-          {t.about.team}
+          {teamTitle}
         </h2>
-        <p className="text-center text-muted-foreground font-body mb-10 max-w-2xl mx-auto">
-          {lang === "hu"
-            ? "Tapasztalt szakembereink személyre szabott segítséget nyújtanak"
-            : "Our experienced professionals provide personalized assistance"}
+        <p data-editable="page.subtitle" data-page="/munkatarsaink" className="text-center text-muted-foreground font-body mb-10 max-w-2xl mx-auto">
+          {teamSubtitle}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
           {apiMembers ? renderApiMembers(apiMembers) : renderFallbackMembers()}

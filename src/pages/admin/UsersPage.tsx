@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search, Plus, UserCheck, UserX, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { safeJson } from "@/lib/utils";
 
 interface User {
   id: string;

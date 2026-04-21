@@ -15,6 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { safeJson } from "@/lib/utils";
 
 interface Subscriber {
   id: string;
@@ -603,10 +604,10 @@ function CampaignComposer({
         body: JSON.stringify({ subject: subject.trim(), preheader: preheader.trim() || undefined, body: body.trim() }),
       });
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data.error || "Hiba történt.");
       }
-      const data = await res.json();
+      const data = await safeJson<{ campaign: { id: string } }>(res);
       setCampaignId(data.campaign.id);
       setSuccess("Kampány mentve.");
     } catch (err) {
@@ -630,12 +631,12 @@ function CampaignComposer({
         headers,
       });
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data.error || "Hiba történt.");
       }
-      const data = await res.json();
+      const data = await safeJson<{ message?: string }>(res);
       setTestSent(true);
-      setSuccess(data.message);
+      setSuccess(data.message ?? "Teszt email elküldve.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Hiba történt.");
     } finally {
@@ -655,11 +656,11 @@ function CampaignComposer({
         headers,
       });
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data.error || "Hiba történt.");
       }
-      const data = await res.json();
-      setSuccess(data.message);
+      const data = await safeJson<{ message?: string }>(res);
+      setSuccess(data.message ?? "Kampány elküldve.");
       setTimeout(onClose, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Hiba történt.");

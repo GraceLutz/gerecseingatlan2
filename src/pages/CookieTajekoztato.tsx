@@ -40,7 +40,7 @@ const CookieTajekoztato = () => {
 
   const { content: managingTitle } = useContentBlock(PAGE, "managing.title", isHu ? "Sütik kezelése" : "Managing Cookies");
   const { content: managingP1 } = useContentBlock(PAGE, "managing.p1", isHu
-    ? "A sütibeállításokat bármikor módosíthatja a weboldal cookie-sávjának „Beállítások" gombjával, vagy a böngészője beállításaiban."
+    ? 'A sütibeállításokat bármikor módosíthatja a weboldal cookie-sávjának „Beállítások” gombjával, vagy a böngészője beállításaiban.'
     : "You can change your cookie preferences at any time using the cookie banner's \"Settings\" button, or in your browser settings.");
   const { content: managingP2 } = useContentBlock(PAGE, "managing.p2", isHu
     ? "A legtöbb böngészőben a következő módon törölheti vagy letilthatja a sütiket:"

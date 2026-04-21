@@ -9,6 +9,11 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ContentProvider } from "@/contexts/ContentContext";
 import Analytics from "./components/Analytics";
+
+// Load editor bridge in edit mode
+if (new URLSearchParams(window.location.search).get("editMode") === "1") {
+  import("./admin/editorBridge");
+}
 import Index from "./pages/Index";
 import IntroductionPage from "./pages/IntroductionPage";
 import TeamPage from "./pages/TeamPage";
@@ -25,6 +30,7 @@ const LoginPage = lazy(() => import("./pages/admin/LoginPage"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
 const AdminUsersPage = lazy(() => import("./pages/admin/UsersPage"));
 const AdminContentPage = lazy(() => import("./pages/admin/ContentPage"));
+const AdminContentListPage = lazy(() => import("./pages/admin/ContentListPage"));
 const AdminNewsletterPage = lazy(() => import("./pages/admin/NewsletterPage"));
 const AdminStaffPage = lazy(() => import("./pages/admin/StaffPage"));
 const AdminCalendarPage = lazy(() => import("./pages/admin/CalendarPage"));
@@ -122,7 +128,6 @@ const AppRoutes = () => (
           <Route path="/velemenyek" element={<TestimonialsPage />} />
           <Route path="/kapcsolat" element={<ContactPage />} />
           <Route path="/gyik" element={<FaqPage />} />
-
           {/* Hungarian legal / compliance pages */}
           <Route path="/impresszum" element={<ImpresszumPage />} />
           <Route path="/adatkezelesi-tajekoztato" element={<AdatkezelesiPage />} />
@@ -135,6 +140,7 @@ const AppRoutes = () => (
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="felhasznalok" element={<AdminUsersPage />} />
             <Route path="tartalom" element={<AdminContentPage />} />
+            <Route path="tartalom-lista" element={<AdminContentListPage />} />
             <Route path="hirlevel" element={<AdminNewsletterPage />} />
             <Route path="munkatarsak" element={<AdminStaffPage />} />
             <Route path="naptar" element={<AdminCalendarPage />} />
@@ -153,7 +159,6 @@ const AppRoutes = () => (
           <Route path="/en/property/:id" element={<PropertyDetailPage />} />
           <Route path="/en/contact" element={<ContactPage />} />
           <Route path="/en/faq" element={<FaqPage />} />
-
           {/* English legal / compliance pages */}
           <Route path="/en/impresszum" element={<ImpresszumPage />} />
           <Route path="/en/privacy-policy" element={<AdatkezelesiPage />} />

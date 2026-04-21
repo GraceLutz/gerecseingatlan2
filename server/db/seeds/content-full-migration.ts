@@ -73,8 +73,16 @@ const serviceData: Array<{
   paragraphsEn: string[];
   benefitsHu: string[];
   benefitsEn: string[];
+  benefitsTitleHu: string;
+  benefitsTitleEn: string;
+  ctaTextHu: string;
+  ctaTextEn: string;
   ctaLabelHu: string;
   ctaLabelEn: string;
+  ctaUrlHu: string;
+  ctaUrlEn: string;
+  otherServicesTitleHu: string;
+  otherServicesTitleEn: string;
 }> = [
   {
     slug: "ingatlan-ertekesites-berbeadas",
@@ -97,8 +105,16 @@ const serviceData: Array<{
     ],
     benefitsHu: ["Ingyenes ingatlan értékelés", "Professzionális fotózás és hirdetés", "Teljes körű ügyintézés", "Szerződéskötés segítése"],
     benefitsEn: ["Free property evaluation", "Professional photography and advertising", "Full administrative support", "Contract assistance"],
+    benefitsTitleHu: "Előnyeink",
+    benefitsTitleEn: "Our Benefits",
+    ctaTextHu: "Érdekli szolgáltatásunk? Vegye fel velünk a kapcsolatot!",
+    ctaTextEn: "Interested in our service? Get in touch with us!",
     ctaLabelHu: "Érdeklődöm",
     ctaLabelEn: "I'm interested",
+    ctaUrlHu: "/kapcsolat",
+    ctaUrlEn: "/en/contact",
+    otherServicesTitleHu: "További szolgáltatásaink",
+    otherServicesTitleEn: "Our Other Services",
   },
   {
     slug: "ertekbecsles-ertekmeghatrozas",
@@ -121,8 +137,16 @@ const serviceData: Array<{
     ],
     benefitsHu: ["Hivatalos, akkreditált értékbecslők", "Hiteligényléshez elfogadott", "Piaci összehasonlító elemzés", "Gyors és pontos értékelés"],
     benefitsEn: ["Official, accredited appraisers", "Accepted for mortgage applications", "Market comparative analysis", "Fast and accurate valuation"],
+    benefitsTitleHu: "Előnyeink",
+    benefitsTitleEn: "Our Benefits",
+    ctaTextHu: "Érdekli szolgáltatásunk? Kérjen értékbecslést most!",
+    ctaTextEn: "Interested in our service? Request an appraisal now!",
     ctaLabelHu: "Értékbecslést kérek",
     ctaLabelEn: "Request appraisal",
+    ctaUrlHu: "/kapcsolat",
+    ctaUrlEn: "/en/contact",
+    otherServicesTitleHu: "További szolgáltatásaink",
+    otherServicesTitleEn: "Our Other Services",
   },
   {
     slug: "belsoepiteszet-latvanyterv",
@@ -145,8 +169,16 @@ const serviceData: Array<{
     ],
     benefitsHu: ["3D látványtervezés", "Teljes belsőépítészeti koncepció", "Referencia munkák bemutatása", "Közvetített szolgáltatás"],
     benefitsEn: ["3D visualization", "Complete interior design concept", "Reference work showcase", "Brokered service"],
+    benefitsTitleHu: "Előnyeink",
+    benefitsTitleEn: "Our Benefits",
+    ctaTextHu: "Érdekli szolgáltatásunk? Kérjen ajánlatot!",
+    ctaTextEn: "Interested in our service? Request a quote!",
     ctaLabelHu: "Ajánlatot kérek",
     ctaLabelEn: "Request a quote",
+    ctaUrlHu: "/kapcsolat",
+    ctaUrlEn: "/en/contact",
+    otherServicesTitleHu: "További szolgáltatásaink",
+    otherServicesTitleEn: "Our Other Services",
   },
   {
     slug: "teljeskoru-jogi-hatter",
@@ -169,8 +201,16 @@ const serviceData: Array<{
     ],
     benefitsHu: ["Tapasztalt ingatlan ügyvédek", "Tulajdoni lap ellenőrzés", "Teljes jogi háttér biztosítása", "Hagyatéki ügyek intézése"],
     benefitsEn: ["Experienced real estate lawyers", "Title deed verification", "Complete legal support", "Inheritance proceedings"],
+    benefitsTitleHu: "Előnyeink",
+    benefitsTitleEn: "Our Benefits",
+    ctaTextHu: "Érdekli szolgáltatásunk? Kérjen jogi tanácsadást!",
+    ctaTextEn: "Interested in our service? Request legal advice!",
     ctaLabelHu: "Jogi tanácsadást kérek",
     ctaLabelEn: "Request legal advice",
+    ctaUrlHu: "/kapcsolat",
+    ctaUrlEn: "/en/contact",
+    otherServicesTitleHu: "További szolgáltatásaink",
+    otherServicesTitleEn: "Our Other Services",
   },
   {
     slug: "hitel-allami-tamogatasok",
@@ -193,8 +233,16 @@ const serviceData: Array<{
     ],
     benefitsHu: ["Bankfüggetlen tanácsadás", "CSOK és Babaváró ügyintézés", "Személyre szabott hitelajánlatok", "Teljes ügyintézés"],
     benefitsEn: ["Bank-independent advice", "CSOK and Babaváró processing", "Personalized loan offers", "Full administrative support"],
+    benefitsTitleHu: "Előnyeink",
+    benefitsTitleEn: "Our Benefits",
+    ctaTextHu: "Érdekli szolgáltatásunk? Kérjen hitelügyintézést!",
+    ctaTextEn: "Interested in our service? Request loan assistance!",
     ctaLabelHu: "Hitelügyintézést kérek",
     ctaLabelEn: "Request loan assistance",
+    ctaUrlHu: "/kapcsolat",
+    ctaUrlEn: "/en/contact",
+    otherServicesTitleHu: "További szolgáltatásaink",
+    otherServicesTitleEn: "Our Other Services",
   },
   {
     slug: "energetikai-tanusitvany",
@@ -217,8 +265,16 @@ const serviceData: Array<{
     ],
     benefitsHu: ["Akkreditált szakértők", "Gyors ügyintézés", "Jogszabálynak megfelelő tanúsítvány", "Adásvételhez és bérbeadáshoz egyaránt"],
     benefitsEn: ["Accredited specialists", "Fast processing", "Legally compliant certificate", "For both sales and rentals"],
+    benefitsTitleHu: "Előnyeink",
+    benefitsTitleEn: "Our Benefits",
+    ctaTextHu: "Érdekli szolgáltatásunk? Kérjen tanúsítványt!",
+    ctaTextEn: "Interested in our service? Request a certificate!",
     ctaLabelHu: "Tanúsítványt kérek",
     ctaLabelEn: "Request certificate",
+    ctaUrlHu: "/kapcsolat",
+    ctaUrlEn: "/en/contact",
+    otherServicesTitleHu: "További szolgáltatásaink",
+    otherServicesTitleEn: "Our Other Services",
   },
   {
     slug: "villamos-biztonsagi-felulvizsgalat",
@@ -241,8 +297,16 @@ const serviceData: Array<{
     ],
     benefitsHu: ["Szakképzett felülvizsgálók", "Hivatalos jegyzőkönyv", "Lakó- és ipari ingatlanokhoz", "Jogszabályi megfelelőség"],
     benefitsEn: ["Certified inspectors", "Official report", "For residential and industrial properties", "Legal compliance"],
+    benefitsTitleHu: "Előnyeink",
+    benefitsTitleEn: "Our Benefits",
+    ctaTextHu: "Érdekli szolgáltatásunk? Kérjen árajánlatot!",
+    ctaTextEn: "Interested in our service? Request a quote!",
     ctaLabelHu: "Árajánlatot kérek",
     ctaLabelEn: "Request a quote",
+    ctaUrlHu: "/kapcsolat",
+    ctaUrlEn: "/en/contact",
+    otherServicesTitleHu: "További szolgáltatásaink",
+    otherServicesTitleEn: "Our Other Services",
   },
 ];
 
@@ -267,7 +331,11 @@ for (const svc of serviceData) {
     contentType: "json",
   });
 
+  blocks.push({ pagePath, blockKey: "service.benefits.title", content: bi(svc.benefitsTitleHu, svc.benefitsTitleEn), contentType: "json" });
+  blocks.push({ pagePath, blockKey: "service.cta.text", content: bi(svc.ctaTextHu, svc.ctaTextEn), contentType: "json" });
   blocks.push({ pagePath, blockKey: "service.cta.label", content: bi(svc.ctaLabelHu, svc.ctaLabelEn), contentType: "json" });
+  blocks.push({ pagePath, blockKey: "service.cta.url", content: bi(svc.ctaUrlHu, svc.ctaUrlEn), contentType: "json" });
+  blocks.push({ pagePath, blockKey: "service.otherServices", content: bi(svc.otherServicesTitleHu, svc.otherServicesTitleEn), contentType: "json" });
 }
 
 // ═══════════════════════════════════════════════════════

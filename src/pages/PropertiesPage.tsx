@@ -1,5 +1,6 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContentBlock } from "@/contexts/ContentContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useProperties } from "@/hooks/useProperties";
 import PropertyCard from "@/components/PropertyCard";
@@ -148,8 +149,12 @@ function getPageNumbers(current: number, total: number): (number | "ellipsis")[]
 }
 
 /* ---- Main page ---- */
+const PAGE = "/ingatlanok";
+
 const PropertiesPage = () => {
   const { t } = useLanguage();
+  const { content: pageTitle } = useContentBlock(PAGE, "page.title", t.properties.title);
+  const { content: pageSubtitle } = useContentBlock(PAGE, "page.subtitle", t.properties.subtitle);
   const { currency, toggleCurrency } = useCurrency();
   const { properties, locations } = useProperties();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -243,8 +248,8 @@ const PropertiesPage = () => {
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/ingatlanok">
       <section className="bg-dark-green py-16 text-center">
-        <h1 className="text-4xl font-heading font-bold text-primary-foreground mb-2">{t.properties.title}</h1>
-        <p className="text-primary-foreground/70 font-body">{t.properties.subtitle}</p>
+        <h1 data-editable="page.title" data-page={PAGE} className="text-4xl font-heading font-bold text-primary-foreground mb-2">{pageTitle}</h1>
+        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body">{pageSubtitle}</p>
       </section>
 
       <section className="py-10 bg-background">

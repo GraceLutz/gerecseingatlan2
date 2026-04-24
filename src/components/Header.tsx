@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useRef, Fragment } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { useContentBlock } from "@/contexts/ContentContext";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { useContent, useContentBlock } from "@/contexts/ContentContext";
+import { getCsrfToken } from "@/lib/csrf";
+import { Menu, X, ChevronDown, Minus, Plus, Save, GripVertical } from "lucide-react";
 import logo from "@/assets/newlogo.png";
 
 interface LogoSettings {
@@ -29,10 +30,45 @@ function parseLogoSettings(raw: string): LogoSettings {
 const Header = () => {
   const { lang, t, setLanguage, localePath } = useLanguage();
   const { currency, toggleCurrency } = useCurrency();
+  const { isAdmin } = useContent();
   const location = useLocation();
 
   const { content: logoSettingsRaw } = useContentBlock("/", "header.logoSettings", "{}");
   const adminLogo = parseLogoSettings(logoSettingsRaw);
+
+  const [logoEditorOpen, setLogoEditorOpen] = useState(false);
+  const [draftLogo, setDraftLogo] = useState<LogoSettings>({});
+  const [logoSaving, setLogoSaving] = useState(false);
+  const logoEditorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setDraftLogo(adminLogo);
+  }, [logoSettingsRaw]);
+
+  const saveLogoSettings = useCallback(async (settings: LogoSettings) => {
+    setLogoSaving(true);
+    try {
+      const csrf = getCsrfToken();
+      const res = await fetch("/api/admin/content/by-path", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrf ? { "x-csrf-token": csrf } : {}),
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          pagePath: "/",
+          blockKey: "header.logoSettings",
+          content: JSON.stringify(settings),
+          contentType: "json",
+        }),
+      });
+      if (!res.ok) throw new Error(`Save failed (${res.status})`);
+    } finally {
+      setLogoSaving(false);
+    }
+  }, []);
+
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -74,6 +110,7 @@ const Header = () => {
     setMobileAboutOpen(false);
     setServicesOpen(false);
     setMobileServicesOpen(false);
+    setLogoEditorOpen(false);
   }, [location.pathname]);
 
   // Lock body scroll when mobile menu is open
@@ -88,18 +125,19 @@ const Header = () => {
   // Close menus on Escape key
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === "Escape") {
+      if (logoEditorOpen) setLogoEditorOpen(false);
       if (aboutOpen) setAboutOpen(false);
       if (servicesOpen) setServicesOpen(false);
       if (menuOpen) setMenuOpen(false);
     }
-  }, [menuOpen, aboutOpen, servicesOpen]);
+  }, [menuOpen, aboutOpen, servicesOpen, logoEditorOpen]);
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  // Close desktop dropdowns on outside click
+  // Close desktop dropdowns and logo editor on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (aboutDropdownRef.current && !aboutDropdownRef.current.contains(e.target as Node)) {
@@ -107,6 +145,9 @@ const Header = () => {
       }
       if (servicesDropdownRef.current && !servicesDropdownRef.current.contains(e.target as Node)) {
         setServicesOpen(false);
+      }
+      if (logoEditorRef.current && !logoEditorRef.current.contains(e.target as Node)) {
+        setLogoEditorOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -173,28 +214,124 @@ const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20 md:h-28">
-          <Link
-            to={localePath("/")}
-            className={`flex items-center gap-2 mr-auto -ml-6 sm:-ml-10 md:-ml-20 lg:-ml-32 ${focusRing}`}
-            data-editable="header.logoSettings"
-            data-page="/"
-          >
-            <img
-              src={logo}
-              alt={t.common.logoAlt}
-              className="h-28 sm:h-36 md:h-44 lg:h-56 -my-2 sm:-my-4 md:-my-6 lg:-my-10 rounded object-contain"
-              style={
-                adminLogo.height
-                  ? {
-                      height: `${adminLogo.height * 4}px`,
-                      marginLeft: adminLogo.offsetX ? `${adminLogo.offsetX * 4}px` : undefined,
-                      marginTop: adminLogo.offsetY ? `${adminLogo.offsetY * 4}px` : undefined,
-                      marginBottom: adminLogo.offsetY ? `${adminLogo.offsetY * 4}px` : undefined,
-                    }
-                  : undefined
-              }
-            />
-          </Link>
+          <div className="relative mr-auto" ref={logoEditorRef}>
+            <Link
+              to={localePath("/")}
+              className={`flex items-center gap-2 -ml-6 sm:-ml-10 md:-ml-20 lg:-ml-32 ${focusRing}`}
+              data-editable="header.logoSettings"
+              data-page="/"
+              onClick={isAdmin ? (e) => { e.preventDefault(); setLogoEditorOpen(!logoEditorOpen); } : undefined}
+            >
+              <img
+                src={logo}
+                alt={t.common.logoAlt}
+                className={`h-28 sm:h-36 md:h-44 lg:h-56 -my-2 sm:-my-4 md:-my-6 lg:-my-10 rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                style={
+                  adminLogo.height
+                    ? {
+                        height: `${adminLogo.height * 4}px`,
+                        marginLeft: adminLogo.offsetX ? `${adminLogo.offsetX * 4}px` : undefined,
+                        marginTop: adminLogo.offsetY ? `${adminLogo.offsetY * 4}px` : undefined,
+                        marginBottom: adminLogo.offsetY ? `${adminLogo.offsetY * 4}px` : undefined,
+                      }
+                    : undefined
+                }
+              />
+            </Link>
+
+            {isAdmin && logoEditorOpen && (
+              <div
+                className="absolute top-full left-0 mt-2 z-[60] bg-white border border-gray-200 rounded-lg shadow-xl p-3 w-64"
+                role="dialog"
+                aria-label="Logo beállítások"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-1">
+                    <GripVertical className="h-3 w-3" aria-hidden="true" />
+                    Logo beállítások
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setLogoEditorOpen(false)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                    aria-label="Bezárás"
+                  >
+                    <X className="h-3.5 w-3.5 text-gray-500" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Méret (magasság)</label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        aria-label="Kisebb"
+                        className="p-1.5 border border-gray-300 rounded hover:bg-gray-100 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                        onClick={() => setDraftLogo((prev) => ({ ...prev, height: Math.max(20, (prev.height ?? 56) - 4) }))}
+                      >
+                        <Minus className="h-3.5 w-3.5" />
+                      </button>
+                      <span className="text-sm font-mono text-gray-700 min-w-[3rem] text-center">
+                        {(draftLogo.height ?? 56) * 4}px
+                      </span>
+                      <button
+                        type="button"
+                        aria-label="Nagyobb"
+                        className="p-1.5 border border-gray-300 rounded hover:bg-gray-100 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                        onClick={() => setDraftLogo((prev) => ({ ...prev, height: Math.min(80, (prev.height ?? 56) + 4) }))}
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Vízszintes eltolás</label>
+                    <input
+                      type="range"
+                      min={-40}
+                      max={10}
+                      step={1}
+                      value={draftLogo.offsetX ?? 0}
+                      onChange={(e) => setDraftLogo((prev) => ({ ...prev, offsetX: Number(e.target.value) }))}
+                      className="w-full h-2 accent-blue-500"
+                      aria-label="Vízszintes eltolás"
+                    />
+                    <span className="text-xs text-gray-400">{(draftLogo.offsetX ?? 0) * 4}px</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Függőleges eltolás</label>
+                    <input
+                      type="range"
+                      min={-15}
+                      max={5}
+                      step={1}
+                      value={draftLogo.offsetY ?? 0}
+                      onChange={(e) => setDraftLogo((prev) => ({ ...prev, offsetY: Number(e.target.value) }))}
+                      className="w-full h-2 accent-blue-500"
+                      aria-label="Függőleges eltolás"
+                    />
+                    <span className="text-xs text-gray-400">{(draftLogo.offsetY ?? 0) * 4}px</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await saveLogoSettings(draftLogo);
+                      setLogoEditorOpen(false);
+                    }}
+                    disabled={logoSaving}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 transition-colors min-h-[44px]"
+                  >
+                    <Save className="h-3.5 w-3.5" />
+                    {logoSaving ? "Mentés..." : "Mentés"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Desktop navigation */}
           <nav aria-label={t.common.mainNavigation} className="hidden lg:flex items-center gap-6">

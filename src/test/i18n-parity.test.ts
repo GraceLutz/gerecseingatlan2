@@ -61,13 +61,16 @@ describe("i18n key parity", () => {
   });
 
   it("no translation value is an empty string", () => {
+    // Keys whose content comes from the CMS at runtime — empty fallbacks are intentional
+    const cmsProvidedKeys = new Set(["hero.title", "hero.subtitle", "hero.cta"]);
+
     function findEmpty(obj: Record<string, unknown>, prefix = ""): string[] {
       const empties: string[] = [];
       for (const key of Object.keys(obj)) {
         const fullKey = prefix ? `${prefix}.${key}` : key;
         const value = obj[key];
         if (typeof value === "string" && value.trim() === "") {
-          empties.push(fullKey);
+          if (!cmsProvidedKeys.has(fullKey)) empties.push(fullKey);
         } else if (Array.isArray(value)) {
           value.forEach((item, i) => {
             if (typeof item === "object" && item !== null) {

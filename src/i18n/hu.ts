@@ -11,9 +11,9 @@ export const hu = {
     testimonials: "Vélemények",
   },
   hero: {
-    title: "Gerecse Ingatlan",
-    subtitle: "Professzionális ingatlanszolgáltatások a Gerecse régióban",
-    cta: "Ingatlanok böngészése",
+    title: "",
+    subtitle: "",
+    cta: "",
   },
   about: {
     title: "Rólunk",

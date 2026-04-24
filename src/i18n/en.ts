@@ -11,9 +11,9 @@ export const en = {
     testimonials: "Testimonials",
   },
   hero: {
-    title: "Gerecse Ingatlan",
-    subtitle: "Professional real estate services in the Gerecse region",
-    cta: "Browse Properties",
+    title: "",
+    subtitle: "",
+    cta: "",
   },
   about: {
     title: "About Us",

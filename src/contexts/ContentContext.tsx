@@ -120,15 +120,17 @@ export function useContentBlock(
   fallback: string
 ): { content: string; contentType: string; loading: boolean } {
   const { getPageContent, fetchPageContent } = useContent();
+  const { lang } = useLanguage();
   const pageData = getPageContent(pagePath);
-  const fetchedRef = useRef(false);
+  const fetchedKeyRef = useRef("");
 
   React.useEffect(() => {
-    if (!fetchedRef.current) {
-      fetchedRef.current = true;
+    const key = `${pagePath}:${lang}`;
+    if (fetchedKeyRef.current !== key) {
+      fetchedKeyRef.current = key;
       fetchPageContent(pagePath);
     }
-  }, [pagePath, fetchPageContent]);
+  }, [pagePath, lang, fetchPageContent]);
 
   const block = pageData.blocks[blockKey];
 
@@ -145,15 +147,17 @@ export function useContentArray<T = string>(
   fallback: T[]
 ): { items: T[]; loading: boolean } {
   const { getPageContent, fetchPageContent } = useContent();
+  const { lang } = useLanguage();
   const pageData = getPageContent(pagePath);
-  const fetchedRef = useRef(false);
+  const fetchedKeyRef = useRef("");
 
   React.useEffect(() => {
-    if (!fetchedRef.current) {
-      fetchedRef.current = true;
+    const key = `${pagePath}:${lang}`;
+    if (fetchedKeyRef.current !== key) {
+      fetchedKeyRef.current = key;
       fetchPageContent(pagePath);
     }
-  }, [pagePath, fetchPageContent]);
+  }, [pagePath, lang, fetchPageContent]);
 
   const block = pageData.blocks[blockKey];
 

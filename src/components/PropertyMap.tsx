@@ -60,10 +60,10 @@ const PropertyMap: React.FC<PropertyMapProps> = ({ lat, lng, location }) => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={openAriaLabel}
-          className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-main-green underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded px-1 py-0.5"
+          className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-main-green active:text-main-green/80 underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded px-3 min-h-[44px]"
         >
           {openLabel}
-          <ExternalLink size={12} aria-hidden="true" />
+          <ExternalLink size={14} aria-hidden="true" />
         </a>
       </div>
     </section>

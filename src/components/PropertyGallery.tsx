@@ -162,17 +162,17 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
               type="button"
               onClick={scrollPrev}
               aria-label={t.properties.prevImage}
-              className="absolute left-3 top-1/2 -translate-y-1/2 bg-foreground/50 hover:bg-foreground/70 text-background rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-gold"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-foreground/50 hover:bg-foreground/70 active:bg-foreground/80 text-background rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-gold"
             >
-              <ChevronLeft size={20} aria-hidden="true" />
+              <ChevronLeft size={22} aria-hidden="true" />
             </button>
             <button
               type="button"
               onClick={scrollNext}
               aria-label={t.properties.nextImage}
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-foreground/50 hover:bg-foreground/70 text-background rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-gold"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-foreground/50 hover:bg-foreground/70 active:bg-foreground/80 text-background rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-gold"
             >
-              <ChevronRight size={20} aria-hidden="true" />
+              <ChevronRight size={22} aria-hidden="true" />
             </button>
           </>
         )}
@@ -182,9 +182,9 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
           type="button"
           onClick={() => setLightboxOpen(true)}
           aria-label={t.properties.gallery}
-          className="absolute bottom-3 right-3 bg-foreground/50 hover:bg-foreground/70 text-background rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-gold"
+          className="absolute bottom-3 right-3 bg-foreground/50 hover:bg-foreground/70 active:bg-foreground/80 text-background rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-gold"
         >
-          <Expand size={18} aria-hidden="true" />
+          <Expand size={20} aria-hidden="true" />
         </button>
 
         <span className="absolute bottom-3 left-3 bg-foreground/60 text-background text-xs px-2 py-1 rounded" aria-live="polite">
@@ -230,7 +230,7 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
           <button
             onClick={() => setLightboxOpen(false)}
             aria-label={t.common.close}
-            className="absolute top-4 right-4 text-background hover:text-background/80 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
+            className="absolute top-4 right-4 min-w-[44px] min-h-[44px] flex items-center justify-center text-background hover:text-background/80 active:text-background/60 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
           >
             <X size={32} />
           </button>
@@ -239,7 +239,7 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
             <button
               onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
               aria-label={t.properties.prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-background hover:text-background/80 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
+              className="absolute left-2 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] flex items-center justify-center text-background hover:text-background/80 active:text-background/60 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
             >
               <ChevronLeft size={40} />
             </button>
@@ -257,7 +257,7 @@ const PropertyGallery: React.FC<PropertyGalleryProps> = ({ images, alt }) => {
             <button
               onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
               aria-label={t.properties.nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-background hover:text-background/80 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
+              className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] flex items-center justify-center text-background hover:text-background/80 active:text-background/60 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-full"
             >
               <ChevronRight size={40} />
             </button>

@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useContentBlock, useContentArray } from "@/contexts/ContentContext";
+import { useContent, useContentBlock, useContentArray } from "@/contexts/ContentContext";
 import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft, Send } from "lucide-react";
@@ -41,13 +41,11 @@ const ServiceDetailPage = () => {
 
 function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof getServiceBySlug> & {}; resolvedSlug: string }) {
   const { lang, t, localePath } = useLanguage();
+  const { isAdmin } = useContent();
   const pagePath = `/${resolvedSlug}`;
 
   const { content: title } = useContentBlock(pagePath, "service.title", t.services[service.titleKey]);
   const { content: subtitle } = useContentBlock(pagePath, "service.subtitle", "");
-  const { content: ctaText } = useContentBlock(pagePath, "service.cta.text", t.services.interestedCta);
-  const { content: benefitsTitle } = useContentBlock(pagePath, "service.benefits.title", t.serviceDetail.benefits);
-  const { content: otherServicesTitle } = useContentBlock(pagePath, "service.otherServices", t.serviceDetail.otherServices);
   const { items: paragraphs } = useContentArray(pagePath, "service.paragraphs", [t.services[service.descKey]]);
   const { items: benefits } = useContentArray(pagePath, "service.benefits", []);
 
@@ -65,21 +63,21 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
             <Icon size={28} className="text-gold" aria-hidden="true" />
           </div>
         </div>
-        <h1
+        <EditableText
+          pagePath={pagePath}
+          blockKey="service.title"
+          fallback={t.services[service.titleKey]}
+          as="h1"
           className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground"
-          data-editable="service.title"
-          data-page={pagePath}
-        >
-          {title}
-        </h1>
-        {subtitle && (
-          <p
+        />
+        {(subtitle || isAdmin) && (
+          <EditableText
+            pagePath={pagePath}
+            blockKey="service.subtitle"
+            fallback=""
+            as="p"
             className="mt-3 text-lg text-primary-foreground/80"
-            data-editable="service.subtitle"
-            data-page={pagePath}
-          >
-            {subtitle}
-          </p>
+          />
         )}
       </section>
 
@@ -93,7 +91,7 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
             {t.nav.home}
           </Link>
 
-          <div className="space-y-4 mb-12">
+          <div className="space-y-4 mb-12" data-editable="service.paragraphs" data-page={pagePath}>
             {paragraphs.map((paragraph, i) => (
               <EditableText
                 key={i}
@@ -108,13 +106,13 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
 
           {benefits.length > 0 && (
             <div className="mb-12 p-6 bg-light-bg rounded-xl">
-              <h2
+              <EditableText
+                pagePath={pagePath}
+                blockKey="service.benefits.title"
+                fallback={t.serviceDetail.benefits}
+                as="h2"
                 className="text-lg font-heading font-bold text-dark-green mb-4"
-                data-editable="service.benefits.title"
-                data-page={pagePath}
-              >
-                {benefitsTitle}
-              </h2>
+              />
               <EditableList
                 pagePath={pagePath}
                 blockKey="service.benefits"
@@ -129,13 +127,13 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
             <InteriorContactForm />
           ) : (
             <div className="p-8 bg-dark-green rounded-xl text-center">
-              <p
+              <EditableText
+                pagePath={pagePath}
+                blockKey="service.cta.text"
+                fallback={t.services.interestedCta}
+                as="p"
                 className="text-lg font-heading font-semibold text-primary-foreground mb-4"
-                data-editable="service.cta.text"
-                data-page={pagePath}
-              >
-                {ctaText}
-              </p>
+              />
               <EditableButton
                 pagePath={pagePath}
                 labelKey="service.cta.label"
@@ -149,13 +147,13 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
 
           {relatedServices.length > 0 && (
             <div className="mt-16">
-              <h2
+              <EditableText
+                pagePath={pagePath}
+                blockKey="service.otherServices"
+                fallback={t.serviceDetail.otherServices}
+                as="h2"
                 className="text-xl font-heading font-bold text-dark-green mb-6"
-                data-editable="service.otherServices"
-                data-page={pagePath}
-              >
-                {otherServicesTitle}
-              </h2>
+              />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {relatedServices.map((rel) => {
                   const RelIcon = rel.icon;
@@ -198,8 +196,6 @@ const InteriorContactForm: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const { content: formTitle } = useContentBlock(INTERIOR_PAGE, "service.interior.form.title", t.serviceDetail.interiorFormTitle);
-  const { content: formSubtitle } = useContentBlock(INTERIOR_PAGE, "service.interior.form.subtitle", t.serviceDetail.interiorFormSubtitle);
   const { content: nameLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.nameLabel", t.serviceDetail.nameLabel);
   const { content: emailLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.emailLabel", "E-mail");
   const { content: phoneLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.phoneLabel", t.serviceDetail.phoneLabel);
@@ -207,8 +203,6 @@ const InteriorContactForm: React.FC = () => {
   const { content: messageLabel } = useContentBlock(INTERIOR_PAGE, "service.interior.form.messageLabel", t.serviceDetail.messageLabel);
   const { content: submitButton } = useContentBlock(INTERIOR_PAGE, "service.interior.form.submitButton", t.serviceDetail.submitButton);
   const { content: submittingText } = useContentBlock(INTERIOR_PAGE, "service.interior.form.submitting", t.serviceDetail.submitting);
-  const { content: dataNotice } = useContentBlock(INTERIOR_PAGE, "service.interior.form.dataNotice", t.serviceDetail.dataNotice);
-  const { content: successMessage } = useContentBlock(INTERIOR_PAGE, "service.interior.form.successMessage", t.serviceDetail.successMessage);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -253,13 +247,13 @@ const InteriorContactForm: React.FC = () => {
   if (submitted) {
     return (
       <div className="p-8 bg-light-bg rounded-xl text-center" role="status" aria-live="polite">
-        <p
+        <EditableText
+          pagePath={INTERIOR_PAGE}
+          blockKey="service.interior.form.successMessage"
+          fallback={t.serviceDetail.successMessage}
+          as="p"
           className="text-lg font-heading font-semibold text-dark-green"
-          data-editable="service.interior.form.successMessage"
-          data-page={INTERIOR_PAGE}
-        >
-          {successMessage}
-        </p>
+        />
       </div>
     );
   }
@@ -268,20 +262,20 @@ const InteriorContactForm: React.FC = () => {
 
   return (
     <div className="p-8 bg-light-bg rounded-xl">
-      <h2
+      <EditableText
+        pagePath={INTERIOR_PAGE}
+        blockKey="service.interior.form.title"
+        fallback={t.serviceDetail.interiorFormTitle}
+        as="h2"
         className="text-xl font-heading font-bold text-dark-green mb-2"
-        data-editable="service.interior.form.title"
-        data-page={INTERIOR_PAGE}
-      >
-        {formTitle}
-      </h2>
-      <p
+      />
+      <EditableText
+        pagePath={INTERIOR_PAGE}
+        blockKey="service.interior.form.subtitle"
+        fallback={t.serviceDetail.interiorFormSubtitle}
+        as="p"
         className="text-sm text-muted-foreground mb-6"
-        data-editable="service.interior.form.subtitle"
-        data-page={INTERIOR_PAGE}
-      >
-        {formSubtitle}
-      </p>
+      />
 
       {submitError && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm" role="alert">
@@ -355,13 +349,13 @@ const InteriorContactForm: React.FC = () => {
           <Send size={16} aria-hidden="true" />
           {submitting ? submittingText : submitButton}
         </button>
-        <p
+        <EditableText
+          pagePath={INTERIOR_PAGE}
+          blockKey="service.interior.form.dataNotice"
+          fallback={t.serviceDetail.dataNotice}
+          as="p"
           className="text-xs text-muted-foreground text-center"
-          data-editable="service.interior.form.dataNotice"
-          data-page={INTERIOR_PAGE}
-        >
-          {dataNotice}
-        </p>
+        />
       </form>
     </div>
   );

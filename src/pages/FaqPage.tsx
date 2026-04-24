@@ -122,7 +122,7 @@ const FaqPage = () => {
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/gyik">
-      <section className="pt-28 pb-16 bg-light-bg">
+      <section className="py-16 bg-light-bg">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-foreground text-center mb-4">

@@ -14,6 +14,13 @@ const HU_TO_EN_PATH: Record<string, string> = {
   "/adatkezelesi-tajekoztato": "/en/privacy-policy",
   "/cookie-tajekoztato": "/en/cookie-policy",
   "/aszf": "/en/terms",
+  "/ingatlan-ertekesites-berbeadas": "/en/property-sales-and-rentals",
+  "/ertekbecsles-ertekmeghatrozas": "/en/appraisal-and-valuation",
+  "/belsoepiteszet-latvanyterv": "/en/interior-design",
+  "/teljeskoru-jogi-hatter": "/en/full-legal-support",
+  "/hitel-allami-tamogatasok": "/en/loans-and-subsidies",
+  "/energetikai-tanusitvany": "/en/energy-certificate",
+  "/villamos-biztonsagi-felulvizsgalat": "/en/electrical-safety-inspection",
 };
 
 /** Dynamic route patterns: /ingatlan/:id → /en/property/:id, /:slug → /en/:slug */

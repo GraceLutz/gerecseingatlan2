@@ -71,14 +71,14 @@ const Testimonials = () => {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Mentés sikertelen (${res.status})`);
+        throw new Error(data.error || (lang === "hu" ? `Mentés sikertelen (${res.status})` : `Save failed (${res.status})`));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Hiba történt a mentés során.");
+      setError(err instanceof Error ? err.message : (lang === "hu" ? "Hiba történt a mentés során." : "An error occurred while saving."));
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [lang]);
 
   const startEditing = useCallback((index: number) => {
     setEditingIndex(index);
@@ -143,16 +143,16 @@ const Testimonials = () => {
               type="button"
               onClick={confirmEditing}
               disabled={saving}
-              className="p-1.5 bg-green-600 text-white rounded shadow hover:bg-green-700 disabled:opacity-50"
-              aria-label="Mentés"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-green-600 text-white rounded shadow hover:bg-green-700 disabled:opacity-50"
+              aria-label={lang === "hu" ? "Mentés" : "Save"}
             >
               <Check className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={cancelEditing}
-              className="p-1.5 bg-red-600 text-white rounded shadow hover:bg-red-700"
-              aria-label="Mégse"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-red-600 text-white rounded shadow hover:bg-red-700"
+              aria-label={lang === "hu" ? "Mégse" : "Cancel"}
             >
               <X className="h-4 w-4" />
             </button>
@@ -206,7 +206,7 @@ const Testimonials = () => {
                     key={star}
                     type="button"
                     onClick={() => setEditDraft({ ...editDraft, rating: star })}
-                    className="p-0.5"
+                    className="p-2"
                     aria-label={`${star} ${lang === "hu" ? "csillag" : "star"}`}
                   >
                     <Star
@@ -228,24 +228,24 @@ const Testimonials = () => {
         className={`bg-card rounded-xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow relative ${isAdmin ? "group/testimonial" : ""}`}
       >
         {isAdmin && (
-          <span className="invisible group-hover/testimonial:visible absolute top-2 right-2 flex gap-1 z-10">
+          <span className="absolute top-2 right-2 flex gap-1 z-10">
             <button
               type="button"
               onClick={() => startEditing(i)}
-              className="p-1.5 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition-all"
-              aria-label={`${testimonial.name} szerkesztése`}
-              title="Szerkesztés"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition-all"
+              aria-label={lang === "hu" ? `${testimonial.name} szerkesztése` : `Edit ${testimonial.name}`}
+              title={lang === "hu" ? "Szerkesztés" : "Edit"}
             >
-              <Pencil className="h-3 w-3" />
+              <Pencil className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => deleteItem(i)}
-              className="p-1.5 bg-red-600 text-white rounded-full shadow hover:bg-red-700 transition-all"
-              aria-label={`${testimonial.name} törlése`}
-              title="Törlés"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-red-600 text-white rounded-full shadow hover:bg-red-700 transition-all"
+              aria-label={lang === "hu" ? `${testimonial.name} törlése` : `Delete ${testimonial.name}`}
+              title={lang === "hu" ? "Törlés" : "Delete"}
             >
-              <Trash2 className="h-3 w-3" />
+              <Trash2 className="h-4 w-4" />
             </button>
           </span>
         )}

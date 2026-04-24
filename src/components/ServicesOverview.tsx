@@ -1,7 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
 import { Link } from "react-router-dom";
-import { Home, FileText, Scale, Banknote, Zap, Sofa } from "lucide-react";
+import { Home, FileText, Scale, Banknote, Zap, Sofa, ShieldCheck } from "lucide-react";
 
 const services = [
   { icon: Home, titleKey: "salesTitle" as const, descKey: "salesDesc" as const, path: "/ingatlan-ertekesites-berbeadas" },
@@ -10,6 +10,7 @@ const services = [
   { icon: Banknote, titleKey: "loanTitle" as const, descKey: "loanDesc" as const, path: "/hitel-allami-tamogatasok" },
   { icon: Zap, titleKey: "energyTitle" as const, descKey: "energyDesc" as const, path: "/energetikai-tanusitvany" },
   { icon: Sofa, titleKey: "interiorTitle" as const, descKey: "interiorDesc" as const, path: "/belsoepiteszet-latvanyterv" },
+  { icon: ShieldCheck, titleKey: "electricalTitle" as const, descKey: "electricalDesc" as const, path: "/villamos-biztonsagi-felulvizsgalat" },
 ];
 
 function ServiceCard({ service }: { service: typeof services[number] }) {

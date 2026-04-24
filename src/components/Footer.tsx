@@ -30,6 +30,7 @@ const Footer = () => {
   const { content: linkLoan } = useContentBlock(PAGE, "links.loan", t.services.loanTitle);
   const { content: linkEnergy } = useContentBlock(PAGE, "links.energy", t.services.energyTitle);
   const { content: linkInterior } = useContentBlock(PAGE, "links.interior", t.services.interiorTitle);
+  const { content: linkElectrical } = useContentBlock(PAGE, "links.electrical", t.services.electricalTitle);
   const { content: newsletterTitle } = useContentBlock(PAGE, "newsletter.title", t.footer.newsletter);
   const { content: newsletterSubtitle } = useContentBlock(PAGE, "newsletter.subtitle", t.newsletter.subtitle);
   const { content: newsletterPlaceholder } = useContentBlock(PAGE, "newsletter.placeholder", t.newsletter.placeholder);
@@ -104,6 +105,7 @@ const Footer = () => {
               <Link to={localePath("/hitel-allami-tamogatasok")} data-editable="links.loan" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkLoan}</Link>
               <Link to={localePath("/energetikai-tanusitvany")} data-editable="links.energy" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkEnergy}</Link>
               <Link to={localePath("/belsoepiteszet-latvanyterv")} data-editable="links.interior" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkInterior}</Link>
+              <Link to={localePath("/villamos-biztonsagi-felulvizsgalat")} data-editable="links.electrical" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkElectrical}</Link>
             </nav>
           </div>
 

@@ -352,7 +352,7 @@ const ContactPage = () => {
                   <input
                     id="contact-gdpr"
                     type="checkbox"
-                    className="mt-1 rounded border-border"
+                    className={`mt-1 rounded ${errors.gdpr ? "border-destructive ring-1 ring-destructive" : "border-border"}`}
                     disabled={submitting}
                     {...register("gdpr")}
                     aria-invalid={!!errors.gdpr}
@@ -362,7 +362,7 @@ const ContactPage = () => {
                   <label
                     htmlFor="contact-gdpr"
                     data-editable="contact.form.gdpr" data-page={PAGE}
-                    className="text-sm text-muted-foreground"
+                    className={`text-sm ${errors.gdpr ? "text-destructive" : "text-muted-foreground"}`}
                   >
                     {gdprText}
                   </label>

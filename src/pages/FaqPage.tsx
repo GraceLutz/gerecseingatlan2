@@ -101,7 +101,7 @@ const FaqPage = () => {
     saveItems(updated);
     setOpenIndex(updated.length - 1);
     startEditing(updated.length - 1);
-  }, [localItems, saveItems, startEditing]);
+  }, [localItems, saveItems, startEditing, lang]);
 
   const deleteItem = useCallback((index: number) => {
     const updated = localItems.filter((_, i) => i !== index);

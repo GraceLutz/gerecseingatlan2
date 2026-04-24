@@ -132,15 +132,11 @@ const Footer = () => {
                     placeholder={newsletterPlaceholder}
                     required
                     autoComplete="email"
-                    data-editable="newsletter.placeholder"
-                    data-page={PAGE}
                     className="flex-1 px-3 py-2 text-sm rounded bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
                   />
                   <button
                     type="submit"
                     aria-label={newsletterButton}
-                    data-editable="newsletter.button"
-                    data-page={PAGE}
                     className="px-4 py-2 bg-gold text-accent-foreground font-semibold text-sm rounded hover:bg-gold/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4]"
                   >
                     {newsletterButton}

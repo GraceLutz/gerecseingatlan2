@@ -2,13 +2,37 @@ import { useState, useEffect, useCallback, useRef, Fragment } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useContentBlock } from "@/contexts/ContentContext";
 import { Menu, X, ChevronDown } from "lucide-react";
 import logo from "@/assets/newlogo.png";
+
+interface LogoSettings {
+  height?: number;
+  offsetX?: number;
+  offsetY?: number;
+}
+
+function parseLogoSettings(raw: string): LogoSettings {
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "object" && parsed !== null) {
+      return {
+        height: typeof parsed.height === "number" && isFinite(parsed.height) ? parsed.height : undefined,
+        offsetX: typeof parsed.offsetX === "number" && isFinite(parsed.offsetX) ? parsed.offsetX : undefined,
+        offsetY: typeof parsed.offsetY === "number" && isFinite(parsed.offsetY) ? parsed.offsetY : undefined,
+      };
+    }
+  } catch { /* use defaults */ }
+  return {};
+}
 
 const Header = () => {
   const { lang, t, setLanguage, localePath } = useLanguage();
   const { currency, toggleCurrency } = useCurrency();
   const location = useLocation();
+
+  const { content: logoSettingsRaw } = useContentBlock("/", "header.logoSettings", "{}");
+  const adminLogo = parseLogoSettings(logoSettingsRaw);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -149,11 +173,26 @@ const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20 md:h-28">
-          <Link to={localePath("/")} className={`flex items-center gap-2 mr-auto -ml-20 md:-ml-32 ${focusRing}`}>
+          <Link
+            to={localePath("/")}
+            className={`flex items-center gap-2 mr-auto -ml-6 sm:-ml-10 md:-ml-20 lg:-ml-32 ${focusRing}`}
+            data-editable="header.logoSettings"
+            data-page="/"
+          >
             <img
               src={logo}
               alt={t.common.logoAlt}
-              className="h-40 md:h-56 -my-6 md:-my-10 rounded"
+              className="h-28 sm:h-36 md:h-44 lg:h-56 -my-2 sm:-my-4 md:-my-6 lg:-my-10 rounded object-contain"
+              style={
+                adminLogo.height
+                  ? {
+                      height: `${adminLogo.height * 4}px`,
+                      marginLeft: adminLogo.offsetX ? `${adminLogo.offsetX * 4}px` : undefined,
+                      marginTop: adminLogo.offsetY ? `${adminLogo.offsetY * 4}px` : undefined,
+                      marginBottom: adminLogo.offsetY ? `${adminLogo.offsetY * 4}px` : undefined,
+                    }
+                  : undefined
+              }
             />
           </Link>
 

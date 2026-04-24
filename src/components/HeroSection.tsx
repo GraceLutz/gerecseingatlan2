@@ -5,9 +5,10 @@ import heroBg from "@/assets/header2.jpg";
 
 const HeroSection = () => {
   const { t, localePath } = useLanguage();
-  const { content: heroTitle } = useContentBlock("/", "hero.title", t.hero.title);
+  const { content: heroTitle, loading } = useContentBlock("/", "hero.title", t.hero.title);
   const { content: heroSubtitle } = useContentBlock("/", "hero.subtitle", t.hero.subtitle);
   const { content: heroCta } = useContentBlock("/", "hero.cta", t.hero.cta);
+  const textVisible = !loading;
 
   return (
     <section
@@ -32,7 +33,7 @@ const HeroSection = () => {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pb-28 pt-48 md:pt-64">
+      <div className={`relative z-10 text-center px-4 max-w-4xl mx-auto pb-28 pt-48 md:pt-64 transition-opacity duration-500 ${textVisible ? "opacity-100" : "opacity-0"}`}>
         <h1
           id="hero-title"
           data-editable="hero.title"

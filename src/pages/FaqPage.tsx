@@ -59,15 +59,15 @@ const FaqPage = () => {
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || `Mentés sikertelen (${res.status})`);
+          throw new Error(data.error || (lang === "hu" ? `Mentés sikertelen (${res.status})` : `Save failed (${res.status})`));
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Hiba történt a mentés során.");
+        setError(err instanceof Error ? err.message : (lang === "hu" ? "Hiba történt a mentés során." : "An error occurred while saving."));
       } finally {
         setSaving(false);
       }
     },
-    []
+    [lang]
   );
 
   const startEditing = useCallback((index: number) => {
@@ -95,7 +95,7 @@ const FaqPage = () => {
   }, [editingIndex, editQ, editA, localItems, saveItems]);
 
   const addItem = useCallback(() => {
-    const newItem: FaqItem = { q: "Új kérdés", a: "Válasz..." };
+    const newItem: FaqItem = { q: lang === "hu" ? "Új kérdés" : "New question", a: lang === "hu" ? "Válasz..." : "Answer..." };
     const updated = [...localItems, newItem];
     setLocalItems(updated);
     saveItems(updated);
@@ -141,44 +141,44 @@ const FaqPage = () => {
                   {isAdmin && editingIndex === index ? (
                     <div className="p-4 space-y-3">
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Kérdés</label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{lang === "hu" ? "Kérdés" : "Question"}</label>
                         <input
                           type="text"
                           value={editQ}
                           onChange={(e) => setEditQ(e.target.value)}
-                          className="w-full px-3 py-2 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          aria-label="Kérdés szerkesztése"
+                          className="w-full px-3 py-2.5 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          aria-label={lang === "hu" ? "Kérdés szerkesztése" : "Edit question"}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Válasz</label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{lang === "hu" ? "Válasz" : "Answer"}</label>
                         <textarea
                           value={editA}
                           onChange={(e) => setEditA(e.target.value)}
                           rows={4}
-                          className="w-full px-3 py-2 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
-                          aria-label="Válasz szerkesztése"
+                          className="w-full px-3 py-2.5 border border-blue-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                          aria-label={lang === "hu" ? "Válasz szerkesztése" : "Edit answer"}
                         />
                       </div>
                       <div className="flex gap-2 justify-end">
                         <button
                           type="button"
                           onClick={cancelEditing}
-                          className="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
-                          aria-label="Mégse"
+                          className="min-h-[44px] px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                          aria-label={lang === "hu" ? "Mégse" : "Cancel"}
                         >
                           <X className="h-3 w-3 inline mr-1" />
-                          Mégse
+                          {lang === "hu" ? "Mégse" : "Cancel"}
                         </button>
                         <button
                           type="button"
                           onClick={saveEditing}
                           disabled={saving}
-                          className="px-3 py-1.5 text-sm text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50"
-                          aria-label="Mentés"
+                          className="min-h-[44px] px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50"
+                          aria-label={lang === "hu" ? "Mentés" : "Save"}
                         >
                           <Check className="h-3 w-3 inline mr-1" />
-                          Mentés
+                          {lang === "hu" ? "Mentés" : "Save"}
                         </button>
                       </div>
                     </div>
@@ -209,24 +209,24 @@ const FaqPage = () => {
                         </div>
                       )}
                       {isAdmin && (
-                        <div className="invisible group-hover/faq:visible absolute top-2 right-12 flex gap-1 z-10">
+                        <div className="absolute top-2 right-12 flex gap-1 z-10">
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); startEditing(index); }}
-                            className="p-1.5 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition-all"
-                            aria-label={`Kérdés ${index + 1} szerkesztése`}
-                            title="Szerkesztés"
+                            className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition-all"
+                            aria-label={lang === "hu" ? `Kérdés ${index + 1} szerkesztése` : `Edit question ${index + 1}`}
+                            title={lang === "hu" ? "Szerkesztés" : "Edit"}
                           >
-                            <Pencil className="h-3 w-3" />
+                            <Pencil className="h-4 w-4" />
                           </button>
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); deleteItem(index); }}
-                            className="p-1.5 bg-red-600 text-white rounded-full shadow hover:bg-red-700 transition-all"
-                            aria-label={`Kérdés ${index + 1} törlése`}
-                            title="Törlés"
+                            className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-red-600 text-white rounded-full shadow hover:bg-red-700 transition-all"
+                            aria-label={lang === "hu" ? `Kérdés ${index + 1} törlése` : `Delete question ${index + 1}`}
+                            title={lang === "hu" ? "Törlés" : "Delete"}
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       )}
@@ -240,19 +240,19 @@ const FaqPage = () => {
               <button
                 type="button"
                 onClick={addItem}
-                className="mt-4 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                aria-label="Új kérdés hozzáadása"
+                className="mt-4 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors min-h-[44px]"
+                aria-label={lang === "hu" ? "Új kérdés hozzáadása" : "Add new question"}
               >
                 <Plus className="h-4 w-4" />
-                Új kérdés
+                {lang === "hu" ? "Új kérdés" : "New question"}
               </button>
             )}
 
             {saving && (
-              <p className="text-xs text-blue-600 mt-2">Mentés...</p>
+              <p className="text-xs text-blue-600 mt-2">{lang === "hu" ? "Mentés..." : "Saving..."}</p>
             )}
             {error && (
-              <p className="text-xs text-red-600 mt-2">{error}</p>
+              <p className="text-xs text-red-600 mt-2" role="alert">{error}</p>
             )}
           </div>
         </div>

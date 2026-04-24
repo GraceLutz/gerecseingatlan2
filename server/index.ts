@@ -168,47 +168,40 @@ app.all("/api/{*splat}", (_req: express.Request, res: express.Response) => {
 
 // ─── Global API error handler (JSON, never HTML) ─────────────
 app.use("/api", (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error("[API Error]", err.message);
   const status = (err as unknown as { status?: number }).status || 500;
+  if (isProduction) {
+    console.error(JSON.stringify({ level: "error", ts: new Date().toISOString(), status, msg: err.message }));
+  } else {
+    console.error("[API Error]", err.message, err.stack);
+  }
   res.status(status).json({
     error: isProduction ? "Szerverhiba történt." : err.message,
   });
 });
 
-// ─── Vite / Static serving ──────────────────────────────────
+// ─── Dev middleware / Production startup ──────────────────────
 
 async function start() {
-  if (!isProduction) {
-    // Dev: mount Vite's dev server as middleware (HMR, React fast-refresh, etc.)
+  if (isProduction) {
+    if (!process.env.DATABASE_URL) {
+      console.error(JSON.stringify({ level: "fatal", ts: new Date().toISOString(), msg: "DATABASE_URL is not set — aborting" }));
+      process.exit(1);
+    }
+  } else {
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    // Production: serve built static files with cache headers
-    const distPath = path.resolve(__dirname, "../dist");
-    app.use(
-      express.static(distPath, {
-        maxAge: "1y",
-        immutable: true,
-        setHeaders(res, filePath) {
-          // HTML files should not be cached aggressively (SPA entry point)
-          if (filePath.endsWith(".html")) {
-            res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-          }
-        },
-      })
-    );
-    app.get("/{*splat}", (_req, res) => {
-      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-      res.sendFile(path.join(distPath, "index.html"));
-    });
   }
 
   app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT} (${isProduction ? "production" : "development"})`);
+    if (isProduction) {
+      console.log(JSON.stringify({ level: "info", ts: new Date().toISOString(), msg: `Server listening on port ${PORT}`, mode: "production" }));
+    } else {
+      console.log(`Server running on http://localhost:${PORT} (development)`);
+    }
   });
 }
 

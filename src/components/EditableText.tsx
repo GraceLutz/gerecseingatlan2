@@ -210,7 +210,7 @@ export default function EditableText({
         <>
           {isHtml && (
             <div
-              className="absolute -top-10 left-0 flex gap-1 z-50 bg-white border border-gray-200 rounded shadow-lg p-1"
+              className="absolute -top-12 left-0 flex gap-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-1"
               role="toolbar"
               aria-label="Szövegformázás"
             >
@@ -220,11 +220,11 @@ export default function EditableText({
                   e.preventDefault();
                   execFormat("bold");
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 rounded"
                 aria-label="Félkövér"
                 title="Félkövér"
               >
-                <Bold className="h-3.5 w-3.5" />
+                <Bold className="h-5 w-5" />
               </button>
               <button
                 type="button"
@@ -232,11 +232,11 @@ export default function EditableText({
                   e.preventDefault();
                   execFormat("italic");
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 rounded"
                 aria-label="Dőlt"
                 title="Dőlt"
               >
-                <Italic className="h-3.5 w-3.5" />
+                <Italic className="h-5 w-5" />
               </button>
               <button
                 type="button"
@@ -244,11 +244,11 @@ export default function EditableText({
                   e.preventDefault();
                   handleLinkInsert();
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 rounded"
                 aria-label="Link"
                 title="Link"
               >
-                <Link className="h-3.5 w-3.5" />
+                <Link className="h-5 w-5" />
               </button>
             </div>
           )}
@@ -266,7 +266,7 @@ export default function EditableText({
           >
             {isHtml ? undefined : draft}
           </Tag>
-          <span className={`absolute ${isHtml ? "-top-[3.5rem]" : "-top-8"} right-0 flex gap-1 z-50`}>
+          <span className={`absolute ${isHtml ? "-top-[4rem]" : "-top-[3rem]"} right-0 flex gap-1 z-50`}>
             <button
               type="button"
               onClick={(e) => {
@@ -275,11 +275,11 @@ export default function EditableText({
                 stopEditing(true);
               }}
               disabled={saving}
-              className="p-1 bg-green-600 text-white rounded shadow hover:bg-green-700 disabled:opacity-50"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-green-600 text-white rounded-lg shadow hover:bg-green-700 active:bg-green-800 disabled:opacity-50"
               aria-label="Mentés"
               title="Mentés"
             >
-              <Check className="h-3 w-3" />
+              <Check className="h-5 w-5" />
             </button>
             <button
               type="button"
@@ -288,11 +288,11 @@ export default function EditableText({
                 e.stopPropagation();
                 stopEditing(false);
               }}
-              className="p-1 bg-red-600 text-white rounded shadow hover:bg-red-700"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-red-600 text-white rounded-lg shadow hover:bg-red-700 active:bg-red-800"
               aria-label="Mégse"
               title="Mégse"
             >
-              <X className="h-3 w-3" />
+              <X className="h-5 w-5" />
             </button>
           </span>
         </>
@@ -306,13 +306,13 @@ export default function EditableText({
           <button
             type="button"
             onClick={startEditing}
-            className="invisible group-hover:visible absolute -top-3 -right-3 p-1 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all z-50"
+            className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 absolute -top-5 -right-5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 active:bg-blue-800 transition-opacity z-50"
             aria-label={`${blockKey} szerkesztése`}
             title="Szerkesztés"
           >
-            <Pencil className="h-3 w-3" />
+            <Pencil className="h-5 w-5" />
           </button>
-          <span className="invisible group-hover:visible absolute inset-0 outline outline-2 outline-dashed outline-blue-300 rounded pointer-events-none" />
+          <span className="opacity-40 sm:opacity-0 sm:group-hover:opacity-100 absolute inset-0 outline outline-2 outline-dashed outline-blue-300 rounded pointer-events-none transition-opacity" />
         </>
       )}
       {saving && (

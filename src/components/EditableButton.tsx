@@ -146,18 +146,18 @@ export default function EditableButton({
       <button
         type="button"
         onClick={() => setIsEditing(true)}
-        className="invisible group-hover:visible absolute -top-3 -right-3 p-1 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all z-50"
+        className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 absolute -top-5 -right-5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 active:bg-blue-800 transition-opacity z-50"
         aria-label={`${labelKey} szerkesztése`}
         title="Szerkesztés"
       >
-        <Pencil className="h-3 w-3" />
+        <Pencil className="h-5 w-5" />
       </button>
-      <span className="invisible group-hover:visible absolute inset-0 outline outline-2 outline-dashed outline-blue-300 rounded pointer-events-none" />
+      <span className="opacity-40 sm:opacity-0 sm:group-hover:opacity-100 absolute inset-0 outline outline-2 outline-dashed outline-blue-300 rounded pointer-events-none transition-opacity" />
 
       {isEditing && (
         <div
           ref={popoverRef}
-          className="absolute top-full left-0 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-xl p-4 min-w-[280px]"
+          className="absolute top-full left-0 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-xl p-4 min-w-[280px] max-w-[calc(100vw-2rem)]"
           role="dialog"
           aria-label="Gomb szerkesztése"
         >
@@ -175,7 +175,7 @@ export default function EditableButton({
                 value={draftLabel}
                 onChange={(e) => setDraftLabel(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2.5 min-h-[44px] border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 aria-label="Gomb felirat"
               />
             </div>
@@ -192,7 +192,7 @@ export default function EditableButton({
                 value={draftUrl}
                 onChange={(e) => setDraftUrl(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2.5 min-h-[44px] border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 aria-label="Gomb URL"
               />
             </div>
@@ -200,20 +200,20 @@ export default function EditableButton({
               <button
                 type="button"
                 onClick={handleCancel}
-                className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 min-h-[44px] text-sm text-gray-600 hover:text-gray-800 active:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 active:bg-gray-100 flex items-center gap-1"
                 aria-label="Mégse"
               >
-                <X className="h-3 w-3 inline mr-1" />
+                <X className="h-4 w-4" />
                 Mégse
               </button>
               <button
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="px-3 py-1.5 text-sm text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50"
+                className="px-4 min-h-[44px] text-sm text-white bg-green-600 rounded-md hover:bg-green-700 active:bg-green-800 disabled:opacity-50 flex items-center gap-1"
                 aria-label="Mentés"
               >
-                <Check className="h-3 w-3 inline mr-1" />
+                <Check className="h-4 w-4" />
                 Mentés
               </button>
             </div>

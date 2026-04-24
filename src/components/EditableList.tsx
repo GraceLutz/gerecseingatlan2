@@ -185,7 +185,7 @@ export default function EditableList({
                 >
                   {item}
                 </span>
-                <span className="absolute -top-7 right-0 flex gap-1 z-50">
+                <span className="absolute -top-[3rem] right-0 flex gap-1 z-50">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -194,11 +194,11 @@ export default function EditableList({
                       stopEditing(true);
                     }}
                     disabled={saving}
-                    className="p-1 bg-green-600 text-white rounded shadow hover:bg-green-700 disabled:opacity-50"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-green-600 text-white rounded-lg shadow hover:bg-green-700 active:bg-green-800 disabled:opacity-50"
                     aria-label="Mentés"
                     title="Mentés"
                   >
-                    <Check className="h-3 w-3" />
+                    <Check className="h-5 w-5" />
                   </button>
                   <button
                     type="button"
@@ -207,38 +207,38 @@ export default function EditableList({
                       e.stopPropagation();
                       stopEditing(false);
                     }}
-                    className="p-1 bg-red-600 text-white rounded shadow hover:bg-red-700"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-red-600 text-white rounded-lg shadow hover:bg-red-700 active:bg-red-800"
                     aria-label="Mégse"
                     title="Mégse"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-5 w-5" />
                   </button>
                 </span>
               </span>
             ) : (
               <span className="relative inline-block w-full">
                 {item}
-                <span className="invisible group-hover/item:visible absolute right-0 top-0 flex gap-1 z-50">
+                <span className="opacity-60 sm:opacity-0 sm:group-hover/item:opacity-100 focus-within:opacity-100 absolute right-0 top-0 flex gap-1 z-50 transition-opacity">
                   <button
                     type="button"
                     onClick={() => startEditing(i)}
-                    className="p-1 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition-all"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 active:bg-blue-800 transition-colors"
                     aria-label={`${blockKey} elem ${i + 1} szerkesztése`}
                     title="Szerkesztés"
                   >
-                    <Pencil className="h-3 w-3" />
+                    <Pencil className="h-5 w-5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => deleteItem(i)}
-                    className="p-1 bg-red-600 text-white rounded-full shadow hover:bg-red-700 transition-all"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-red-600 text-white rounded-full shadow hover:bg-red-700 active:bg-red-800 transition-colors"
                     aria-label={`${blockKey} elem ${i + 1} törlése`}
                     title="Törlés"
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <Trash2 className="h-5 w-5" />
                   </button>
                 </span>
-                <span className="invisible group-hover/item:visible absolute inset-0 outline outline-2 outline-dashed outline-blue-300 rounded pointer-events-none" />
+                <span className="opacity-40 sm:opacity-0 sm:group-hover/item:opacity-100 absolute inset-0 outline outline-2 outline-dashed outline-blue-300 rounded pointer-events-none transition-opacity" />
               </span>
             )}
           </li>
@@ -247,10 +247,10 @@ export default function EditableList({
       <button
         type="button"
         onClick={addItem}
-        className="mt-2 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+        className="mt-2 flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 active:text-blue-900 transition-colors min-h-[44px] px-3"
         aria-label="Új elem hozzáadása"
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-5 w-5" />
         Új elem
       </button>
       {saving && (

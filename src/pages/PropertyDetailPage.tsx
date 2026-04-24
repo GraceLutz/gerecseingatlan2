@@ -63,14 +63,14 @@ const PropertyDetailPage = () => {
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
           <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-primary-foreground/60 mb-3">
-            <Link to={localePath("/")} className="hover:text-primary-foreground transition-colors">
+            <Link to={localePath("/")} className="hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:text-primary-foreground focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-green rounded-sm">
               {t.nav.home}
             </Link>
-            <ChevronRight size={14} />
-            <Link to={localePath("/ingatlanok")} className="hover:text-primary-foreground transition-colors">
+            <ChevronRight size={14} aria-hidden="true" />
+            <Link to={localePath("/ingatlanok")} className="hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:text-primary-foreground focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-green rounded-sm">
               {t.nav.properties}
             </Link>
-            <ChevronRight size={14} />
+            <ChevronRight size={14} aria-hidden="true" />
             <span className="text-primary-foreground" aria-current="page">{property.id}</span>
           </nav>
 

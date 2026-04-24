@@ -106,13 +106,13 @@ const NewsletterSection = () => {
                 </button>
               </div>
               {emailError && (
-                <p id={emailErrId} role="alert" className="mt-1 text-xs text-destructive">
+                <p id={emailErrId} role="alert" className="mt-1 text-xs text-red-200">
                   {nlEmailInvalid}
                 </p>
               )}
             </div>
             <div className="text-left">
-              <label htmlFor={gdprId} className="flex items-center gap-2 text-sm text-[#0B2340]/70 justify-center cursor-pointer">
+              <label htmlFor={gdprId} className="flex items-center gap-2 text-sm text-primary-foreground/80 justify-center cursor-pointer">
                 <input
                   id={gdprId}
                   type="checkbox"
@@ -122,12 +122,12 @@ const NewsletterSection = () => {
                   aria-describedby={gdprError ? gdprErrId : undefined}
                   aria-required="true"
                   disabled={submitting}
-                  className="rounded border-[#0B2340]/30 focus:ring-2 focus:ring-[#4682B4]"
+                  className="rounded border-primary-foreground/40 focus:ring-2 focus:ring-gold accent-gold"
                 />
                 <span data-editable="newsletter.gdpr" data-page={PAGE}>{nlGdpr}</span>
               </label>
               {gdprError && (
-                <p id={gdprErrId} role="alert" className="mt-1 text-xs text-destructive text-center">
+                <p id={gdprErrId} role="alert" className="mt-1 text-xs text-red-200 text-center">
                   {nlGdprInvalid}
                 </p>
               )}

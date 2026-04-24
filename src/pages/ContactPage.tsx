@@ -105,14 +105,14 @@ const ContactPage = () => {
     if (!errors[field]) return null;
     const fieldErrors = t.contact.fieldErrors as Record<string, string>;
     return (
-      <p className="text-destructive text-xs mt-1" role="alert">
+      <p id={`contact-${field}-error`} className="text-destructive text-xs mt-1" role="alert">
         {fieldErrors[field] ?? ""}
       </p>
     );
   };
 
   const inputClasses = (field: keyof ContactFormData) =>
-    `w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors ${
+    `w-full px-4 py-2.5 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
       errors[field] ? "border-destructive" : "border-border"
     }`;
 
@@ -243,9 +243,13 @@ const ContactPage = () => {
                   <input
                     id="contact-name"
                     type="text"
+                    autoComplete="name"
+                    disabled={submitting}
                     className={inputClasses("name")}
                     {...register("name")}
                     aria-invalid={!!errors.name}
+                    aria-required="true"
+                    aria-describedby={errors.name ? "contact-name-error" : undefined}
                   />
                   {fieldError("name")}
                 </div>
@@ -261,9 +265,13 @@ const ContactPage = () => {
                   <input
                     id="contact-email"
                     type="email"
+                    autoComplete="email"
+                    disabled={submitting}
                     className={inputClasses("email")}
                     {...register("email")}
                     aria-invalid={!!errors.email}
+                    aria-required="true"
+                    aria-describedby={errors.email ? "contact-email-error" : undefined}
                   />
                   {fieldError("email")}
                 </div>
@@ -279,6 +287,8 @@ const ContactPage = () => {
                   <input
                     id="contact-phone"
                     type="tel"
+                    autoComplete="tel"
+                    disabled={submitting}
                     className={inputClasses("phone")}
                     {...register("phone")}
                   />
@@ -295,9 +305,12 @@ const ContactPage = () => {
                   <input
                     id="contact-subject"
                     type="text"
+                    disabled={submitting}
                     className={inputClasses("subject")}
                     {...register("subject")}
                     aria-invalid={!!errors.subject}
+                    aria-required="true"
+                    aria-describedby={errors.subject ? "contact-subject-error" : undefined}
                   />
                   {fieldError("subject")}
                 </div>
@@ -313,9 +326,12 @@ const ContactPage = () => {
                   <textarea
                     id="contact-message"
                     rows={5}
+                    disabled={submitting}
                     className={`${inputClasses("message")} resize-none`}
                     {...register("message")}
                     aria-invalid={!!errors.message}
+                    aria-required="true"
+                    aria-describedby={errors.message ? "contact-message-error" : undefined}
                   />
                   {fieldError("message")}
                 </div>
@@ -337,8 +353,11 @@ const ContactPage = () => {
                     id="contact-gdpr"
                     type="checkbox"
                     className="mt-1 rounded border-border"
+                    disabled={submitting}
                     {...register("gdpr")}
                     aria-invalid={!!errors.gdpr}
+                    aria-required="true"
+                    aria-describedby={errors.gdpr ? "contact-gdpr-error" : undefined}
                   />
                   <label
                     htmlFor="contact-gdpr"

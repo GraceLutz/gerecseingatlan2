@@ -481,17 +481,33 @@ const Header = () => {
               <button
                 onClick={() => setLanguage(lang === "hu" ? "en" : "hu")}
                 aria-label={langLabel}
-                className={`px-3 py-1.5 text-xs font-semibold uppercase border border-primary-foreground/30 rounded text-foreground ${focusRing}`}
+                className={`px-3 py-2 text-xs font-semibold uppercase border-2 border-[#0B2340]/40 rounded text-[#0B2340] hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
               >
                 {lang === "hu" ? "EN" : "HU"}
               </button>
               <button
                 onClick={toggleCurrency}
                 aria-label={currencyLabel}
-                className={`px-3 py-1.5 text-xs font-semibold uppercase border border-accent/50 rounded text-gold ${focusRing}`}
+                className={`px-3 py-2 text-xs font-semibold uppercase border-2 border-[#0B2340]/40 rounded text-[#0B2340] hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
               >
                 {currency === "HUF" ? "EUR" : "HUF"}
               </button>
+            </div>
+
+            {/* Mobile contact info */}
+            <div className="flex flex-col gap-1.5 mt-4 px-2 pt-4 border-t border-[#0B2340]/15">
+              <a
+                href="mailto:info@gerecseingatlan.hu"
+                className={`text-sm font-semibold text-[#0B2340] hover:text-gold transition-colors ${focusRing}`}
+              >
+                info@gerecseingatlan.hu
+              </a>
+              <a
+                href="tel:+36706132658"
+                className={`text-sm font-semibold text-[#0B2340] hover:text-gold transition-colors ${focusRing}`}
+              >
+                +36 70 613 2658
+              </a>
             </div>
           </div>
         )}

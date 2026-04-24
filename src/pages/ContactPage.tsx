@@ -146,7 +146,7 @@ const ContactPage = () => {
                   <a
                     href="tel:+36706132658"
                     data-editable="contact.info.phone.value" data-page={PAGE}
-                    className="text-muted-foreground text-sm hover:text-primary transition-colors"
+                    className="text-muted-foreground text-sm hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
                   >
                     {phoneNumber}
                   </a>
@@ -164,7 +164,7 @@ const ContactPage = () => {
                   <a
                     href={`mailto:${emailAddress}`}
                     data-editable="contact.info.email.value" data-page={PAGE}
-                    className="text-muted-foreground text-sm hover:text-primary transition-colors"
+                    className="text-muted-foreground text-sm hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
                   >
                     {emailAddress}
                   </a>
@@ -191,7 +191,7 @@ const ContactPage = () => {
                   href="https://www.facebook.com/gerecseingatlan"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                  className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   aria-label={facebookLabel}
                 >
                   <Facebook size={18} className="text-primary" />

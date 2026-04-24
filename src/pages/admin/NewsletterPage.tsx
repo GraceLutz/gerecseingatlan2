@@ -400,7 +400,7 @@ function SubscribersTab({ csrfToken }: { csrfToken: string | null }) {
                     <td className="px-4 py-3 text-gray-600">{formatDate(sub.confirmedAt)}</td>
                     <td className="px-4 py-3 text-right">
                       <button type="button" onClick={() => handleDelete(sub.id)} disabled={deleting}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+                        className="inline-flex items-center gap-1.5 px-3 min-h-[44px] text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 active:bg-red-100 rounded-lg transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
                         aria-label={`${sub.email} törlése`} title="GDPR törlés">
                         <Trash2 size={14} aria-hidden="true" />
                         <span>Töröl</span>

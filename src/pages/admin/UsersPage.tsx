@@ -198,7 +198,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-2 sm:p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Felhasználók</h1>
@@ -342,29 +342,29 @@ export default function UsersPage() {
                           type="button"
                           onClick={() => handleToggleActive(user)}
                           disabled={saving}
-                          className={`p-1.5 rounded transition-colors disabled:opacity-50 ${
+                          className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded transition-colors disabled:opacity-50 ${
                             user.active
-                              ? "text-orange-600 hover:bg-orange-50"
-                              : "text-green-600 hover:bg-green-50"
+                              ? "text-orange-600 hover:bg-orange-50 active:bg-orange-100"
+                              : "text-green-600 hover:bg-green-50 active:bg-green-100"
                           }`}
                           title={user.active ? "Deaktiválás" : "Aktiválás"}
                           aria-label={`${user.name} ${user.active ? "deaktiválása" : "aktiválása"}`}
                         >
                           {user.active ? (
-                            <UserX className="h-4 w-4" />
+                            <UserX className="h-5 w-5" />
                           ) : (
-                            <UserCheck className="h-4 w-4" />
+                            <UserCheck className="h-5 w-5" />
                           )}
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(user)}
                           disabled={saving}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-red-600 hover:bg-red-50 active:bg-red-100 rounded transition-colors disabled:opacity-50"
                           title="Törlés"
                           aria-label={`${user.name} törlése`}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
                     </td>
@@ -385,7 +385,7 @@ export default function UsersPage() {
                   type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 min-h-[44px] text-sm border border-gray-300 rounded hover:bg-gray-50 active:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Előző
                 </button>
@@ -393,7 +393,7 @@ export default function UsersPage() {
                   type="button"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 min-h-[44px] text-sm border border-gray-300 rounded hover:bg-gray-50 active:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Következő
                 </button>

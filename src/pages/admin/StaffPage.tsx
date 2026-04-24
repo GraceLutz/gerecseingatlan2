@@ -507,10 +507,10 @@ export default function StaffPage() {
                 </p>
               )}
 
-              <div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
+              <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3">
                 <button
                   onClick={() => openEditModal(member)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="inline-flex items-center gap-1.5 px-3 min-h-[44px] text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 active:bg-secondary/70 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
                   aria-label={`${member.name} szerkesztése`}
                 >
                   <Pencil size={14} aria-hidden="true" />
@@ -523,7 +523,7 @@ export default function StaffPage() {
                       member,
                     })
                   }
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="inline-flex items-center gap-1.5 px-3 min-h-[44px] text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 active:bg-secondary/70 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
                   aria-label={
                     member.active
                       ? `${member.name} deaktiválása`
@@ -547,7 +547,7 @@ export default function StaffPage() {
                     setConfirmAction({ type: "delete", member })
                   }
                   disabled={deleting === member.id}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ml-auto"
+                  className="inline-flex items-center gap-1.5 px-3 min-h-[44px] text-sm text-red-600 hover:bg-red-50 active:bg-red-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ml-auto"
                   aria-label={`${member.name} törlése`}
                 >
                   {deleting === member.id ? (

@@ -412,10 +412,10 @@ export default function CalendarPage() {
         </div>
       )}
 
-      <div className="flex gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
         {/* Sidebar with staff filters */}
         {sidebarOpen && (
-          <aside className="w-64 flex-shrink-0 space-y-4">
+          <aside className="w-full md:w-64 md:flex-shrink-0 space-y-4">
             <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
               <h3 className="text-sm font-semibold text-foreground mb-3">
                 Munkatársak

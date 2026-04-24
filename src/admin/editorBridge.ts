@@ -81,7 +81,7 @@ function setupListeners() {
     window.parent.postMessage({
       type: "ve:element-clicked",
       payload: info,
-    }, "*");
+    }, window.location.origin);
   });
 
   // Prevent all default navigation in edit mode
@@ -94,6 +94,7 @@ function setupListeners() {
 }
 
 function handleParentMessages(event: MessageEvent) {
+  if (event.origin !== window.location.origin) return;
   if (!event.data || typeof event.data.type !== "string") return;
 
   switch (event.data.type) {
@@ -131,7 +132,7 @@ function init() {
   window.addEventListener("message", handleParentMessages);
 
   // Notify parent that bridge is ready
-  window.parent.postMessage({ type: "ve:ready", payload: { url: window.location.pathname } }, "*");
+  window.parent.postMessage({ type: "ve:ready", payload: { url: window.location.pathname } }, window.location.origin);
 }
 
 if (document.readyState === "loading") {

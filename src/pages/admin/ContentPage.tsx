@@ -59,6 +59,7 @@ export default function ContentPage() {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
       if (!event.data || typeof event.data.type !== "string") return;
 
       switch (event.data.type) {
@@ -96,14 +97,14 @@ export default function ContentPage() {
     iframeRef.current?.contentWindow?.postMessage({
       type: "ve:update-content",
       payload: { blockKey, pagePath, content: getLangContent(content, iframeLang) },
-    }, "*");
+    }, window.location.origin);
 
     setHasUnsaved(false);
   };
 
   const handleClose = () => {
     setEditTarget(null);
-    iframeRef.current?.contentWindow?.postMessage({ type: "ve:deselect" }, "*");
+    iframeRef.current?.contentWindow?.postMessage({ type: "ve:deselect" }, window.location.origin);
   };
 
   const navigateIframe = (path: string) => {

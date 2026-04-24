@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -164,6 +164,15 @@ const AppRoutes = () => (
           <Route path="/en/privacy-policy" element={<AdatkezelesiPage />} />
           <Route path="/en/cookie-policy" element={<CookieTajekoztato />} />
           <Route path="/en/terms" element={<ASZFPage />} />
+
+          {/* Redirects: old /en/hungarian-slug → /en/english-slug */}
+          <Route path="/en/ingatlan-ertekesites-berbeadas" element={<Navigate to="/en/property-sales-and-rentals" replace />} />
+          <Route path="/en/ertekbecsles-ertekmeghatrozas" element={<Navigate to="/en/appraisal-and-valuation" replace />} />
+          <Route path="/en/belsoepiteszet-latvanyterv" element={<Navigate to="/en/interior-design" replace />} />
+          <Route path="/en/teljeskoru-jogi-hatter" element={<Navigate to="/en/full-legal-support" replace />} />
+          <Route path="/en/hitel-allami-tamogatasok" element={<Navigate to="/en/loans-and-subsidies" replace />} />
+          <Route path="/en/energetikai-tanusitvany" element={<Navigate to="/en/energy-certificate" replace />} />
+          <Route path="/en/villamos-biztonsagi-felulvizsgalat" element={<Navigate to="/en/electrical-safety-inspection" replace />} />
 
           {/* English catch-all for service detail pages */}
           <Route path="/en/:slug" element={<ServiceDetailPage />} />

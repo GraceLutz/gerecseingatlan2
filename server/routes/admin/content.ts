@@ -67,7 +67,7 @@ const createBlockSchema = z.object({
     .string()
     .min(1)
     .max(255)
-    .regex(/^[a-zA-Z0-9._-]+$/),
+    .regex(/^[a-zA-Z0-9._\[\]-]+$/),
   content: z.string(),
   contentType: z.enum(["text", "html", "markdown", "json"]).default("text"),
 });
@@ -235,7 +235,7 @@ router.patch(
           .string()
           .min(1)
           .max(255)
-          .regex(/^[a-zA-Z0-9._-]+$/),
+          .regex(/^[a-zA-Z0-9._\[\]-]+$/),
         content: z.string(),
         contentType: z.enum(["text", "html", "markdown", "json"]).optional(),
       });

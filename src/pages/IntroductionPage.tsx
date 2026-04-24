@@ -41,7 +41,7 @@ const IntroductionPage = () => {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4 max-w-4xl space-y-12">
           <div>
-            <h2 data-editable="intro.title" data-page="/bemutatkozas" className="text-2xl font-heading font-bold text-dark-green mb-4">
+            <h2 data-editable="intro.aboutHeading" data-page="/bemutatkozas" className="text-2xl font-heading font-bold text-dark-green mb-4">
               {introTitle}
             </h2>
             <p data-editable="intro.text" data-page="/bemutatkozas" className="text-muted-foreground font-body leading-relaxed text-lg">
@@ -75,7 +75,7 @@ const IntroductionPage = () => {
       </section>
 
       {/* Values */}
-      <section className="py-12 bg-gold/10" aria-labelledby="values-heading">
+      <section className="py-12 bg-light-bg" aria-labelledby="values-heading">
         <div className="container mx-auto px-4">
           <h2 id="values-heading" data-editable="intro.valuesHeading" data-page="/bemutatkozas" className="text-2xl font-heading font-bold text-dark-green text-center mb-8">
             {valuesHeading}

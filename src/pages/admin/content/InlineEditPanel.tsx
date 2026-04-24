@@ -38,7 +38,7 @@ function detectMode(blockKey: string, content: string, tagName: string): EditorM
       if (data.length > 0 && typeof data[0] === "object" && "q" in data[0]) return "faq";
       return "list";
     }
-  } catch {}
+  } catch { /* non-JSON content, fall through to heuristic */ }
 
   if (blockKey.includes("items") || blockKey.includes("benefits")) return "list";
   if (blockKey.includes("faq")) return "faq";
@@ -56,7 +56,7 @@ function parseBilingualArray<T>(raw: string): { hu: T[]; en: T[] } {
       };
     }
     if (Array.isArray(parsed)) return { hu: parsed as T[], en: [] };
-  } catch {}
+  } catch { /* non-JSON content, return empty arrays */ }
   return { hu: [], en: [] };
 }
 
@@ -204,195 +204,243 @@ export default function InlineEditPanel({
   }, [setCurrentFaq, onUnsavedChange]);
 
   return (
-    <div className="w-80 border-l border-gray-200 bg-white flex flex-col flex-shrink-0 shadow-lg animate-in slide-in-from-right-5 duration-200">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-        <div>
-          <code className="text-xs font-mono text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
-            {target.blockKey}
-          </code>
-          <p className="text-xs text-gray-400 mt-0.5">{target.pagePath}</p>
-          <span className="text-[10px] text-gray-400 uppercase tracking-wide">{mode}</span>
+    <>
+      {/* Mobile backdrop */}
+      <div
+        className="fixed inset-0 bg-black/40 z-40 md:hidden"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Panel: full-screen overlay on mobile, sidebar on desktop */}
+      <div
+        className="
+          fixed inset-0 z-50 bg-white flex flex-col
+          md:static md:z-auto md:w-80 md:border-l md:border-gray-200 md:flex-shrink-0 md:shadow-lg
+          md:animate-in md:slide-in-from-right-5 md:duration-200
+        "
+        role="dialog"
+        aria-label="Tartalom szerkesztése"
+        aria-modal="true"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+          <div className="flex-1 min-w-0">
+            <code className="text-xs font-mono text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded break-all">
+              {target.blockKey}
+            </code>
+            <p className="text-xs text-gray-400 mt-0.5 truncate">{target.pagePath}</p>
+            <span className="text-[10px] text-gray-400 uppercase tracking-wide">{mode}</span>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2.5 hover:bg-gray-100 rounded-md ml-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Szerkesztő bezárása"
+          >
+            <X className="h-5 w-5 text-gray-500" />
+          </button>
         </div>
-        <button type="button" onClick={onClose} className="p-1 hover:bg-gray-100 rounded" aria-label="Bezárás">
-          <X className="h-4 w-4 text-gray-500" />
-        </button>
-      </div>
 
-      {/* Language tabs */}
-      <div className="flex border-b border-gray-200">
-        <button
-          type="button"
-          onClick={() => setActiveLang("hu")}
-          className={`flex-1 py-2 text-sm font-medium text-center border-b-2 transition-colors ${
-            activeLang === "hu"
-              ? "border-blue-500 text-blue-700"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Magyar
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveLang("en")}
-          className={`flex-1 py-2 text-sm font-medium text-center border-b-2 transition-colors ${
-            activeLang === "en"
-              ? "border-blue-500 text-blue-700"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          English
-        </button>
-      </div>
+        {/* Language tabs */}
+        <div className="flex border-b border-gray-200" role="tablist" aria-label="Nyelv választó">
+          <button
+            type="button"
+            onClick={() => setActiveLang("hu")}
+            role="tab"
+            aria-selected={activeLang === "hu"}
+            className={`flex-1 py-3 md:py-2 text-sm font-medium text-center border-b-2 transition-colors min-h-[44px] ${
+              activeLang === "hu"
+                ? "border-blue-500 text-blue-700"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Magyar
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveLang("en")}
+            role="tab"
+            aria-selected={activeLang === "en"}
+            className={`flex-1 py-3 md:py-2 text-sm font-medium text-center border-b-2 transition-colors min-h-[44px] ${
+              activeLang === "en"
+                ? "border-blue-500 text-blue-700"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            English
+          </button>
+        </div>
 
-      {/* Content editor */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {loading ? (
-          <div className="text-center py-8 text-gray-400 text-sm">Betöltés...</div>
-        ) : (
-          <div className="space-y-3">
-            {mode === "text" && (
-              <>
-                {isShortText ? (
-                  <Input
-                    value={currentTextValue}
-                    onChange={(e) => handleTextChange(e.target.value)}
-                    placeholder={activeLang === "hu" ? "Magyar szöveg..." : "English text..."}
-                    className="text-sm"
-                  />
-                ) : (
-                  <Textarea
-                    value={currentTextValue}
-                    onChange={(e) => handleTextChange(e.target.value)}
-                    placeholder={activeLang === "hu" ? "Magyar szöveg..." : "English text..."}
-                    className="min-h-[10rem] text-sm resize-y"
-                  />
-                )}
-              </>
-            )}
-
-            {mode === "button" && (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Felirat</label>
-                  <Input
-                    value={currentTextValue}
-                    onChange={(e) => handleTextChange(e.target.value)}
-                    placeholder={activeLang === "hu" ? "Gomb felirat..." : "Button label..."}
-                    className="text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            {mode === "list" && (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-gray-500">
-                  {currentList.length} elem
-                </p>
-                {currentList.map((item, i) => (
-                  <div key={i} className="flex gap-1 items-start">
+        {/* Content editor */}
+        <div className="flex-1 overflow-y-auto p-4" role="tabpanel">
+          {loading ? (
+            <div className="text-center py-8 text-gray-400 text-sm" aria-live="polite">Betöltés...</div>
+          ) : (
+            <div className="space-y-3">
+              {mode === "text" && (
+                <>
+                  {isShortText ? (
                     <Input
-                      value={item}
-                      onChange={(e) => updateListItem(i, e.target.value)}
-                      placeholder={`Elem ${i + 1}`}
-                      className="text-sm flex-1"
+                      value={currentTextValue}
+                      onChange={(e) => handleTextChange(e.target.value)}
+                      placeholder={activeLang === "hu" ? "Magyar szöveg..." : "English text..."}
+                      className="text-base md:text-sm min-h-[44px]"
+                      aria-label={activeLang === "hu" ? "Magyar szöveg" : "English text"}
                     />
-                    <button
-                      type="button"
-                      onClick={() => deleteListItem(i)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded shrink-0"
-                      aria-label={`Elem ${i + 1} törlése`}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addListItem}
-                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 mt-1"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Új elem
-                </button>
-              </div>
-            )}
+                  ) : (
+                    <Textarea
+                      value={currentTextValue}
+                      onChange={(e) => handleTextChange(e.target.value)}
+                      placeholder={activeLang === "hu" ? "Magyar szöveg..." : "English text..."}
+                      className="min-h-[10rem] text-base md:text-sm resize-y"
+                      aria-label={activeLang === "hu" ? "Magyar szöveg" : "English text"}
+                    />
+                  )}
+                </>
+              )}
 
-            {mode === "faq" && (
-              <div className="space-y-3">
-                <p className="text-xs font-medium text-gray-500">
-                  {currentFaq.length} kérdés-válasz pár
-                </p>
-                {currentFaq.map((item, i) => (
-                  <div key={i} className="border border-gray-200 rounded p-2 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-medium text-gray-400 uppercase">#{i + 1}</span>
+              {mode === "button" && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1" id="button-label-label">Felirat</label>
+                    <Input
+                      value={currentTextValue}
+                      onChange={(e) => handleTextChange(e.target.value)}
+                      placeholder={activeLang === "hu" ? "Gomb felirat..." : "Button label..."}
+                      className="text-base md:text-sm min-h-[44px]"
+                      aria-labelledby="button-label-label"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {mode === "list" && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-gray-500">
+                    {currentList.length} elem
+                  </p>
+                  {currentList.map((item, i) => (
+                    <div key={i} className="flex gap-2 items-start">
+                      <Input
+                        value={item}
+                        onChange={(e) => updateListItem(i, e.target.value)}
+                        placeholder={`Elem ${i + 1}`}
+                        className="text-base md:text-sm flex-1 min-h-[44px]"
+                        aria-label={`Elem ${i + 1}`}
+                      />
                       <button
                         type="button"
-                        onClick={() => deleteFaqItem(i)}
-                        className="p-1 text-red-500 hover:bg-red-50 rounded"
-                        aria-label={`Kérdés ${i + 1} törlése`}
+                        onClick={() => deleteListItem(i)}
+                        className="p-2.5 text-red-500 hover:bg-red-50 rounded-md shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        aria-label={`Elem ${i + 1} törlése`}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-                    <Input
-                      value={item.q}
-                      onChange={(e) => updateFaqItem(i, "q", e.target.value)}
-                      placeholder="Kérdés..."
-                      className="text-sm"
-                    />
-                    <Textarea
-                      value={item.a}
-                      onChange={(e) => updateFaqItem(i, "a", e.target.value)}
-                      placeholder="Válasz..."
-                      className="text-sm min-h-[4rem] resize-y"
-                    />
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addFaqItem}
-                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 mt-1"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Új kérdés
-                </button>
-              </div>
-            )}
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addListItem}
+                    className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 mt-1 py-2 min-h-[44px]"
+                    aria-label="Új elem hozzáadása"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Új elem
+                  </button>
+                </div>
+              )}
 
-            {/* Status indicators */}
-            {mode === "text" && (
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span className={huContent ? "text-green-600" : "text-orange-500"}>
-                  HU: {huContent ? `${huContent.length} kar.` : "üres"}
-                </span>
-                <span className={enContent ? "text-green-600" : "text-orange-500"}>
-                  EN: {enContent ? `${enContent.length} chars` : "empty"}
-                </span>
-              </div>
-            )}
+              {mode === "faq" && (
+                <div className="space-y-3">
+                  <p className="text-xs font-medium text-gray-500">
+                    {currentFaq.length} kérdés-válasz pár
+                  </p>
+                  {currentFaq.map((item, i) => (
+                    <div key={i} className="border border-gray-200 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-gray-400 uppercase">#{i + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => deleteFaqItem(i)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center"
+                          aria-label={`Kérdés ${i + 1} törlése`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <Input
+                        value={item.q}
+                        onChange={(e) => updateFaqItem(i, "q", e.target.value)}
+                        placeholder="Kérdés..."
+                        className="text-base md:text-sm min-h-[44px]"
+                        aria-label={`Kérdés ${i + 1}`}
+                      />
+                      <Textarea
+                        value={item.a}
+                        onChange={(e) => updateFaqItem(i, "a", e.target.value)}
+                        placeholder="Válasz..."
+                        className="text-base md:text-sm min-h-[5rem] resize-y"
+                        aria-label={`Válasz ${i + 1}`}
+                      />
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addFaqItem}
+                    className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 mt-1 py-2 min-h-[44px]"
+                    aria-label="Új kérdés hozzáadása"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Új kérdés
+                  </button>
+                </div>
+              )}
 
-            {error && (
-              <div className="p-2 bg-red-50 border border-red-200 text-red-700 rounded text-xs">
-                {error}
-              </div>
-            )}
-          </div>
-        )}
+              {/* Status indicators */}
+              {mode === "text" && (
+                <div className="flex items-center justify-between text-xs text-gray-500" aria-live="polite">
+                  <span className={huContent ? "text-green-600" : "text-orange-500"}>
+                    HU: {huContent ? `${huContent.length} kar.` : "üres"}
+                  </span>
+                  <span className={enContent ? "text-green-600" : "text-orange-500"}>
+                    EN: {enContent ? `${enContent.length} chars` : "empty"}
+                  </span>
+                </div>
+              )}
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm" role="alert">
+                  {error}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer actions */}
+        <div className="flex items-center gap-3 px-4 py-3 border-t border-gray-200 bg-white safe-area-pb">
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={onClose}
+            className="flex-1 min-h-[48px] md:min-h-[40px] text-base md:text-sm"
+            aria-label="Szerkesztés megszakítása"
+          >
+            Mégse
+          </Button>
+          <Button
+            size="lg"
+            onClick={handleSave}
+            disabled={saving || loading}
+            className="flex-1 min-h-[48px] md:min-h-[40px] text-base md:text-sm"
+            aria-label={saving ? "Mentés folyamatban..." : "Tartalom mentése"}
+          >
+            <Save className="h-4 w-4 mr-1.5" />
+            {saving ? "Mentés..." : "Mentés"}
+          </Button>
+        </div>
       </div>
-
-      {/* Footer actions */}
-      <div className="flex items-center gap-2 px-4 py-3 border-t border-gray-200">
-        <Button size="sm" variant="outline" onClick={onClose} className="flex-1">
-          Mégse
-        </Button>
-        <Button size="sm" onClick={handleSave} disabled={saving || loading} className="flex-1">
-          <Save className="h-3.5 w-3.5 mr-1" />
-          {saving ? "Mentés..." : "Mentés"}
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }

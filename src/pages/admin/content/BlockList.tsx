@@ -35,7 +35,7 @@ function getContentPreview(block: ContentBlock): string {
     try {
       const parsed = JSON.parse(block.content);
       return parsed.hu || parsed.en || block.content.slice(0, 80);
-    } catch {}
+    } catch { /* non-JSON content, fall through */ }
   }
   return block.content.slice(0, 80);
 }
@@ -178,22 +178,35 @@ export default function BlockList({ page, blocks, csrfToken, onRefresh }: BlockL
   return (
     <div>
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm" role="alert">
           {error}
-          <button type="button" onClick={() => setError(null)} className="ml-2 font-bold">×</button>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            className="ml-2 font-bold p-1 min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+            aria-label="Hiba bezárása"
+          >
+            ×
+          </button>
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">{page.nameHu}</h2>
-        <Button size="sm" variant="outline" onClick={() => setCreating(true)}>
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <h2 className="text-lg font-semibold truncate">{page.nameHu}</h2>
+        <Button
+          size="default"
+          variant="outline"
+          onClick={() => setCreating(true)}
+          className="min-h-[44px] px-3 shrink-0"
+          aria-label="Új blokk létrehozása"
+        >
           <Plus className="h-4 w-4 mr-1" /> Új blokk
         </Button>
       </div>
 
       {/* Missing blocks indicator */}
       {missingBlocks.length > 0 && (
-        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded">
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
           <p className="text-sm font-medium text-amber-800 mb-2">
             Hiányzó blokkok ({missingBlocks.length}):
           </p>
@@ -203,8 +216,9 @@ export default function BlockList({ page, blocks, csrfToken, onRefresh }: BlockL
                 key={def.key}
                 type="button"
                 onClick={() => createBlock(def.key, def.bilingual)}
-                className="text-xs px-2 py-1 bg-amber-100 hover:bg-amber-200 rounded border border-amber-300 transition-colors"
+                className="text-xs px-3 py-2 bg-amber-100 hover:bg-amber-200 rounded-md border border-amber-300 transition-colors min-h-[44px]"
                 disabled={saving}
+                aria-label={`${def.label} blokk létrehozása`}
               >
                 + {def.label}
               </button>
@@ -216,35 +230,49 @@ export default function BlockList({ page, blocks, csrfToken, onRefresh }: BlockL
       {/* Create new block inline form */}
       {creating && (
         <div className="mb-4 p-4 border border-green-200 bg-green-50/30 rounded-lg">
-          <div className="flex items-end gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
             <div className="flex-1">
-              <label className="text-sm font-medium text-gray-700 mb-1 block">Block Key</label>
+              <label className="text-sm font-medium text-gray-700 mb-1 block" htmlFor="new-block-key">
+                Block Key
+              </label>
               <input
+                id="new-block-key"
                 type="text"
                 value={newBlockKey}
                 onChange={(e) => setNewBlockKey(e.target.value)}
                 placeholder="pl. section.title"
-                className="w-full px-3 py-2 border rounded text-sm"
+                className="w-full px-3 py-2 border rounded-md text-base md:text-sm min-h-[44px]"
               />
             </div>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 text-sm min-h-[44px]">
               <input
                 type="checkbox"
                 checked={newBilingual}
                 onChange={(e) => setNewBilingual(e.target.checked)}
+                className="h-5 w-5 md:h-4 md:w-4"
               />
               Kétnyelvű
             </label>
-            <Button
-              size="sm"
-              onClick={() => createBlock(newBlockKey, newBilingual)}
-              disabled={!newBlockKey || saving}
-            >
-              Létrehozás
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setCreating(false)}>
-              Mégse
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                size="default"
+                onClick={() => createBlock(newBlockKey, newBilingual)}
+                disabled={!newBlockKey || saving}
+                className="min-h-[44px] flex-1 sm:flex-none"
+                aria-label="Blokk létrehozása"
+              >
+                Létrehozás
+              </Button>
+              <Button
+                size="default"
+                variant="ghost"
+                onClick={() => setCreating(false)}
+                className="min-h-[44px] flex-1 sm:flex-none"
+                aria-label="Létrehozás megszakítása"
+              >
+                Mégse
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -271,11 +299,14 @@ export default function BlockList({ page, blocks, csrfToken, onRefresh }: BlockL
             const preview = getContentPreview(block);
 
             return (
-              <div key={block.id} className="border border-gray-200 rounded-lg p-3 hover:border-gray-300 transition-colors">
-                <div className="flex items-start justify-between gap-3">
+              <div
+                key={block.id}
+                className="border border-gray-200 rounded-lg p-3 hover:border-gray-300 transition-colors"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <code className="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded text-blue-700">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <code className="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded text-blue-700 break-all">
                         {block.blockKey}
                       </code>
                       <Badge variant="secondary" className="text-xs">{block.contentType}</Badge>
@@ -290,27 +321,45 @@ export default function BlockList({ page, blocks, csrfToken, onRefresh }: BlockL
                     <p className="text-xs text-gray-400 mt-1">Módosítva: {formatDate(block.updatedAt)}</p>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
-                    <Button variant="ghost" size="icon" onClick={() => setEditingId(block.id)} title="Szerkesztés">
+                    <Button
+                      variant="ghost"
+                      size="default"
+                      onClick={() => setEditingId(block.id)}
+                      className="min-h-[44px] min-w-[44px] p-2"
+                      aria-label={`${block.blockKey} szerkesztése`}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => loadVersions(block.id)} title="Verziók">
+                    <Button
+                      variant="ghost"
+                      size="default"
+                      onClick={() => loadVersions(block.id)}
+                      className="min-h-[44px] min-w-[44px] p-2"
+                      aria-label={`${block.blockKey} verziók`}
+                    >
                       <History className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(block.id)} className="text-destructive hover:text-destructive" title="Törlés">
+                    <Button
+                      variant="ghost"
+                      size="default"
+                      onClick={() => handleDelete(block.id)}
+                      className="text-destructive hover:text-destructive min-h-[44px] min-w-[44px] p-2"
+                      aria-label={`${block.blockKey} törlése`}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
 
                 {versionsFor === block.id && (
-                  <div className="mt-3 ml-4 border-l-2 border-gray-200 pl-4">
+                  <div className="mt-3 ml-0 sm:ml-4 border-l-2 border-gray-200 pl-3 sm:pl-4">
                     <h4 className="text-sm font-semibold text-gray-700 mb-2">Korábbi verziók</h4>
                     {versions.length === 0 ? (
                       <p className="text-sm text-gray-400">Nincs korábbi verzió.</p>
                     ) : (
                       <div className="space-y-2">
                         {versions.map((v) => (
-                          <div key={v.id} className="flex items-center justify-between gap-2 bg-gray-50 p-2 rounded">
+                          <div key={v.id} className="flex items-center justify-between gap-2 bg-gray-50 p-2 rounded-md">
                             <div className="flex-1 min-w-0">
                               <p className="text-xs text-gray-500">v{v.version} — {formatDate(v.createdAt)}</p>
                               <p className="text-sm text-gray-600 truncate">{v.content.slice(0, 60)}</p>
@@ -319,10 +368,10 @@ export default function BlockList({ page, blocks, csrfToken, onRefresh }: BlockL
                               type="button"
                               onClick={() => rollback(block.id, v.id)}
                               disabled={saving}
-                              className="p-1 text-orange-600 hover:bg-orange-50 rounded disabled:opacity-50"
-                              title={`Visszaállítás v${v.version}`}
+                              className="p-2.5 text-orange-600 hover:bg-orange-50 rounded-md disabled:opacity-50 min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
+                              aria-label={`Visszaállítás v${v.version}`}
                             >
-                              <RotateCcw className="h-3.5 w-3.5" />
+                              <RotateCcw className="h-4 w-4" />
                             </button>
                           </div>
                         ))}

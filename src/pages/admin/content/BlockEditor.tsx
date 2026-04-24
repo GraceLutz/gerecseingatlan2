@@ -35,7 +35,7 @@ function parseBilingual(content: string): BilingualContent | null {
     if (typeof parsed === "object" && parsed !== null && ("hu" in parsed || "en" in parsed)) {
       return { hu: parsed.hu ?? "", en: parsed.en ?? "" };
     }
-  } catch {}
+  } catch { /* non-JSON content, fall through */ }
   return null;
 }
 
@@ -47,7 +47,7 @@ function detectArrayMode(content: string, blockKey: string): EditorMode {
       if (data.length > 0 && typeof data[0] === "object" && "q" in data[0]) return "faq";
       return "list";
     }
-  } catch {}
+  } catch { /* non-JSON content, fall through to heuristic */ }
   if (blockKey.includes("faq") || blockKey.includes("items")) {
     if (blockKey.includes("faq")) return "faq";
     return "list";
@@ -65,7 +65,7 @@ function parseBilingualArray<T>(raw: string): { hu: T[]; en: T[] } {
       };
     }
     if (Array.isArray(parsed)) return { hu: parsed as T[], en: [] };
-  } catch {}
+  } catch { /* non-JSON content, return empty arrays */ }
   return { hu: [], en: [] };
 }
 
@@ -142,11 +142,13 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
   }, [setCurrentFaq]);
 
   const langTabs = (
-    <div className="flex gap-1 mb-2">
+    <div className="flex gap-1 mb-2" role="tablist" aria-label="Nyelv választó">
       <button
         type="button"
         onClick={() => setActiveLang("hu")}
-        className={`px-3 py-1.5 text-sm font-medium rounded-t border-b-2 transition-colors ${
+        role="tab"
+        aria-selected={activeLang === "hu"}
+        className={`px-3 py-2.5 md:py-1.5 text-sm font-medium rounded-t border-b-2 transition-colors min-h-[44px] md:min-h-0 ${
           activeLang === "hu"
             ? "border-blue-500 text-blue-700 bg-white"
             : "border-transparent text-gray-500 hover:text-gray-700"
@@ -157,7 +159,9 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
       <button
         type="button"
         onClick={() => setActiveLang("en")}
-        className={`px-3 py-1.5 text-sm font-medium rounded-t border-b-2 transition-colors ${
+        role="tab"
+        aria-selected={activeLang === "en"}
+        className={`px-3 py-2.5 md:py-1.5 text-sm font-medium rounded-t border-b-2 transition-colors min-h-[44px] md:min-h-0 ${
           activeLang === "en"
             ? "border-blue-500 text-blue-700 bg-white"
             : "border-transparent text-gray-500 hover:text-gray-700"
@@ -169,10 +173,11 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
   );
 
   return (
-    <div className="border border-blue-200 bg-blue-50/30 rounded-lg p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <code className="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded text-blue-700">
+    <div className="border border-blue-200 bg-blue-50/30 rounded-lg p-3 md:p-4">
+      {/* Header: stacks vertically on mobile */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <code className="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded text-blue-700 break-all">
             {block.blockKey}
           </code>
           <Badge variant="secondary">{block.contentType}</Badge>
@@ -180,11 +185,24 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
             <Badge variant="outline" className="text-[10px]">{arrayMode}</Badge>
           )}
         </div>
-        <div className="flex gap-1">
-          <Button size="sm" variant="ghost" onClick={onCancel} disabled={saving}>
+        <div className="flex gap-2">
+          <Button
+            size="default"
+            variant="ghost"
+            onClick={onCancel}
+            disabled={saving}
+            className="min-h-[44px] px-3"
+            aria-label="Szerkesztés megszakítása"
+          >
             <X className="h-4 w-4 mr-1" /> Mégse
           </Button>
-          <Button size="sm" onClick={handleSave} disabled={saving}>
+          <Button
+            size="default"
+            onClick={handleSave}
+            disabled={saving}
+            className="min-h-[44px] px-3"
+            aria-label={saving ? "Mentés folyamatban..." : "Tartalom mentése"}
+          >
             <Save className="h-4 w-4 mr-1" /> {saving ? "Mentés..." : "Mentés"}
           </Button>
         </div>
@@ -193,32 +211,34 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
       {arrayMode === "list" && isBilingual ? (
         <div>
           {langTabs}
-          <div className="space-y-2">
+          <div className="space-y-2" role="tabpanel">
             <p className="text-xs text-gray-500">{currentList.length} elem</p>
             {currentList.map((item, i) => (
-              <div key={i} className="flex gap-1 items-center">
+              <div key={i} className="flex gap-2 items-center">
                 <Input
                   value={item}
                   onChange={(e) => updateListItem(i, e.target.value)}
                   placeholder={`Elem ${i + 1}`}
-                  className="bg-white text-sm flex-1"
+                  className="bg-white text-base md:text-sm flex-1 min-h-[44px]"
+                  aria-label={`Elem ${i + 1}`}
                 />
                 <button
                   type="button"
                   onClick={() => deleteListItem(i)}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded shrink-0"
+                  className="p-2.5 text-red-500 hover:bg-red-50 rounded-md shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label={`Elem ${i + 1} törlése`}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             ))}
             <button
               type="button"
               onClick={addListItem}
-              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"
+              className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 py-2 min-h-[44px]"
+              aria-label="Új elem hozzáadása"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-4 w-4" />
               Új elem
             </button>
           </div>
@@ -226,41 +246,44 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
       ) : arrayMode === "faq" && isBilingual ? (
         <div>
           {langTabs}
-          <div className="space-y-3">
+          <div className="space-y-3" role="tabpanel">
             <p className="text-xs text-gray-500">{currentFaq.length} kérdés-válasz pár</p>
             {currentFaq.map((item, i) => (
-              <div key={i} className="border border-gray-200 rounded p-2 bg-white space-y-1.5">
+              <div key={i} className="border border-gray-200 rounded-lg p-3 bg-white space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-medium text-gray-400 uppercase">#{i + 1}</span>
+                  <span className="text-xs font-medium text-gray-400 uppercase">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() => deleteFaqItem(i)}
-                    className="p-1 text-red-500 hover:bg-red-50 rounded"
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center"
                     aria-label={`Kérdés ${i + 1} törlése`}
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
                 <Input
                   value={item.q}
                   onChange={(e) => updateFaqItem(i, "q", e.target.value)}
                   placeholder="Kérdés..."
-                  className="bg-white text-sm"
+                  className="bg-white text-base md:text-sm min-h-[44px]"
+                  aria-label={`Kérdés ${i + 1}`}
                 />
                 <Textarea
                   value={item.a}
                   onChange={(e) => updateFaqItem(i, "a", e.target.value)}
                   placeholder="Válasz..."
-                  className="text-sm min-h-[4rem] bg-white resize-y"
+                  className="text-base md:text-sm min-h-[5rem] bg-white resize-y"
+                  aria-label={`Válasz ${i + 1}`}
                 />
               </div>
             ))}
             <button
               type="button"
               onClick={addFaqItem}
-              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"
+              className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 py-2 min-h-[44px]"
+              aria-label="Új kérdés hozzáadása"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-4 w-4" />
               Új kérdés
             </button>
           </div>
@@ -268,39 +291,45 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
       ) : isBilingual ? (
         <div>
           {langTabs}
-          {activeLang === "hu" ? (
-            isShortText ? (
+          <div role="tabpanel">
+            {activeLang === "hu" ? (
+              isShortText ? (
+                <Input
+                  value={huContent}
+                  onChange={(e) => setHuContent(e.target.value)}
+                  placeholder="Magyar tartalom..."
+                  className="bg-white text-base md:text-sm min-h-[44px]"
+                  aria-label="Magyar tartalom"
+                />
+              ) : (
+                <Textarea
+                  value={huContent}
+                  onChange={(e) => setHuContent(e.target.value)}
+                  placeholder="Magyar tartalom..."
+                  className="min-h-[8rem] font-mono text-base md:text-sm bg-white resize-y"
+                  aria-label="Magyar tartalom"
+                />
+              )
+            ) : isShortText ? (
               <Input
-                value={huContent}
-                onChange={(e) => setHuContent(e.target.value)}
-                placeholder="Magyar tartalom..."
-                className="bg-white"
+                value={enContent}
+                onChange={(e) => setEnContent(e.target.value)}
+                placeholder="English content..."
+                className="bg-white text-base md:text-sm min-h-[44px]"
+                aria-label="English content"
               />
             ) : (
               <Textarea
-                value={huContent}
-                onChange={(e) => setHuContent(e.target.value)}
-                placeholder="Magyar tartalom..."
-                className="min-h-[8rem] font-mono text-sm bg-white resize-y"
+                value={enContent}
+                onChange={(e) => setEnContent(e.target.value)}
+                placeholder="English content..."
+                className="min-h-[8rem] font-mono text-base md:text-sm bg-white resize-y"
+                aria-label="English content"
               />
-            )
-          ) : isShortText ? (
-            <Input
-              value={enContent}
-              onChange={(e) => setEnContent(e.target.value)}
-              placeholder="English content..."
-              className="bg-white"
-            />
-          ) : (
-            <Textarea
-              value={enContent}
-              onChange={(e) => setEnContent(e.target.value)}
-              placeholder="English content..."
-              className="min-h-[8rem] font-mono text-sm bg-white resize-y"
-            />
-          )}
+            )}
+          </div>
 
-          <div className="flex gap-2 mt-2 text-xs text-gray-500">
+          <div className="flex gap-2 mt-2 text-xs text-gray-500" aria-live="polite">
             <span className={huContent ? "text-green-600" : "text-orange-500"}>
               HU: {huContent ? `${huContent.length} karakter` : "üres"}
             </span>
@@ -315,14 +344,16 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
             value={plainContent}
             onChange={(e) => setPlainContent(e.target.value)}
             placeholder="Tartalom..."
-            className="bg-white"
+            className="bg-white text-base md:text-sm min-h-[44px]"
+            aria-label="Tartalom"
           />
         ) : (
           <Textarea
             value={plainContent}
             onChange={(e) => setPlainContent(e.target.value)}
             placeholder="Tartalom..."
-            className="min-h-[10rem] font-mono text-sm bg-white resize-y"
+            className="min-h-[10rem] font-mono text-base md:text-sm bg-white resize-y"
+            aria-label="Tartalom"
           />
         )
       )}

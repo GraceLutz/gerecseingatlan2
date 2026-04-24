@@ -27,7 +27,6 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin/
-Disallow: /_vite/
 
 # Sitemap location
 Sitemap: https://gerecseingatlan.hu/sitemap.xml

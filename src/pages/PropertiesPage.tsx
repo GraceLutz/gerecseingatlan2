@@ -271,14 +271,14 @@ const PropertiesPage = () => {
               >
                 <SlidersHorizontal size={16} />
                 {t.search.title}
-                {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-primary" />}
+                {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-primary" aria-hidden="true" />}
               </button>
 
               {mobileFiltersOpen && (
                 <div id="mobile-filters" className="mt-3 bg-card rounded-xl p-5 shadow-sm border border-border">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-semibold text-sm">{t.search.title}</span>
-                    <button onClick={() => setMobileFiltersOpen(false)} aria-label={t.common.close}>
+                    <button onClick={() => setMobileFiltersOpen(false)} aria-label={t.common.close} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-muted/50 transition-colors">
                       <X size={18} />
                     </button>
                   </div>

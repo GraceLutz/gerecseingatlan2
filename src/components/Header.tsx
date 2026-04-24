@@ -42,7 +42,7 @@ const Header = () => {
   const logoEditorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setDraftLogo(adminLogo);
+    setDraftLogo(parseLogoSettings(logoSettingsRaw));
   }, [logoSettingsRaw]);
 
   const saveLogoSettings = useCallback(async (settings: LogoSettings) => {

@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local", override: true });
+dotenv.config({ path: ".env.local" });
 import express from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";

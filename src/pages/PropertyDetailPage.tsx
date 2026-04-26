@@ -59,6 +59,9 @@ const PropertyDetailPage = () => {
   const seoDescription = `${title} – ${property.location}.${property.area > 0 ? ` ${property.area} m²,` : ""} ${formatPrice(property.price)}. Gerecse Ingatlan.`;
 
   const ORIGIN = "https://gerecseingatlan.hu";
+  const ogImage = property.images?.[0]
+    ? (property.images[0].startsWith("http") ? property.images[0] : `${ORIGIN}${property.images[0]}`)
+    : undefined;
 
   useEffect(() => {
     const schemas: Record<string, unknown>[] = [
@@ -105,7 +108,7 @@ const PropertyDetailPage = () => {
   }, [property.id, property.price, property.location, property.area, property.rooms, property.images, title, seoDescription, t.nav.home, t.nav.properties, localePath]);
 
   return (
-    <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlan/${property.id}`}>
+    <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlan/${property.id}`} ogImage={ogImage}>
       {/* Page header */}
       <section className="bg-dark-green py-12">
         <div className="container mx-auto px-4">

@@ -63,7 +63,9 @@ function buildOrganizationJsonLd(): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": ["RealEstateAgent", "LocalBusiness"],
+    "@id": "https://gerecseingatlan.hu/#organization",
     name: "Gerecse Ingatlan",
+    description: "Professzionális ingatlanszolgáltatások a Gerecse régióban. Eladó és kiadó ingatlanok Tata, Tatabánya, Esztergom környékén – értékbecslés, jogi háttér, hitel tanácsadás.",
     url: "https://gerecseingatlan.hu",
     logo: "https://gerecseingatlan.hu/gerecsenewlogo.png",
     image: "https://gerecseingatlan.hu/og-image.png",
@@ -92,12 +94,20 @@ function buildOrganizationJsonLd(): Record<string, unknown> {
       { "@type": "AdministrativeArea", name: "Gerecse" },
     ],
     priceRange: "$$",
-    openingHoursSpecification: {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-      opens: "09:00",
-      closes: "19:00",
-    },
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "09:00",
+        closes: "19:00",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: "Saturday",
+        opens: "09:00",
+        closes: "14:00",
+      },
+    ],
     sameAs: [
       "https://www.facebook.com/gerecseingatlan",
     ],

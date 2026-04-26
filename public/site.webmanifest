@@ -1,6 +1,8 @@
 {
   "name": "Gerecse Ingatlan",
   "short_name": "Gerecse",
+  "description": "Professzionális ingatlanszolgáltatások a Gerecse régióban – eladó és kiadó ingatlanok, értékbecslés, jogi háttér.",
+  "lang": "hu",
   "icons": [
     {
       "src": "/favicon-192x192.png",

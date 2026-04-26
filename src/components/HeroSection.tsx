@@ -20,7 +20,8 @@ const HeroSection = () => {
         <img
           src={heroBg}
           alt=""
-          className="w-full h-full object-cover object-bottom"
+          className="w-full h-full object-cover"
+          style={{ objectPosition: "center 90%" }}
           loading="eager"
           decoding="async"
           fetchPriority="high"
@@ -29,7 +30,13 @@ const HeroSection = () => {
 
       {/* Gradient overlay for text legibility (WCAG AA contrast) */}
       <div
-        className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/40 to-primary/60"
+        className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/40 to-primary/80"
+        aria-hidden="true"
+      />
+
+      {/* Upper overlay to suppress watermark in top portion of hero image */}
+      <div
+        className="absolute inset-x-0 top-0 h-[30%] bg-gradient-to-b from-primary/70 to-transparent backdrop-blur-sm"
         aria-hidden="true"
       />
 

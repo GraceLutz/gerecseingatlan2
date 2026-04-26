@@ -39,15 +39,6 @@ function resolveHuEnPair(huPath: string): { hu: string; en: string } | null {
   return null;
 }
 
-/** Reverse: given an English path, derive the Hungarian equivalent */
-function resolveEnToHu(enPath: string): string | null {
-  const entry = Object.entries(HU_TO_EN_PATH).find(([, en]) => en === enPath);
-  if (entry) return entry[0];
-  const propertyMatch = enPath.match(/^\/en\/property\/(.+)$/);
-  if (propertyMatch) return `/ingatlan/${propertyMatch[1]}`;
-  if (enPath.startsWith("/en/")) return enPath.replace(/^\/en/, "");
-  return null;
-}
 
 interface SEOHeadProps {
   /** Page title — appended to site name */
@@ -75,7 +66,7 @@ function buildOrganizationJsonLd(): Record<string, unknown> {
     "@type": ["RealEstateAgent", "LocalBusiness"],
     name: "Gerecse Ingatlan",
     url: "https://gerecseingatlan.hu",
-    logo: "https://gerecseingatlan.hu/logo.png",
+    logo: "https://gerecseingatlan.hu/gerecsenewlogo.png",
     image: "https://gerecseingatlan.hu/og-image.png",
     telephone: "+36-70-613-2658",
     email: "info@gerecseingatlan.hu",
@@ -104,9 +95,9 @@ function buildOrganizationJsonLd(): Record<string, unknown> {
     priceRange: "$$",
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
       opens: "09:00",
-      closes: "17:00",
+      closes: "19:00",
     },
     sameAs: [
       "https://www.facebook.com/gerecseingatlan",
@@ -198,49 +189,35 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     setMeta("name", "twitter:description", metaDescription);
     setMeta("name", "twitter:image", resolvedImage);
 
-    /* ── Canonical URL ── */
+    /* ── Resolve HU/EN path pair from the canonical (always Hungarian) path ── */
     const currentPath = canonicalPath || "/";
+    const pair = resolveHuEnPair(currentPath);
+    const huPath = currentPath;
+    const enPath = pair?.en ?? `/en${currentPath === "/" ? "" : currentPath}`;
+
+    /* ── Canonical URL ── */
     const fullCanonical =
-      lang === "en"
-        ? `${ORIGIN}/en${currentPath === "/" ? "" : currentPath}`
-        : `${ORIGIN}${currentPath}`;
+      lang === "en" ? `${ORIGIN}${enPath}` : `${ORIGIN}${huPath}`;
     setMeta("property", "og:url", fullCanonical);
     setLink('link[rel="canonical"]', { rel: "canonical", href: fullCanonical });
 
     /* ── hreflang tags ── */
-    {
-      let huPath: string;
-      let enPath: string | null;
-
-      if (lang === "hu") {
-        huPath = currentPath;
-        const pair = resolveHuEnPair(currentPath);
-        enPath = pair?.en ?? null;
-      } else {
-        const fullEnPath = `/en${currentPath === "/" ? "" : currentPath}`;
-        huPath = resolveEnToHu(fullEnPath) ?? currentPath;
-        enPath = fullEnPath;
-      }
-
-      const huUrl = `${ORIGIN}${huPath}`;
-      setLink('link[rel="alternate"][hreflang="hu"]', {
-        rel: "alternate",
-        hreflang: "hu",
-        href: huUrl,
-      });
-      setLink('link[rel="alternate"][hreflang="x-default"]', {
-        rel: "alternate",
-        hreflang: "x-default",
-        href: huUrl,
-      });
-      if (enPath) {
-        setLink('link[rel="alternate"][hreflang="en"]', {
-          rel: "alternate",
-          hreflang: "en",
-          href: `${ORIGIN}${enPath}`,
-        });
-      }
-    }
+    const huUrl = `${ORIGIN}${huPath}`;
+    setLink('link[rel="alternate"][hreflang="hu"]', {
+      rel: "alternate",
+      hreflang: "hu",
+      href: huUrl,
+    });
+    setLink('link[rel="alternate"][hreflang="x-default"]', {
+      rel: "alternate",
+      hreflang: "x-default",
+      href: huUrl,
+    });
+    setLink('link[rel="alternate"][hreflang="en"]', {
+      rel: "alternate",
+      hreflang: "en",
+      href: `${ORIGIN}${enPath}`,
+    });
 
     /* ── JSON-LD structured data ── */
     // Remove previously injected JSON-LD scripts

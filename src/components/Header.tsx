@@ -5,7 +5,30 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { useContent, useContentBlock } from "@/contexts/ContentContext";
 import { getCsrfToken } from "@/lib/csrf";
 import { Menu, X, ChevronDown, Minus, Plus, Save, GripVertical } from "lucide-react";
-import logo from "@/assets/newlogo.png";
+const logo = "/gerecsenewlogo.png";
+
+function FlagHU({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`${className} pointer-events-none`} viewBox="0 0 20 15" aria-hidden="true">
+      <rect width="20" height="5" y="0" fill="#CE2939" />
+      <rect width="20" height="5" y="5" fill="#FFFFFF" />
+      <rect width="20" height="5" y="10" fill="#477050" />
+    </svg>
+  );
+}
+
+function FlagEN({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`${className} pointer-events-none`} viewBox="0 0 60 30" aria-hidden="true">
+      <rect width="60" height="30" fill="#012169" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
+      <path d="M0,0 L30,15 M60,30 L30,15" stroke="#C8102E" strokeWidth="2" />
+      <path d="M60,0 L30,15 M0,30 L30,15" stroke="#C8102E" strokeWidth="2" />
+      <path d="M30,0 V30 M0,15 H60" stroke="#fff" strokeWidth="10" />
+      <path d="M30,0 V30 M0,15 H60" stroke="#C8102E" strokeWidth="6" />
+    </svg>
+  );
+}
 
 interface LogoSettings {
   height?: number;
@@ -181,9 +204,6 @@ const Header = () => {
 
   const isAboutActive = aboutSubLinks.some((s) => location.pathname === localePath(s.path));
 
-  const langLabel = lang === "hu" ? t.common.switchToEnglish : t.common.switchToHungarian;
-  const currencyLabel = currency === "HUF" ? t.common.switchToEur : t.common.switchToHuf;
-
   // Shared focus-visible ring for keyboard users (WCAG 2.1 AA — 2.4.7 Focus Visible).
   // Ring offset matches the header bg (#FFFFF0) so the ring reads clearly against it.
   const focusRing =
@@ -191,7 +211,7 @@ const Header = () => {
 
   // Dark navy on #8FBC8F → ~11:1 contrast (WCAG AA for normal text ≥4.5:1 satisfied).
   const linkClass = (isActive: boolean) =>
-    `text-base md:text-lg font-body font-semibold uppercase tracking-wider transition-colors hover:text-gold ${focusRing} ${
+    `text-sm xl:text-base font-body font-semibold uppercase tracking-wider transition-colors hover:text-gold ${focusRing} ${
       isActive ? "text-gold" : "text-[#0B2340]"
     }`;
 
@@ -214,10 +234,10 @@ const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20 md:h-28">
-          <div className="relative mr-auto" ref={logoEditorRef}>
+          <div className="relative mr-auto shrink-0" ref={logoEditorRef}>
             <Link
               to={localePath("/")}
-              className={`flex items-center gap-2 -ml-6 sm:-ml-10 md:-ml-20 lg:-ml-32 ${focusRing}`}
+              className={`flex items-center gap-2 ${focusRing}`}
               data-editable="header.logoSettings"
               data-page="/"
               onClick={isAdmin ? (e) => { e.preventDefault(); setLogoEditorOpen(!logoEditorOpen); } : undefined}
@@ -225,7 +245,7 @@ const Header = () => {
               <img
                 src={logo}
                 alt={t.common.logoAlt}
-                className={`h-28 sm:h-36 md:h-44 lg:h-56 -my-2 sm:-my-4 md:-my-6 lg:-my-10 rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                className={`h-16 sm:h-20 md:h-24 lg:h-28 -my-1 sm:-my-2 md:-my-2 lg:-my-2 rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
                 style={
                   adminLogo.height
                     ? {
@@ -334,7 +354,7 @@ const Header = () => {
           </div>
 
           {/* Desktop navigation */}
-          <nav aria-label={t.common.mainNavigation} className="hidden lg:flex items-center gap-6">
+          <nav aria-label={t.common.mainNavigation} className="hidden lg:flex items-center gap-3 xl:gap-5">
             {/* Home link */}
             <Link
               to={localePath("/")}
@@ -463,24 +483,26 @@ const Header = () => {
           </nav>
 
           {/* Desktop controls */}
-          <div className="hidden lg:flex items-center gap-1 ml-auto">
+          <div className="hidden lg:flex items-center gap-2 ml-auto">
             <button
+              type="button"
               onClick={() => setLanguage(lang === "hu" ? "en" : "hu")}
-              aria-label={langLabel}
-              className={`px-3 py-2 text-sm font-semibold uppercase border-2 border-[#0B2340]/40 rounded text-[#0B2340] hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
+              aria-label={lang === "hu" ? "Switch to English" : "Váltás magyarra"}
+              className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border border-[#0B2340]/25 hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
             >
-              {lang === "hu" ? "EN" : "HU"}
+              {lang === "hu" ? <FlagHU className="w-6 h-[18px] rounded-[2px]" /> : <FlagEN className="w-6 h-[18px] rounded-[2px]" />}
             </button>
             <button
+              type="button"
               onClick={toggleCurrency}
-              aria-label={currencyLabel}
-              className={`px-3 py-2 text-sm font-semibold uppercase border-2 border-[#0B2340]/40 rounded text-[#0B2340] hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
+              aria-label={currency === "HUF" ? "Switch to EUR" : "Váltás HUF-ra"}
+              className={`inline-flex items-center justify-center h-9 px-2.5 rounded-lg border border-[#0B2340]/25 text-sm font-semibold text-[#0B2340] hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
             >
-              {currency === "HUF" ? "EUR" : "HUF"}
+              {currency}
             </button>
 
-            {/* Contact info */}
-            <div className="flex flex-col gap-1 ml-6 pl-6 border-l border-[#0B2340]/20">
+            {/* Contact info — hidden at lg to prevent overflow, shown at xl */}
+            <div className="hidden xl:flex flex-col gap-1 ml-4 pl-4 border-l border-[#0B2340]/20">
               <a href="mailto:info@gerecseingatlan.hu" className={`text-sm font-semibold text-[#0B2340] hover:text-gold transition-colors ${focusRing}`}>
                 info@gerecseingatlan.hu
               </a>
@@ -490,9 +512,29 @@ const Header = () => {
             </div>
           </div>
 
+          {/* Mobile language + currency toggles (in header bar) */}
+          <div className="flex lg:hidden items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setLanguage(lang === "hu" ? "en" : "hu")}
+              aria-label={lang === "hu" ? "Switch to English" : "Váltás magyarra"}
+              className={`inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
+            >
+              {lang === "hu" ? <FlagHU className="w-6 h-[18px] rounded-[2px]" /> : <FlagEN className="w-6 h-[18px] rounded-[2px]" />}
+            </button>
+            <button
+              type="button"
+              onClick={toggleCurrency}
+              aria-label={currency === "HUF" ? "Switch to EUR" : "Váltás HUF-ra"}
+              className={`inline-flex items-center justify-center min-w-[44px] min-h-[44px] px-2 rounded-lg text-xs font-semibold text-[#0B2340] hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
+            >
+              {currency}
+            </button>
+          </div>
+
           {/* Mobile hamburger */}
           <button
-            className={`lg:hidden text-[#0B2340] p-2 ${focusRing}`}
+            className={`lg:hidden text-[#0B2340] min-w-[44px] min-h-[44px] flex items-center justify-center ${focusRing}`}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
@@ -506,9 +548,24 @@ const Header = () => {
         {menuOpen && (
           <div
             id="mobile-menu"
-            className="lg:hidden pb-4 border-t border-[#0B2340]/15"
+            className="lg:hidden pb-4 border-t border-[#0B2340]/15 max-h-[calc(100vh-5rem)] overflow-y-auto"
           >
-            <nav aria-label={t.common.mobileNavigation} className="flex flex-col gap-2 pt-4">
+            {/* Mobile contact info — prominent position at top */}
+            <div className="flex flex-col gap-1.5 px-2 pt-3 pb-3 border-b border-[#0B2340]/15">
+              <a
+                href="tel:+36706132658"
+                className={`text-sm font-semibold text-[#0B2340] hover:text-gold transition-colors min-h-[44px] flex items-center ${focusRing}`}
+              >
+                +36 70 613 2658
+              </a>
+              <a
+                href="mailto:info@gerecseingatlan.hu"
+                className={`text-sm font-semibold text-[#0B2340] hover:text-gold transition-colors min-h-[44px] flex items-center ${focusRing}`}
+              >
+                info@gerecseingatlan.hu
+              </a>
+            </div>
+            <nav aria-label={t.common.mobileNavigation} className="flex flex-col gap-2 pt-2">
               {/* Home */}
               <Link
                 to={localePath("/")}
@@ -614,38 +671,6 @@ const Header = () => {
                 );
               })}
             </nav>
-            <div className="flex gap-3 mt-4 px-2">
-              <button
-                onClick={() => setLanguage(lang === "hu" ? "en" : "hu")}
-                aria-label={langLabel}
-                className={`px-3 py-2 text-xs font-semibold uppercase border-2 border-[#0B2340]/40 rounded text-[#0B2340] hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
-              >
-                {lang === "hu" ? "EN" : "HU"}
-              </button>
-              <button
-                onClick={toggleCurrency}
-                aria-label={currencyLabel}
-                className={`px-3 py-2 text-xs font-semibold uppercase border-2 border-[#0B2340]/40 rounded text-[#0B2340] hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
-              >
-                {currency === "HUF" ? "EUR" : "HUF"}
-              </button>
-            </div>
-
-            {/* Mobile contact info */}
-            <div className="flex flex-col gap-1.5 mt-4 px-2 pt-4 border-t border-[#0B2340]/15">
-              <a
-                href="mailto:info@gerecseingatlan.hu"
-                className={`text-sm font-semibold text-[#0B2340] hover:text-gold transition-colors ${focusRing}`}
-              >
-                info@gerecseingatlan.hu
-              </a>
-              <a
-                href="tel:+36706132658"
-                className={`text-sm font-semibold text-[#0B2340] hover:text-gold transition-colors ${focusRing}`}
-              >
-                +36 70 613 2658
-              </a>
-            </div>
           </div>
         )}
       </div>

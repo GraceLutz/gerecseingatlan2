@@ -135,6 +135,7 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailSubmit} className="space-y-4">
+            <input type="text" name="username" autoComplete="username" className="hidden" value={user?.email ?? ""} readOnly tabIndex={-1} aria-hidden="true" />
             <div>
               <Label className="text-muted-foreground text-xs">Jelenlegi e-mail</Label>
               <p className="mt-1 text-sm font-medium">{user?.email ?? "—"}</p>
@@ -183,6 +184,7 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <input type="text" name="username" autoComplete="username" className="hidden" value={user?.email ?? ""} readOnly tabIndex={-1} aria-hidden="true" />
             <div className="space-y-2">
               <Label htmlFor="current-password">Jelenlegi jelszó</Label>
               <Input

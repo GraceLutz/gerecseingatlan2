@@ -20,8 +20,7 @@ const HeroSection = () => {
         <img
           src={heroBg}
           alt=""
-          className="w-full h-full object-cover"
-          style={{ objectPosition: "center 45%" }}
+          className="w-full h-full object-cover object-[center_80%] md:object-[center_45%]"
           loading="eager"
           decoding="async"
           fetchPriority="high"

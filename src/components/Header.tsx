@@ -237,7 +237,7 @@ const Header = () => {
           <div className="relative mr-auto shrink-0 flex items-center self-stretch overflow-hidden" ref={logoEditorRef}>
             <Link
               to={localePath("/")}
-              className={`flex items-center gap-2 ${focusRing}`}
+              className={`flex items-center gap-2 h-full ${focusRing}`}
               data-editable="header.logoSettings"
               data-page="/"
               onClick={isAdmin ? (e) => { e.preventDefault(); setLogoEditorOpen(!logoEditorOpen); } : undefined}
@@ -245,7 +245,7 @@ const Header = () => {
               <img
                 src={logo}
                 alt={t.common.logoAlt}
-                className={`h-16 sm:h-20 md:h-28 lg:h-32 max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                className={`h-20 sm:h-[5.5rem] md:h-32 lg:h-[8.75rem] max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
                 style={
                   (adminLogo.height || adminLogo.offsetX || adminLogo.offsetY)
                     ? {

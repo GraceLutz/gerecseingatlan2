@@ -39,7 +39,6 @@ function resolveHuEnPair(huPath: string): { hu: string; en: string } | null {
   return null;
 }
 
-
 interface SEOHeadProps {
   /** Page title — appended to site name */
   title?: string;
@@ -137,7 +136,10 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   const { lang, t } = useLanguage();
 
   const siteName = "Gerecse Ingatlan";
-  const fullTitle = title ? `${title} | ${siteName}` : siteName;
+  const alreadyBranded = title?.includes(siteName);
+  const fullTitle = title
+    ? alreadyBranded ? title : `${title} | ${siteName}`
+    : siteName;
   const metaDescription = description || t.seo.defaultDescription;
   const ORIGIN = "https://gerecseingatlan.hu";
 

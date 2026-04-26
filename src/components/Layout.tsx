@@ -36,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, description, canonical
       </a>
       <SEOHead title={title} description={description} canonicalPath={canonicalPath} ogImage={ogImage} ogType={ogType} jsonLd={jsonLd} />
       <Header />
-      <main id="main-content" tabIndex={-1} className="flex-1 pt-[4.5rem] md:pt-[6.5rem] focus:outline-none">
+      <main id="main-content" tabIndex={-1} className="flex-1 pt-[4.5rem] md:pt-[10rem] focus:outline-none">
         {children}
       </main>
       <Footer />

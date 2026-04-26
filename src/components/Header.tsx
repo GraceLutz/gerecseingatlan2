@@ -233,7 +233,7 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-[4.5rem] md:h-[6.5rem]">
+        <div className="flex items-center justify-between h-[4.5rem] md:h-[10rem]">
           <div className="relative mr-auto shrink-0 flex items-center self-stretch overflow-hidden" ref={logoEditorRef}>
             <Link
               to={localePath("/")}
@@ -245,7 +245,7 @@ const Header = () => {
               <img
                 src={logo}
                 alt={t.common.logoAlt}
-                className={`h-14 md:h-20 lg:h-24 max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                className={`h-14 md:h-36 lg:h-[9rem] max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
                 style={
                   (adminLogo.height || adminLogo.offsetX || adminLogo.offsetY)
                     ? {

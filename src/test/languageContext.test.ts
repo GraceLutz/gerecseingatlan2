@@ -19,8 +19,10 @@ describe("translateHuToEn", () => {
   });
 
   it("translates service routes", () => {
-    expect(translateHuToEn("/ingatlan-ertekesites-berbeadas")).toBe("/property-sales-and-rentals");
-    expect(translateHuToEn("/energetikai-tanusitvany")).toBe("/energy-certificate");
+    expect(translateHuToEn("/ingatlan-ertekesites-berbeadas")).toBe("/property-sales-and-rental");
+    expect(translateHuToEn("/energetikai-tanusitvany")).toBe("/energy-performance-certificate");
+    expect(translateHuToEn("/belsoepiteszet-latvanyterv")).toBe("/interior-design-and-visualization");
+    expect(translateHuToEn("/hitel-allami-tamogatasok")).toBe("/credit-and-state-support");
   });
 
   it("translates legal pages", () => {

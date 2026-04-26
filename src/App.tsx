@@ -171,14 +171,20 @@ const AppRoutes = () => (
           <Route path="/en/terms" element={<ASZFPage />} />
 
           {/* Redirects: old /en/hungarian-slug → /en/english-slug */}
-          <Route path="/en/ingatlan-ertekesites-berbeadas" element={<Navigate to="/en/property-sales-and-rentals" replace />} />
+          <Route path="/en/ingatlan-ertekesites-berbeadas" element={<Navigate to="/en/property-sales-and-rental" replace />} />
           <Route path="/en/ertekbecsles-ertekmeghatrozas" element={<Navigate to="/en/appraisal-and-valuation" replace />} />
-          <Route path="/en/belsoepiteszet-latvanyterv" element={<Navigate to="/en/interior-design" replace />} />
+          <Route path="/en/belsoepiteszet-latvanyterv" element={<Navigate to="/en/interior-design-and-visualization" replace />} />
           <Route path="/en/teljeskoru-jogi-hatter" element={<Navigate to="/en/full-legal-support" replace />} />
-          <Route path="/en/hitel-allami-tamogatasok" element={<Navigate to="/en/loans-and-subsidies" replace />} />
-          <Route path="/en/ergetikai-tanusitvany" element={<Navigate to="/en/energy-certificate" replace />} />
-          <Route path="/en/energetikai-tanusitvany" element={<Navigate to="/en/energy-certificate" replace />} />
+          <Route path="/en/hitel-allami-tamogatasok" element={<Navigate to="/en/credit-and-state-support" replace />} />
+          <Route path="/en/ergetikai-tanusitvany" element={<Navigate to="/en/energy-performance-certificate" replace />} />
+          <Route path="/en/energetikai-tanusitvany" element={<Navigate to="/en/energy-performance-certificate" replace />} />
           <Route path="/en/villamos-biztonsagi-felulvizsgalat" element={<Navigate to="/en/electrical-safety-inspection" replace />} />
+
+          {/* Redirects: old /en/english-slug → new /en/english-slug */}
+          <Route path="/en/energy-certificate" element={<Navigate to="/en/energy-performance-certificate" replace />} />
+          <Route path="/en/property-sales-and-rentals" element={<Navigate to="/en/property-sales-and-rental" replace />} />
+          <Route path="/en/interior-design" element={<Navigate to="/en/interior-design-and-visualization" replace />} />
+          <Route path="/en/loans-and-subsidies" element={<Navigate to="/en/credit-and-state-support" replace />} />
 
           {/* English catch-all for service detail pages */}
           <Route path="/en/:slug" element={<ServiceDetailPage />} />

@@ -1,13 +1,9 @@
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
-import { Link } from "react-router-dom";
 import heroBg from "@/assets/backround.jpg";
 
 const HeroSection = () => {
-  const { t, localePath } = useLanguage();
   const { content: heroTitle, loading } = useContentBlock("/", "hero.title", "");
   const { content: heroSubtitle } = useContentBlock("/", "hero.subtitle", "");
-  const { content: heroCta } = useContentBlock("/", "hero.cta", "");
   const textVisible = !loading;
 
   return (
@@ -42,17 +38,9 @@ const HeroSection = () => {
         >
           {heroTitle}
         </h1>
-        <p data-editable="hero.subtitle" data-page="/" className="text-lg md:text-xl text-primary-foreground/90 font-body mb-8 drop-shadow">
+        <p data-editable="hero.subtitle" data-page="/" className="text-lg md:text-xl text-primary-foreground/90 font-body drop-shadow">
           {heroSubtitle}
         </p>
-        <Link
-          to={localePath("/ingatlanok")}
-          data-editable="hero.cta"
-          data-page="/"
-          className="inline-block px-8 py-3.5 bg-accent text-accent-foreground font-semibold text-lg rounded-lg hover:bg-accent/90 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
-        >
-          {heroCta}
-        </Link>
       </div>
 
       {/* Decorative bottom wave */}

@@ -20,7 +20,7 @@ const HeroSection = () => {
         <img
           src={heroBg}
           alt=""
-          className="w-full h-full object-cover object-[center_85%]"
+          className="w-full h-full object-cover object-bottom"
           loading="eager"
           decoding="async"
           fetchPriority="high"
@@ -29,7 +29,7 @@ const HeroSection = () => {
 
       {/* Gradient overlay for text legibility (WCAG AA contrast) */}
       <div
-        className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/40 to-primary/10"
+        className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/40 to-primary/60"
         aria-hidden="true"
       />
 

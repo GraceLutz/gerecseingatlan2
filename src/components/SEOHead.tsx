@@ -14,12 +14,12 @@ const HU_TO_EN_PATH: Record<string, string> = {
   "/adatkezelesi-tajekoztato": "/en/privacy-policy",
   "/cookie-tajekoztato": "/en/cookie-policy",
   "/aszf": "/en/terms",
-  "/ingatlan-ertekesites-berbeadas": "/en/property-sales-and-rentals",
+  "/ingatlan-ertekesites-berbeadas": "/en/property-sales-and-rental",
   "/ertekbecsles-ertekmeghatrozas": "/en/appraisal-and-valuation",
-  "/belsoepiteszet-latvanyterv": "/en/interior-design",
+  "/belsoepiteszet-latvanyterv": "/en/interior-design-and-visualization",
   "/teljeskoru-jogi-hatter": "/en/full-legal-support",
-  "/hitel-allami-tamogatasok": "/en/loans-and-subsidies",
-  "/energetikai-tanusitvany": "/en/energy-certificate",
+  "/hitel-allami-tamogatasok": "/en/credit-and-state-support",
+  "/energetikai-tanusitvany": "/en/energy-performance-certificate",
   "/villamos-biztonsagi-felulvizsgalat": "/en/electrical-safety-inspection",
 };
 

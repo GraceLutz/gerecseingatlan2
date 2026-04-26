@@ -1,13 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+import { getCsrfToken } from "@/lib/csrf";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Mail, Lock, Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
   useEffect(() => {
     document.title = "Beállítások | Gerecse Ingatlan Admin";
   }, []);
-
-  const { user, csrfToken } = useAuth();
 
   const [email, setEmail] = useState("");
   const [emailConfirm, setEmailConfirm] = useState("");
@@ -18,198 +25,207 @@ export default function SettingsPage() {
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [passwordSaving, setPasswordSaving] = useState(false);
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  async function handleEmailSubmit(e: FormEvent) {
     e.preventDefault();
-    if (email !== emailConfirm) {
-      toast.error("Az email címek nem egyeznek.");
+    const trimmed = email.trim();
+
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast({ title: "Érvénytelen e-mail cím.", variant: "destructive" });
       return;
     }
-    if (!email) {
-      toast.error("Az email cím megadása kötelező.");
+    if (trimmed !== emailConfirm.trim()) {
+      toast({ title: "Az e-mail címek nem egyeznek.", variant: "destructive" });
       return;
     }
+
     setEmailSaving(true);
     try {
+      const csrf = getCsrfToken();
       const res = await fetch("/api/admin/users/me/email", {
         method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+          ...(csrf ? { "x-csrf-token": csrf } : {}),
         },
-        credentials: "include",
-        body: JSON.stringify({ email, emailConfirm }),
+        body: JSON.stringify({ email: trimmed, emailConfirm: emailConfirm.trim() }),
       });
-      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error(data.error || `Hiba (${res.status})`);
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Hiba történt az e-mail módosítása során.");
       }
-      toast.success(data.message || "Email cím sikeresen módosítva.");
+
+      toast({ title: "Email cím sikeresen módosítva." });
       setEmail("");
       setEmailConfirm("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Hiba történt az email módosítás során.");
+      toast({
+        title: err instanceof Error ? err.message : "Hiba történt.",
+        variant: "destructive",
+      });
     } finally {
       setEmailSaving(false);
     }
-  };
+  }
 
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
+  async function handlePasswordSubmit(e: FormEvent) {
     e.preventDefault();
-    if (newPassword !== newPasswordConfirm) {
-      toast.error("Az új jelszavak nem egyeznek.");
-      return;
-    }
-    if (!currentPassword || !newPassword) {
-      toast.error("Minden jelszómező kitöltése kötelező.");
+
+    if (!currentPassword) {
+      toast({ title: "Kérjük, adja meg a jelenlegi jelszavát.", variant: "destructive" });
       return;
     }
     if (newPassword.length < 8) {
-      toast.error("Az új jelszónak legalább 8 karakter hosszúnak kell lennie.");
+      toast({ title: "Az új jelszónak legalább 8 karakter hosszúnak kell lennie.", variant: "destructive" });
       return;
     }
+    if (newPassword !== newPasswordConfirm) {
+      toast({ title: "Az új jelszavak nem egyeznek.", variant: "destructive" });
+      return;
+    }
+
     setPasswordSaving(true);
     try {
+      const csrf = getCsrfToken();
       const res = await fetch("/api/admin/users/me/password", {
         method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+          ...(csrf ? { "x-csrf-token": csrf } : {}),
         },
-        credentials: "include",
         body: JSON.stringify({ currentPassword, newPassword, newPasswordConfirm }),
       });
-      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error(data.error || `Hiba (${res.status})`);
+        const data = await res.json().catch(() => null);
+        const msg =
+          res.status === 401
+            ? "A jelenlegi jelszó helytelen."
+            : (data?.error ?? "Hiba történt a jelszó módosítása során.");
+        throw new Error(msg);
       }
-      toast.success(data.message || "Jelszó sikeresen módosítva.");
+
+      toast({ title: "Jelszó sikeresen módosítva." });
       setCurrentPassword("");
       setNewPassword("");
       setNewPasswordConfirm("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Hiba történt a jelszó módosítás során.");
+      toast({
+        title: err instanceof Error ? err.message : "Hiba történt.",
+        variant: "destructive",
+      });
     } finally {
       setPasswordSaving(false);
     }
-  };
-
-  const inputClass =
-    "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm";
+  }
 
   return (
-    <div className="p-2 sm:p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Beállítások</h1>
+    <div className="space-y-6 max-w-2xl">
+      <h1 className="text-2xl font-heading font-bold text-dark-navy">Beállítások</h1>
 
-      {/* Email change */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">Profil</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Jelenlegi email: <span className="font-medium text-gray-700">{user?.email}</span>
-        </p>
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="settings-email" className="block text-sm font-medium text-gray-700 mb-1">
-              Új email cím
-            </label>
-            <input
-              id="settings-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              maxLength={320}
-              autoComplete="email"
-              className={inputClass}
-              placeholder="uj@email.hu"
-            />
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
+            <CardTitle className="text-lg">Profil</CardTitle>
           </div>
-          <div>
-            <label htmlFor="settings-email-confirm" className="block text-sm font-medium text-gray-700 mb-1">
-              Új email cím megerősítése
-            </label>
-            <input
-              id="settings-email-confirm"
-              type="email"
-              value={emailConfirm}
-              onChange={(e) => setEmailConfirm(e.target.value)}
-              required
-              maxLength={320}
-              autoComplete="email"
-              className={inputClass}
-              placeholder="uj@email.hu"
-            />
-          </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={emailSaving || !email || !emailConfirm}
-              className="px-4 py-2 text-white bg-dark-navy hover:bg-main-navy rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-            >
-              {emailSaving ? "Mentés..." : "Email mentése"}
-            </button>
-          </div>
-        </form>
-      </div>
+          <CardDescription>Az e-mail cím módosítása</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleEmailSubmit} className="space-y-4">
+            <div>
+              <Label className="text-muted-foreground text-xs">Jelenlegi e-mail</Label>
+              <p className="mt-1 text-sm font-medium">{user?.email ?? "—"}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-email">Új e-mail cím</Label>
+              <Input
+                id="new-email"
+                type="email"
+                autoComplete="email"
+                maxLength={320}
+                placeholder="uj@email.hu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-email">Új e-mail cím megerősítése</Label>
+              <Input
+                id="confirm-email"
+                type="email"
+                autoComplete="email"
+                maxLength={320}
+                placeholder="uj@email.hu"
+                value={emailConfirm}
+                onChange={(e) => setEmailConfirm(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" disabled={emailSaving || !email || !emailConfirm}>
+              {emailSaving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+              Email mentése
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-      {/* Password change */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Jelszó módosítása</h2>
-        <form onSubmit={handlePasswordSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="settings-current-password" className="block text-sm font-medium text-gray-700 mb-1">
-              Jelenlegi jelszó
-            </label>
-            <input
-              id="settings-current-password"
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              className={inputClass}
-            />
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Lock className="h-5 w-5 text-primary" aria-hidden="true" />
+            <CardTitle className="text-lg">Jelszó módosítása</CardTitle>
           </div>
-          <div>
-            <label htmlFor="settings-new-password" className="block text-sm font-medium text-gray-700 mb-1">
-              Új jelszó
-            </label>
-            <input
-              id="settings-new-password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              minLength={8}
-              autoComplete="new-password"
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="settings-new-password-confirm" className="block text-sm font-medium text-gray-700 mb-1">
-              Új jelszó megerősítése
-            </label>
-            <input
-              id="settings-new-password-confirm"
-              type="password"
-              value={newPasswordConfirm}
-              onChange={(e) => setNewPasswordConfirm(e.target.value)}
-              required
-              minLength={8}
-              autoComplete="new-password"
-              className={inputClass}
-            />
-          </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={passwordSaving || !currentPassword || !newPassword || !newPasswordConfirm}
-              className="px-4 py-2 text-white bg-dark-navy hover:bg-main-navy rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-            >
-              {passwordSaving ? "Mentés..." : "Jelszó mentése"}
-            </button>
-          </div>
-        </form>
-      </div>
+          <CardDescription>Adjon meg egy új jelszót a fiókjához</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="current-password">Jelenlegi jelszó</Label>
+              <Input
+                id="current-password"
+                type="password"
+                autoComplete="current-password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-password">Új jelszó</Label>
+              <Input
+                id="new-password"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+              <p className="text-xs text-muted-foreground">Minimum 8 karakter</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Új jelszó megerősítése</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                value={newPasswordConfirm}
+                onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" disabled={passwordSaving || !currentPassword || !newPassword || !newPasswordConfirm}>
+              {passwordSaving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+              Jelszó mentése
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

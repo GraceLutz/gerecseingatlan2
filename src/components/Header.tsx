@@ -234,7 +234,7 @@ const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-24 md:h-36">
-          <div className="relative mr-auto shrink-0" ref={logoEditorRef}>
+          <div className="relative mr-auto shrink-0 flex items-center self-stretch overflow-hidden" ref={logoEditorRef}>
             <Link
               to={localePath("/")}
               className={`flex items-center gap-2 ${focusRing}`}
@@ -245,14 +245,14 @@ const Header = () => {
               <img
                 src={logo}
                 alt={t.common.logoAlt}
-                className={`h-20 sm:h-24 md:h-32 lg:h-36 rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                className={`h-16 sm:h-20 md:h-28 lg:h-32 max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
                 style={
-                  adminLogo.height
+                  (adminLogo.height || adminLogo.offsetX || adminLogo.offsetY)
                     ? {
-                        height: `${adminLogo.height * 4}px`,
-                        marginLeft: adminLogo.offsetX ? `${adminLogo.offsetX * 4}px` : undefined,
-                        marginTop: adminLogo.offsetY ? `${adminLogo.offsetY * 4}px` : undefined,
-                        marginBottom: adminLogo.offsetY ? `${adminLogo.offsetY * 4}px` : undefined,
+                        ...(adminLogo.height ? { height: `${adminLogo.height * 4}px` } : {}),
+                        ...((adminLogo.offsetX || adminLogo.offsetY)
+                          ? { transform: `translate(${(adminLogo.offsetX ?? 0) * 4}px, ${(adminLogo.offsetY ?? 0) * 4}px)` }
+                          : {}),
                       }
                     : undefined
                 }

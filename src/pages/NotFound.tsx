@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -5,10 +6,29 @@ import { useLanguage } from "@/contexts/LanguageContext";
 /**
  * 404 Not Found page with Hungarian-first UX.
  * Provides helpful navigation links to key pages (properties, contact, FAQ)
- * so users can recover quickly. Also sets proper SEO meta for the 404 status.
+ * so users can recover quickly. Sets noindex to prevent search engines from
+ * indexing 404 pages.
  */
 const NotFound = () => {
   const { lang, localePath } = useLanguage();
+
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
+    const prev = meta?.getAttribute("content") ?? null;
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "robots";
+      document.head.appendChild(meta);
+    }
+    meta.content = "noindex, follow";
+    return () => {
+      if (prev !== null) {
+        meta!.content = prev;
+      } else {
+        meta!.remove();
+      }
+    };
+  }, []);
 
   const isHu = lang === "hu";
 

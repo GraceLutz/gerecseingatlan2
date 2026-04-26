@@ -1,13 +1,14 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
+import RichText from "@/components/RichText";
 import { ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const PAGE = "/adatkezelesi-tajekoztato";
 
 const AdatkezelesiPage = () => {
-  const { lang, localePath } = useLanguage();
+  const { lang, t, localePath } = useLanguage();
   const isHu = lang === "hu";
 
   const { content: heroTitle } = useContentBlock(PAGE, "page.title", isHu ? "Adatkezelési tájékoztató" : "Privacy Policy");
@@ -69,26 +70,22 @@ const AdatkezelesiPage = () => {
 
   const { content: lastUpdated } = useContentBlock(PAGE, "lastUpdated", isHu ? "Utolsó frissítés: 2026. április 16." : "Last updated: 16 April 2026");
 
-  const title = isHu
-    ? "Adatkezelési tájékoztató – Gerecse Ingatlan"
-    : "Privacy Policy – Gerecse Ingatlan";
-  const description = isHu
-    ? "A Gerecse Ingatlan adatkezelési tájékoztatója: személyes adatok kezelése, jogalapok, érintetti jogok a GDPR és az Infotv. alapján."
-    : "Privacy policy of Gerecse Ingatlan: personal data processing, legal bases, and data subject rights under GDPR.";
+  const title = t.seo.privacyTitle;
+  const description = t.seo.privacyDescription;
 
   return (
     <Layout title={title} description={description} canonicalPath="/adatkezelesi-tajekoztato">
       {/* Hero */}
       <section className="bg-dark-green py-16 text-center">
-        <div className="flex justify-center mb-4">
-          <ShieldCheck size={40} className="text-gold" aria-hidden="true" />
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="flex justify-center mb-4">
+            <ShieldCheck size={40} className="text-gold" aria-hidden="true" />
+          </div>
+          <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground mb-4">
+            {heroTitle}
+          </h1>
+          <RichText content={heroSubtitle} data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body max-w-xl mx-auto" />
         </div>
-        <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground">
-          {heroTitle}
-        </h1>
-        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body mt-2 max-w-xl mx-auto px-4">
-          {heroSubtitle}
-        </p>
       </section>
 
       {/* Content */}
@@ -102,7 +99,7 @@ const AdatkezelesiPage = () => {
                 <span data-editable="section1.title" data-page={PAGE}>{s1Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section1.p1" data-page={PAGE}>{s1p1}</p>
+                <RichText content={s1p1} data-editable="section1.p1" data-page={PAGE} />
               </div>
             </article>
 
@@ -113,7 +110,7 @@ const AdatkezelesiPage = () => {
                 <span data-editable="section2.title" data-page={PAGE}>{s2Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section2.p1" data-page={PAGE}>{s2p1}</p>
+                <RichText content={s2p1} data-editable="section2.p1" data-page={PAGE} />
               </div>
             </article>
 
@@ -172,7 +169,7 @@ const AdatkezelesiPage = () => {
                 <span data-editable="section4.title" data-page={PAGE}>{s4Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section4.p1" data-page={PAGE}>{s4p1}</p>
+                <RichText content={s4p1} data-editable="section4.p1" data-page={PAGE} />
                 <ul className="list-disc pl-5 space-y-1">
                   <li data-editable="section4.right1" data-page={PAGE}>{s4right1}</li>
                   <li data-editable="section4.right2" data-page={PAGE}>{s4right2}</li>
@@ -182,7 +179,7 @@ const AdatkezelesiPage = () => {
                   <li data-editable="section4.right6" data-page={PAGE}>{s4right6}</li>
                   <li data-editable="section4.right7" data-page={PAGE}>{s4right7}</li>
                 </ul>
-                <p data-editable="section4.p2" data-page={PAGE}>{s4p2}</p>
+                <RichText content={s4p2} data-editable="section4.p2" data-page={PAGE} />
               </div>
             </article>
 
@@ -193,7 +190,7 @@ const AdatkezelesiPage = () => {
                 <span data-editable="section5.title" data-page={PAGE}>{s5Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section5.p1" data-page={PAGE}>{s5p1}</p>
+                <RichText content={s5p1} data-editable="section5.p1" data-page={PAGE} />
               </div>
             </article>
 
@@ -204,7 +201,7 @@ const AdatkezelesiPage = () => {
                 <span data-editable="section6.title" data-page={PAGE}>{s6Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section6.p1" data-page={PAGE}>{s6p1}</p>
+                <RichText content={s6p1} data-editable="section6.p1" data-page={PAGE} />
               </div>
             </article>
 
@@ -215,7 +212,7 @@ const AdatkezelesiPage = () => {
                 <span data-editable="section7.title" data-page={PAGE}>{s7Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section7.p1" data-page={PAGE}>{s7p1}</p>
+                <RichText content={s7p1} data-editable="section7.p1" data-page={PAGE} />
                 <address className="not-italic pl-4 border-l-2 border-primary/30 space-y-1">
                   <p>{isHu ? "Nemzeti Adatvédelmi és Információszabadság Hatóság" : "Hungarian National Authority for Data Protection and Freedom of Information"}</p>
                   <p>1055 Budapest, Falk Miksa utca 9-11.</p>
@@ -226,7 +223,7 @@ const AdatkezelesiPage = () => {
                     </a>
                   </p>
                 </address>
-                <p data-editable="section7.p2" data-page={PAGE}>{s7p2}</p>
+                <RichText content={s7p2} data-editable="section7.p2" data-page={PAGE} />
               </div>
             </article>
 
@@ -248,9 +245,7 @@ const AdatkezelesiPage = () => {
             </article>
 
             {/* Last updated */}
-            <p data-editable="lastUpdated" data-page={PAGE} className="text-center text-xs text-gray-500 font-body">
-              {lastUpdated}
-            </p>
+            <RichText content={lastUpdated} data-editable="lastUpdated" data-page={PAGE} className="text-center text-xs text-gray-500 font-body" />
           </div>
         </div>
       </section>

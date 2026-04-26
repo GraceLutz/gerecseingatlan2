@@ -1,12 +1,13 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
+import RichText from "@/components/RichText";
 import { Building2, Mail, Phone, Globe, Server } from "lucide-react";
 
 const PAGE = "/impresszum";
 
 const ImpresszumPage = () => {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const isHu = lang === "hu";
 
   const { content: heroTitle } = useContentBlock(PAGE, "page.title", isHu ? "Impresszum" : "Legal Notice");
@@ -50,22 +51,18 @@ const ImpresszumPage = () => {
     ? "Utolsó frissítés: 2026. április 16."
     : "Last updated: 16 April 2026");
 
-  const seoTitle = isHu
-    ? "Impresszum – Gerecse Ingatlan"
-    : "Legal Notice – Gerecse Ingatlan";
-  const seoDescription = isHu
-    ? "A Gerecse Ingatlan impresszuma: céginformációk, elérhetőségek, tárhelyszolgáltató adatai a 2001. évi CVIII. törvény szerint."
-    : "Legal notice of Gerecse Ingatlan: company information, contact details, and hosting provider data.";
+  const seoTitle = t.seo.impresszumTitle;
+  const seoDescription = t.seo.impresszumDescription;
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/impresszum">
       <section className="bg-dark-green py-16 text-center">
-        <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground">
-          {heroTitle}
-        </h1>
-        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body mt-2 max-w-xl mx-auto px-4">
-          {heroSubtitle}
-        </p>
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground mb-4">
+            {heroTitle}
+          </h1>
+          <RichText content={heroSubtitle} data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body max-w-xl mx-auto" />
+        </div>
       </section>
 
       <section className="py-16 bg-light-bg">
@@ -208,15 +205,11 @@ const ImpresszumPage = () => {
               <h2 data-editable="copyright.heading" data-page={PAGE} className="text-xl font-heading font-bold text-dark-navy mb-4">
                 {copyrightHeading}
               </h2>
-              <p data-editable="copyright.text" data-page={PAGE} className="font-body text-gray-700 text-sm leading-relaxed">
-                {copyrightText}
-              </p>
+              <RichText content={copyrightText} data-editable="copyright.text" data-page={PAGE} className="font-body text-gray-700 text-sm leading-relaxed" />
             </article>
 
             {/* Last updated */}
-            <p data-editable="page.lastUpdated" data-page={PAGE} className="text-center text-xs text-gray-500 font-body">
-              {lastUpdated}
-            </p>
+            <RichText content={lastUpdated} data-editable="page.lastUpdated" data-page={PAGE} className="text-center text-xs text-gray-500 font-body" />
           </div>
         </div>
       </section>

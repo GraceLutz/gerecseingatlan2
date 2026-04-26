@@ -1,13 +1,14 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
+import RichText from "@/components/RichText";
 import { FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const PAGE = "/aszf";
 
 const ASZFPage = () => {
-  const { lang, localePath } = useLanguage();
+  const { lang, t, localePath } = useLanguage();
   const isHu = lang === "hu";
 
   const { content: heroTitle } = useContentBlock(PAGE, "page.title", isHu ? "Általános Szerződési Feltételek" : "Terms and Conditions");
@@ -75,26 +76,22 @@ const ASZFPage = () => {
 
   const { content: effectiveDate } = useContentBlock(PAGE, "effectiveDate", isHu ? "Hatályba lépés: 2026. április 16." : "Effective date: 16 April 2026");
 
-  const title = isHu
-    ? "Általános Szerződési Feltételek – Gerecse Ingatlan"
-    : "Terms and Conditions – Gerecse Ingatlan";
-  const description = isHu
-    ? "A Gerecse Ingatlan Kft. általános szerződési feltételei a gerecseingatlan.hu weboldal és ingatlanközvetítői szolgáltatások igénybevételéhez."
-    : "Terms and conditions of Gerecse Ingatlan Kft. for the use of gerecseingatlan.hu and real estate brokerage services.";
+  const title = t.seo.termsTitle;
+  const description = t.seo.termsDescription;
 
   return (
     <Layout title={title} description={description} canonicalPath="/aszf">
       {/* Hero */}
       <section className="bg-dark-green py-16 text-center">
-        <div className="flex justify-center mb-4">
-          <FileText size={40} className="text-gold" aria-hidden="true" />
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="flex justify-center mb-4">
+            <FileText size={40} className="text-gold" aria-hidden="true" />
+          </div>
+          <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground mb-4">
+            {heroTitle}
+          </h1>
+          <RichText content={heroSubtitle} data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body max-w-xl mx-auto" />
         </div>
-        <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground">
-          {heroTitle}
-        </h1>
-        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body mt-2 max-w-xl mx-auto px-4">
-          {heroSubtitle}
-        </p>
       </section>
 
       {/* Content */}
@@ -108,8 +105,8 @@ const ASZFPage = () => {
                 <span data-editable="section1.title" data-page={PAGE}>{s1Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section1.p1" data-page={PAGE}>{s1p1}</p>
-                <p data-editable="section1.p2" data-page={PAGE}>{s1p2}</p>
+                <RichText content={s1p1} data-editable="section1.p1" data-page={PAGE} />
+                <RichText content={s1p2} data-editable="section1.p2" data-page={PAGE} />
               </div>
             </article>
 
@@ -120,7 +117,7 @@ const ASZFPage = () => {
                 <span data-editable="section2.title" data-page={PAGE}>{s2Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section2.p1" data-page={PAGE}>{s2p1}</p>
+                <RichText content={s2p1} data-editable="section2.p1" data-page={PAGE} />
                 <ul className="list-disc pl-5 space-y-1">
                   <li data-editable="section2.item1" data-page={PAGE}>{s2item1}</li>
                   <li data-editable="section2.item2" data-page={PAGE}>{s2item2}</li>
@@ -139,8 +136,8 @@ const ASZFPage = () => {
                 <span data-editable="section3.title" data-page={PAGE}>{s3Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section3.p1" data-page={PAGE}>{s3p1}</p>
-                <p data-editable="section3.p2" data-page={PAGE}>{s3p2}</p>
+                <RichText content={s3p1} data-editable="section3.p1" data-page={PAGE} />
+                <RichText content={s3p2} data-editable="section3.p2" data-page={PAGE} />
               </div>
             </article>
 
@@ -151,7 +148,7 @@ const ASZFPage = () => {
                 <span data-editable="section4.title" data-page={PAGE}>{s4Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section4.p1" data-page={PAGE}>{s4p1}</p>
+                <RichText content={s4p1} data-editable="section4.p1" data-page={PAGE} />
               </div>
             </article>
 
@@ -162,8 +159,8 @@ const ASZFPage = () => {
                 <span data-editable="section5.title" data-page={PAGE}>{s5Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section5.p1" data-page={PAGE}>{s5p1}</p>
-                <p data-editable="section5.p2" data-page={PAGE}>{s5p2}</p>
+                <RichText content={s5p1} data-editable="section5.p1" data-page={PAGE} />
+                <RichText content={s5p2} data-editable="section5.p2" data-page={PAGE} />
               </div>
             </article>
 
@@ -195,7 +192,7 @@ const ASZFPage = () => {
                 <span data-editable="section7.title" data-page={PAGE}>{s7Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section7.p1" data-page={PAGE}>{s7p1}</p>
+                <RichText content={s7p1} data-editable="section7.p1" data-page={PAGE} />
               </div>
             </article>
 
@@ -206,7 +203,7 @@ const ASZFPage = () => {
                 <span data-editable="section8.title" data-page={PAGE}>{s8Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section8.p1" data-page={PAGE}>{s8p1}</p>
+                <RichText content={s8p1} data-editable="section8.p1" data-page={PAGE} />
               </div>
             </article>
 
@@ -217,7 +214,7 @@ const ASZFPage = () => {
                 <span data-editable="section9.title" data-page={PAGE}>{s9Title}</span>
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="section9.p1" data-page={PAGE}>{s9p1}</p>
+                <RichText content={s9p1} data-editable="section9.p1" data-page={PAGE} />
                 <address className="not-italic pl-4 border-l-2 border-primary/30 space-y-1">
                   <p>Gerecse Ingatlan Kft.</p>
                   <p>2890 Tata, Példa utca 1.</p>
@@ -255,9 +252,7 @@ const ASZFPage = () => {
             </div>
 
             {/* Last updated */}
-            <p data-editable="effectiveDate" data-page={PAGE} className="text-center text-xs text-gray-500 font-body">
-              {effectiveDate}
-            </p>
+            <RichText content={effectiveDate} data-editable="effectiveDate" data-page={PAGE} className="text-center text-xs text-gray-500 font-body" />
           </div>
         </div>
       </section>

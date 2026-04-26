@@ -19,6 +19,17 @@ const enToHuServiceSlug: Record<string, string> = {
   "electrical-safety-inspection": "villamos-biztonsagi-felulvizsgalat",
 };
 
+/** Maps Hungarian service slugs to i18n seo key prefixes */
+const slugToSeoKey: Record<string, string> = {
+  "ingatlan-ertekesites-berbeadas": "sales",
+  "ertekbecsles-ertekmeghatrozas": "appraisal",
+  "belsoepiteszet-latvanyterv": "interior",
+  "teljeskoru-jogi-hatter": "legal",
+  "hitel-allami-tamogatasok": "loan",
+  "energetikai-tanusitvany": "energy",
+  "villamos-biztonsagi-felulvizsgalat": "electrical",
+};
+
 const ServiceDetailPage = () => {
   const { lang, t, localePath } = useLanguage();
   const { slug } = useParams();
@@ -50,35 +61,42 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
   const { items: benefits } = useContentArray(pagePath, "service.benefits", []);
 
   const Icon = service.icon;
-  const seoTitle = `${title} – Gerecse Ingatlan`;
-  const seoDescription = `${title} ${t.serviceDetail.seoDescriptionSuffix}`;
+  const seoKey = slugToSeoKey[resolvedSlug];
+  const seoTitle = seoKey
+    ? (t.seo as Record<string, string>)[`${seoKey}Title`]
+    : `${title} – Gerecse Ingatlan`;
+  const seoDescription = seoKey
+    ? (t.seo as Record<string, string>)[`${seoKey}Description`]
+    : `${title} ${t.serviceDetail.seoDescriptionSuffix}`;
 
   const relatedServices = services.filter((s) => s.slug !== resolvedSlug).slice(0, 3);
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath={`/${resolvedSlug}`}>
       <section className="bg-dark-green py-20 text-center">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center">
-            <Icon size={28} className="text-gold" aria-hidden="true" />
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center">
+              <Icon size={28} className="text-gold" aria-hidden="true" />
+            </div>
           </div>
-        </div>
-        <EditableText
-          pagePath={pagePath}
-          blockKey="service.title"
-          fallback={t.services[service.titleKey]}
-          as="h1"
-          className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground"
-        />
-        {(subtitle || isAdmin) && (
           <EditableText
             pagePath={pagePath}
-            blockKey="service.subtitle"
-            fallback=""
-            as="p"
-            className="mt-3 text-lg text-primary-foreground/80"
+            blockKey="service.title"
+            fallback={t.services[service.titleKey]}
+            as="h1"
+            className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground"
           />
-        )}
+          {(subtitle || isAdmin) && (
+            <EditableText
+              pagePath={pagePath}
+              blockKey="service.subtitle"
+              fallback=""
+              as="p"
+              className="mt-3 text-lg text-primary-foreground/80"
+            />
+          )}
+        </div>
       </section>
 
       <section className="py-16 bg-background">
@@ -91,17 +109,21 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
             {t.nav.home}
           </Link>
 
-          <div className="space-y-4 mb-12" data-editable="service.paragraphs" data-page={pagePath}>
-            {paragraphs.map((paragraph, i) => (
-              <EditableText
-                key={i}
-                pagePath={pagePath}
-                blockKey={`service.paragraphs[${i}]`}
-                fallback={paragraph}
-                as="p"
-                className="text-muted-foreground font-body leading-relaxed text-base"
-              />
-            ))}
+          <div className="space-y-4 mb-12 rich-content" data-editable="service.paragraphs" data-page={pagePath}>
+            {paragraphs.map((paragraph, i) => {
+              const hasHtml = /<[a-z][\s\S]*>/i.test(paragraph);
+              return (
+                <EditableText
+                  key={i}
+                  pagePath={pagePath}
+                  blockKey={`service.paragraphs[${i}]`}
+                  fallback={paragraph}
+                  as={hasHtml ? "div" : "p"}
+                  contentType={hasHtml ? "html" : "text"}
+                  className="text-muted-foreground font-body leading-relaxed text-base"
+                />
+              );
+            })}
           </div>
 
           {benefits.length > 0 && (

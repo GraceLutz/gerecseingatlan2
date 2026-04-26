@@ -1,13 +1,14 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
+import RichText from "@/components/RichText";
 import { Cookie, ShieldCheck, BarChart3, Settings2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const PAGE = "/cookie-tajekoztato";
 
 const CookieTajekoztato = () => {
-  const { lang, localePath } = useLanguage();
+  const { lang, t, localePath } = useLanguage();
   const isHu = lang === "hu";
 
   const { content: heroTitle } = useContentBlock(PAGE, "page.title", isHu ? "Cookie (süti) tájékoztató" : "Cookie Policy");
@@ -51,26 +52,22 @@ const CookieTajekoztato = () => {
 
   const { content: lastUpdated } = useContentBlock(PAGE, "lastUpdated", isHu ? "Utolsó frissítés: 2026. április 16." : "Last updated: 16 April 2026");
 
-  const title = isHu
-    ? "Cookie (süti) tájékoztató – Gerecse Ingatlan"
-    : "Cookie Policy – Gerecse Ingatlan";
-  const description = isHu
-    ? "Tájékoztató a gerecseingatlan.hu weboldalon használt sütikről: típusok, célok, kezelés időtartama."
-    : "Information about cookies used on gerecseingatlan.hu: types, purposes, and retention.";
+  const title = t.seo.cookieTitle;
+  const description = t.seo.cookieDescription;
 
   return (
     <Layout title={title} description={description} canonicalPath="/cookie-tajekoztato">
       {/* Hero */}
       <section className="bg-dark-green py-16 text-center">
-        <div className="flex justify-center mb-4">
-          <Cookie size={40} className="text-gold" aria-hidden="true" />
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="flex justify-center mb-4">
+            <Cookie size={40} className="text-gold" aria-hidden="true" />
+          </div>
+          <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground mb-4">
+            {heroTitle}
+          </h1>
+          <RichText content={heroSubtitle} data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body max-w-xl mx-auto" />
         </div>
-        <h1 data-editable="page.title" data-page={PAGE} className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground">
-          {heroTitle}
-        </h1>
-        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body mt-2 max-w-xl mx-auto px-4">
-          {heroSubtitle}
-        </p>
       </section>
 
       {/* Content */}
@@ -83,8 +80,8 @@ const CookieTajekoztato = () => {
                 {introTitle}
               </h2>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="intro.p1" data-page={PAGE}>{introP1}</p>
-                <p data-editable="intro.p2" data-page={PAGE}>{introP2}</p>
+                <RichText content={introP1} data-editable="intro.p1" data-page={PAGE} />
+                <RichText content={introP2} data-editable="intro.p2" data-page={PAGE} />
               </div>
             </article>
 
@@ -99,7 +96,7 @@ const CookieTajekoztato = () => {
                 </h2>
               </div>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="necessary.desc" data-page={PAGE}>{necessaryDesc}</p>
+                <RichText content={necessaryDesc} data-editable="necessary.desc" data-page={PAGE} />
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm border-collapse">
                     <thead>
@@ -137,7 +134,7 @@ const CookieTajekoztato = () => {
                 </h2>
               </div>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="analytics.desc" data-page={PAGE}>{analyticsDesc}</p>
+                <RichText content={analyticsDesc} data-editable="analytics.desc" data-page={PAGE} />
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm border-collapse">
                     <thead>
@@ -178,7 +175,7 @@ const CookieTajekoztato = () => {
                 </h2>
               </div>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="marketing.desc" data-page={PAGE}>{marketingDesc}</p>
+                <RichText content={marketingDesc} data-editable="marketing.desc" data-page={PAGE} />
               </div>
             </article>
 
@@ -193,15 +190,15 @@ const CookieTajekoztato = () => {
                 </h2>
               </div>
               <div className="font-body text-gray-700 text-sm leading-relaxed space-y-3">
-                <p data-editable="managing.p1" data-page={PAGE}>{managingP1}</p>
-                <p data-editable="managing.p2" data-page={PAGE}>{managingP2}</p>
+                <RichText content={managingP1} data-editable="managing.p1" data-page={PAGE} />
+                <RichText content={managingP2} data-editable="managing.p2" data-page={PAGE} />
                 <ul className="list-disc pl-5 space-y-1">
                   <li><strong>Chrome:</strong> {isHu ? "Beállítások → Adatvédelem és biztonság → Cookie-k" : "Settings → Privacy and Security → Cookies"}</li>
                   <li><strong>Firefox:</strong> {isHu ? "Beállítások → Adatvédelem és biztonság → Sütik" : "Settings → Privacy & Security → Cookies"}</li>
                   <li><strong>Safari:</strong> {isHu ? "Beállítások → Adatvédelem → Sütik kezelése" : "Preferences → Privacy → Manage Website Data"}</li>
                   <li><strong>Edge:</strong> {isHu ? "Beállítások → Cookie-k és webhelyadatok" : "Settings → Cookies and site data"}</li>
                 </ul>
-                <p data-editable="managing.p3" data-page={PAGE}>{managingP3}</p>
+                <RichText content={managingP3} data-editable="managing.p3" data-page={PAGE} />
               </div>
             </article>
 
@@ -217,9 +214,7 @@ const CookieTajekoztato = () => {
             </div>
 
             {/* Last updated */}
-            <p data-editable="lastUpdated" data-page={PAGE} className="text-center text-xs text-gray-500 font-body">
-              {lastUpdated}
-            </p>
+            <RichText content={lastUpdated} data-editable="lastUpdated" data-page={PAGE} className="text-center text-xs text-gray-500 font-body" />
           </div>
         </div>
       </section>

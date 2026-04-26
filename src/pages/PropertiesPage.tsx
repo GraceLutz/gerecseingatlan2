@@ -3,6 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useProperties } from "@/hooks/useProperties";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyListItem from "@/components/PropertyListItem";
 import { useState, useMemo, useCallback, useEffect } from "react";
@@ -245,11 +246,27 @@ const PropertiesPage = () => {
   const seoTitle = t.seo.propertiesTitle;
   const seoDescription = t.seo.propertiesDescription;
 
+  const ORIGIN = "https://gerecseingatlan.hu";
+  useEffect(() => {
+    const schema = buildBreadcrumbJsonLd([
+      { name: t.nav.home, url: ORIGIN },
+      { name: seoTitle, url: `${ORIGIN}/ingatlanok` },
+    ]);
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-page-jsonld", "true");
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [t.nav.home, seoTitle]);
+
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/ingatlanok">
       <section className="bg-dark-green py-16 text-center">
-        <h1 data-editable="page.title" data-page={PAGE} className="text-4xl font-heading font-bold text-primary-foreground mb-2">{pageTitle}</h1>
-        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body">{pageSubtitle}</p>
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h1 data-editable="page.title" data-page={PAGE} className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground mb-4">{pageTitle}</h1>
+          <p data-editable="page.subtitle" data-page={PAGE} className="text-lg text-primary-foreground/80 font-body leading-relaxed">{pageSubtitle}</p>
+        </div>
       </section>
 
       <section className="py-10 bg-background">

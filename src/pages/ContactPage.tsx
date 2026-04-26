@@ -1,6 +1,8 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
+import RichText from "@/components/RichText";
 import { Phone, Mail, Clock, Facebook } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -119,15 +121,29 @@ const ContactPage = () => {
   const seoTitle = t.seo.contactTitle;
   const seoDescription = t.seo.contactDescription;
 
+  const ORIGIN = "https://gerecseingatlan.hu";
+  useEffect(() => {
+    const schema = buildBreadcrumbJsonLd([
+      { name: t.nav.home, url: ORIGIN },
+      { name: seoTitle, url: `${ORIGIN}/kapcsolat` },
+    ]);
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-page-jsonld", "true");
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [t.nav.home, seoTitle]);
+
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/kapcsolat">
       <section className="bg-dark-green py-20 text-center">
-        <h1 data-editable="page.title" data-page={PAGE} className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground">
-          {pageTitle}
-        </h1>
-        <p data-editable="page.subtitle" data-page={PAGE} className="text-primary-foreground/70 font-body mt-2">
-          {pageSubtitle}
-        </p>
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h1 data-editable="page.title" data-page={PAGE} className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground mb-4">
+            {pageTitle}
+          </h1>
+          <RichText content={pageSubtitle} data-editable="page.subtitle" data-page={PAGE} className="text-lg text-primary-foreground/80 font-body leading-relaxed" />
+        </div>
       </section>
 
       <section className="py-16 bg-background">
@@ -179,9 +195,9 @@ const ContactPage = () => {
                   <h3 data-editable="contact.info.hours.label" data-page={PAGE} className="font-heading font-semibold text-foreground mb-1">
                     {hoursLabel}
                   </h3>
-                  <p data-editable="contact.info.hours.weekdays" data-page={PAGE} className="text-muted-foreground text-sm">{hoursWeekdays}</p>
-                  <p data-editable="contact.info.hours.saturday" data-page={PAGE} className="text-muted-foreground text-sm">{hoursSaturday}</p>
-                  <p data-editable="contact.info.hours.sunday" data-page={PAGE} className="text-muted-foreground text-sm">{hoursSunday}</p>
+                  <RichText content={hoursWeekdays} data-editable="contact.info.hours.weekdays" data-page={PAGE} className="text-muted-foreground text-sm" />
+                  {hoursSaturday && <RichText content={hoursSaturday} data-editable="contact.info.hours.saturday" data-page={PAGE} className="text-muted-foreground text-sm" />}
+                  {hoursSunday && <RichText content={hoursSunday} data-editable="contact.info.hours.sunday" data-page={PAGE} className="text-muted-foreground text-sm" />}
                 </div>
               </div>
 

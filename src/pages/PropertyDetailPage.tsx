@@ -2,11 +2,13 @@ import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useProperties } from "@/hooks/useProperties";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
 import PropertyGallery from "@/components/PropertyGallery";
 import PropertyContactForm from "@/components/PropertyContactForm";
 import PropertyMap from "@/components/PropertyMap";
 import SimilarProperties from "@/components/SimilarProperties";
 import { useParams, Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Maximize, BedDouble, Bath, Calendar, Thermometer, Zap, Building, Car, Trees, ChevronRight } from "lucide-react";
 
 const PropertyDetailPage = () => {
@@ -55,6 +57,52 @@ const PropertyDetailPage = () => {
 
   const seoTitle = `${title} – ${property.location} | Gerecse Ingatlan`;
   const seoDescription = `${title} – ${property.location}.${property.area > 0 ? ` ${property.area} m²,` : ""} ${formatPrice(property.price)}. Gerecse Ingatlan.`;
+
+  const ORIGIN = "https://gerecseingatlan.hu";
+
+  useEffect(() => {
+    const schemas: Record<string, unknown>[] = [
+      buildBreadcrumbJsonLd([
+        { name: t.nav.home, url: ORIGIN },
+        { name: t.nav.properties, url: `${ORIGIN}${localePath("/ingatlanok")}` },
+        { name: title, url: `${ORIGIN}${localePath(`/ingatlan/${property.id}`)}` },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "RealEstateListing",
+        name: title,
+        description: seoDescription,
+        url: `${ORIGIN}${localePath(`/ingatlan/${property.id}`)}`,
+        ...(property.images?.[0] && { image: property.images[0] }),
+        offers: {
+          "@type": "Offer",
+          price: property.price,
+          priceCurrency: "HUF",
+          availability: "https://schema.org/InStock",
+        },
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: property.location,
+          addressCountry: "HU",
+        },
+        ...(property.area > 0 && {
+          floorSize: { "@type": "QuantitativeValue", value: property.area, unitCode: "MTK" },
+        }),
+        ...(property.rooms > 0 && { numberOfRooms: property.rooms }),
+      },
+    ];
+
+    const scripts = schemas.map((schema) => {
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.setAttribute("data-page-jsonld", "true");
+      script.textContent = JSON.stringify(schema);
+      document.head.appendChild(script);
+      return script;
+    });
+
+    return () => scripts.forEach((s) => s.remove());
+  }, [property.id, property.price, property.location, property.area, property.rooms, property.images, title, seoDescription, t.nav.home, t.nav.properties, localePath]);
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlan/${property.id}`}>

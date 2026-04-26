@@ -1,16 +1,29 @@
 import Layout from "@/components/Layout";
 import TeamSection from "@/components/TeamSection";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
+import { useEffect } from "react";
+
+const ORIGIN = "https://gerecseingatlan.hu";
 
 const TeamPage = () => {
-  const { lang } = useLanguage();
+  const { t } = useLanguage();
 
-  const seoTitle = lang === "hu"
-    ? "Csapatunk – Gerecse Ingatlan"
-    : "Our Team – Gerecse Ingatlan";
-  const seoDescription = lang === "hu"
-    ? "Ismerje meg a Gerecse Ingatlan csapatát – tapasztalt szakértők az Ön szolgálatában."
-    : "Meet the Gerecse Ingatlan team – experienced experts at your service.";
+  const seoTitle = t.seo.teamTitle;
+  const seoDescription = t.seo.teamDescription;
+
+  useEffect(() => {
+    const schema = buildBreadcrumbJsonLd([
+      { name: t.nav.home, url: ORIGIN },
+      { name: seoTitle, url: `${ORIGIN}/munkatarsaink` },
+    ]);
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-page-jsonld", "true");
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [t.nav.home, seoTitle]);
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/munkatarsaink">

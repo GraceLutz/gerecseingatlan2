@@ -1,7 +1,8 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContent, useContentBlock, useContentArray } from "@/contexts/ContentContext";
-import { useState, useCallback, useRef } from "react";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
+import { useState, useCallback, useEffect } from "react";
 import { ChevronDown, Pencil, Trash2, Plus, Check, X } from "lucide-react";
 import { getCsrfToken } from "@/lib/csrf";
 
@@ -25,12 +26,12 @@ const FaqPage = () => {
   const [editA, setEditA] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const itemsInitialized = useRef(false);
 
-  if (!itemsInitialized.current && faqItems.length > 0) {
-    itemsInitialized.current = true;
-    setLocalItems(faqItems);
-  }
+  useEffect(() => {
+    if (faqItems.length > 0) {
+      setLocalItems(faqItems);
+    }
+  }, [faqItems]);
 
   const toggle = (index: number) => {
     if (editingIndex !== null) return;
@@ -111,14 +112,44 @@ const FaqPage = () => {
     if (openIndex === index) setOpenIndex(null);
   }, [localItems, editingIndex, openIndex, saveItems]);
 
-  const seoTitle = lang === "hu"
-    ? "Gyakori kérdések – Gerecse Ingatlan"
-    : "FAQ – Gerecse Ingatlan";
-  const seoDescription = lang === "hu"
-    ? "Válaszok a leggyakrabban felmerülő kérdésekre az ingatlanügyletekkel és szolgáltatásainkkal kapcsolatban."
-    : "Answers to frequently asked questions about real estate transactions and our services.";
+  const seoTitle = t.seo.faqTitle;
+  const seoDescription = t.seo.faqDescription;
 
   const displayItems = localItems.length > 0 ? localItems : faqItems;
+
+  const ORIGIN = "https://gerecseingatlan.hu";
+
+  useEffect(() => {
+    const schemas: Record<string, unknown>[] = [
+      buildBreadcrumbJsonLd([
+        { name: t.nav.home, url: ORIGIN },
+        { name: seoTitle, url: `${ORIGIN}/gyik` },
+      ]),
+    ];
+
+    if (displayItems.length > 0) {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: displayItems.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: { "@type": "Answer", text: item.a },
+        })),
+      });
+    }
+
+    const scripts = schemas.map((schema) => {
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.setAttribute("data-page-jsonld", "true");
+      script.textContent = JSON.stringify(schema);
+      document.head.appendChild(script);
+      return script;
+    });
+
+    return () => scripts.forEach((s) => s.remove());
+  }, [displayItems, seoTitle, t.nav.home]);
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/gyik">
@@ -209,7 +240,7 @@ const FaqPage = () => {
                         </div>
                       )}
                       {isAdmin && (
-                        <div className="absolute top-2 right-12 flex gap-1 z-10">
+                        <div className="absolute top-2 right-12 flex gap-1 z-10 opacity-0 group-hover/faq:opacity-100 transition-opacity">
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); startEditing(index); }}

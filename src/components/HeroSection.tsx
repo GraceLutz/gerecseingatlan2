@@ -1,7 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
 import { Link } from "react-router-dom";
-import heroBg from "@/assets/header2.jpg";
+import heroBg from "@/assets/backround.jpg";
 
 const HeroSection = () => {
   const { t, localePath } = useLanguage();
@@ -20,7 +20,7 @@ const HeroSection = () => {
         <img
           src={heroBg}
           alt=""
-          className="w-full h-full object-cover object-[center_75%]"
+          className="w-full h-full object-cover object-[center_85%]"
           loading="eager"
           decoding="async"
           fetchPriority="high"

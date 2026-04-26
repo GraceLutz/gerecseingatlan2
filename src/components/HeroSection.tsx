@@ -28,15 +28,9 @@ const HeroSection = () => {
         />
       </div>
 
-      {/* Upper overlay to suppress watermark in top portion of hero image */}
+      {/* Gradient overlay for text legibility */}
       <div
-        className="absolute inset-x-0 top-0 h-1/2 backdrop-blur-sm"
-        aria-hidden="true"
-      />
-
-      {/* Gradient overlay for text legibility (WCAG AA contrast) */}
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/50 to-primary/80"
+        className="absolute inset-0 bg-gradient-to-t from-primary/30 via-primary/15 to-primary/20"
         aria-hidden="true"
       />
 

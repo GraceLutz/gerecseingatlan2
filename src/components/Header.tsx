@@ -211,7 +211,7 @@ const Header = () => {
 
   // Dark navy on #8FBC8F → ~11:1 contrast (WCAG AA for normal text ≥4.5:1 satisfied).
   const linkClass = (isActive: boolean) =>
-    `text-sm xl:text-base font-body font-semibold uppercase tracking-wider transition-colors hover:text-gold ${focusRing} ${
+    `text-base xl:text-lg font-body font-semibold uppercase tracking-wider transition-colors hover:text-gold ${focusRing} ${
       isActive ? "text-gold" : "text-[#0B2340]"
     }`;
 
@@ -233,7 +233,7 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-[4.5rem] md:h-[10rem]">
+        <div className="flex items-center justify-between h-[12rem] md:h-[20rem]">
           <div className="relative mr-auto shrink-0 flex items-center self-stretch overflow-hidden" ref={logoEditorRef}>
             <Link
               to={localePath("/")}
@@ -245,7 +245,7 @@ const Header = () => {
               <img
                 src={logo}
                 alt={t.common.logoAlt}
-                className={`h-14 md:h-36 lg:h-[9rem] max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                className={`h-[11rem] md:h-[12.5rem] lg:h-[17.5rem] max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
                 style={
                   (adminLogo.height || adminLogo.offsetX || adminLogo.offsetY)
                     ? {
@@ -548,7 +548,7 @@ const Header = () => {
         {menuOpen && (
           <div
             id="mobile-menu"
-            className="lg:hidden pb-4 border-t border-[#0B2340]/15 max-h-[calc(100vh-4.5rem)] overflow-y-auto"
+            className="lg:hidden pb-4 border-t border-[#0B2340]/15 max-h-[calc(100vh-12rem)] overflow-y-auto"
           >
             {/* Mobile contact info — prominent position at top */}
             <div className="flex flex-col gap-1.5 px-2 pt-3 pb-3 border-b border-[#0B2340]/15">

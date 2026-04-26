@@ -83,7 +83,7 @@
   <url>
     <loc>https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas</loc>
     <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales-and-rentals" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales-and-rental" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -103,7 +103,7 @@
   <url>
     <loc>https://gerecseingatlan.hu/belsoepiteszet-latvanyterv</loc>
     <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/belsoepiteszet-latvanyterv" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/interior-design" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/interior-design-and-visualization" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/belsoepiteszet-latvanyterv" />
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -123,7 +123,7 @@
   <url>
     <loc>https://gerecseingatlan.hu/hitel-allami-tamogatasok</loc>
     <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/hitel-allami-tamogatasok" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/loans-and-subsidies" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/credit-and-state-support" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/hitel-allami-tamogatasok" />
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -133,7 +133,7 @@
   <url>
     <loc>https://gerecseingatlan.hu/energetikai-tanusitvany</loc>
     <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/energetikai-tanusitvany" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/energy-certificate" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/energy-performance-certificate" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/energetikai-tanusitvany" />
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -264,8 +264,8 @@
 
   <!-- English service pages -->
   <url>
-    <loc>https://gerecseingatlan.hu/en/property-sales-and-rentals</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales-and-rentals" />
+    <loc>https://gerecseingatlan.hu/en/property-sales-and-rental</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales-and-rental" />
     <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
     <lastmod>2026-04-26</lastmod>
@@ -284,8 +284,8 @@
   </url>
 
   <url>
-    <loc>https://gerecseingatlan.hu/en/interior-design</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/interior-design" />
+    <loc>https://gerecseingatlan.hu/en/interior-design-and-visualization</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/interior-design-and-visualization" />
     <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/belsoepiteszet-latvanyterv" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/belsoepiteszet-latvanyterv" />
     <lastmod>2026-04-26</lastmod>
@@ -304,8 +304,8 @@
   </url>
 
   <url>
-    <loc>https://gerecseingatlan.hu/en/loans-and-subsidies</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/loans-and-subsidies" />
+    <loc>https://gerecseingatlan.hu/en/credit-and-state-support</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/credit-and-state-support" />
     <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/hitel-allami-tamogatasok" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/hitel-allami-tamogatasok" />
     <lastmod>2026-04-26</lastmod>
@@ -314,8 +314,8 @@
   </url>
 
   <url>
-    <loc>https://gerecseingatlan.hu/en/energy-certificate</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/energy-certificate" />
+    <loc>https://gerecseingatlan.hu/en/energy-performance-certificate</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/energy-performance-certificate" />
     <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/energetikai-tanusitvany" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/energetikai-tanusitvany" />
     <lastmod>2026-04-26</lastmod>

@@ -21,22 +21,22 @@ const HeroSection = () => {
           src={heroBg}
           alt=""
           className="w-full h-full object-cover"
-          style={{ objectPosition: "center 90%" }}
+          style={{ objectPosition: "center 45%" }}
           loading="eager"
           decoding="async"
           fetchPriority="high"
         />
       </div>
 
-      {/* Gradient overlay for text legibility (WCAG AA contrast) */}
+      {/* Upper overlay to suppress watermark in top portion of hero image */}
       <div
-        className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/40 to-primary/80"
+        className="absolute inset-x-0 top-0 h-1/2 backdrop-blur-sm"
         aria-hidden="true"
       />
 
-      {/* Upper overlay to suppress watermark in top portion of hero image */}
+      {/* Gradient overlay for text legibility (WCAG AA contrast) */}
       <div
-        className="absolute inset-x-0 top-0 h-[30%] bg-gradient-to-b from-primary/70 to-transparent backdrop-blur-sm"
+        className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/50 to-primary/80"
         aria-hidden="true"
       />
 

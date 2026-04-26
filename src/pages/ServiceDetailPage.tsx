@@ -11,11 +11,15 @@ import EditableText from "@/components/EditableText";
 import EditableList from "@/components/EditableList";
 
 const enToHuServiceSlug: Record<string, string> = {
+  "property-sales-and-rental": "ingatlan-ertekesites-berbeadas",
   "property-sales-and-rentals": "ingatlan-ertekesites-berbeadas",
   "appraisal-and-valuation": "ertekbecsles-ertekmeghatrozas",
+  "interior-design-and-visualization": "belsoepiteszet-latvanyterv",
   "interior-design": "belsoepiteszet-latvanyterv",
   "full-legal-support": "teljeskoru-jogi-hatter",
+  "credit-and-state-support": "hitel-allami-tamogatasok",
   "loans-and-subsidies": "hitel-allami-tamogatasok",
+  "energy-performance-certificate": "energetikai-tanusitvany",
   "energy-certificate": "energetikai-tanusitvany",
   "electrical-safety-inspection": "villamos-biztonsagi-felulvizsgalat",
 };

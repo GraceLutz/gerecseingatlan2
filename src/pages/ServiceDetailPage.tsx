@@ -1,8 +1,9 @@
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContent, useContentBlock, useContentArray } from "@/contexts/ContentContext";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Send } from "lucide-react";
 import { services, getServiceBySlug } from "@/data/services";
 import EditableButton from "@/components/EditableButton";
@@ -70,6 +71,20 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
     : `${title} ${t.serviceDetail.seoDescriptionSuffix}`;
 
   const relatedServices = services.filter((s) => s.slug !== resolvedSlug).slice(0, 3);
+
+  const ORIGIN = "https://gerecseingatlan.hu";
+  useEffect(() => {
+    const schema = buildBreadcrumbJsonLd([
+      { name: t.nav.home, url: ORIGIN },
+      { name: seoTitle, url: `${ORIGIN}/${resolvedSlug}` },
+    ]);
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-page-jsonld", "true");
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [t.nav.home, seoTitle, resolvedSlug]);
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath={`/${resolvedSlug}`}>

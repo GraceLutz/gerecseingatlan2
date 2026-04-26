@@ -245,7 +245,7 @@ const Header = () => {
               <img
                 src={logo}
                 alt={t.common.logoAlt}
-                className={`h-20 sm:h-[5.5rem] md:h-32 lg:h-[8.75rem] max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                className={`h-[5.75rem] md:h-[8.5rem] lg:h-[8.75rem] max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
                 style={
                   (adminLogo.height || adminLogo.offsetX || adminLogo.offsetY)
                     ? {

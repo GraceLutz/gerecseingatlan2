@@ -7,7 +7,7 @@ import { Phone, Mail, Clock, Facebook } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 
 const PAGE = "/kapcsolat";
 
@@ -122,21 +122,13 @@ const ContactPage = () => {
   const seoDescription = t.seo.contactDescription;
 
   const ORIGIN = "https://gerecseingatlan.hu";
-  useEffect(() => {
-    const schema = buildBreadcrumbJsonLd([
-      { name: t.nav.home, url: ORIGIN },
-      { name: seoTitle, url: `${ORIGIN}/kapcsolat` },
-    ]);
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.setAttribute("data-page-jsonld", "true");
-    script.textContent = JSON.stringify(schema);
-    document.head.appendChild(script);
-    return () => { script.remove(); };
-  }, [t.nav.home, seoTitle]);
+  const jsonLd = useMemo(() => buildBreadcrumbJsonLd([
+    { name: t.nav.home, url: ORIGIN },
+    { name: seoTitle, url: `${ORIGIN}/kapcsolat` },
+  ]), [t.nav.home, seoTitle]);
 
   return (
-    <Layout title={seoTitle} description={seoDescription} canonicalPath="/kapcsolat">
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/kapcsolat" jsonLd={jsonLd}>
       <section className="bg-dark-green py-20 text-center">
         <div className="container mx-auto px-4 max-w-3xl">
           <h1 data-editable="page.title" data-page={PAGE} className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground mb-4">

@@ -2,9 +2,11 @@ import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock, useContentArray } from "@/contexts/ContentContext";
 import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
-import { useEffect } from "react";
+import { useMemo } from "react";
 import { Award, Users, Heart, Eye, XCircle, Quote } from "lucide-react";
 import RichText from "@/components/RichText";
+
+const ORIGIN = "https://gerecseingatlan.hu";
 
 const IntroductionPage = () => {
   const { t, lang } = useLanguage();
@@ -22,22 +24,13 @@ const IntroductionPage = () => {
 
   const valueIcons = [Award, Users, Heart, Eye] as const;
 
-  const ORIGIN = "https://gerecseingatlan.hu";
-  useEffect(() => {
-    const schema = buildBreadcrumbJsonLd([
-      { name: t.nav.home, url: ORIGIN },
-      { name: t.seo.introductionTitle, url: `${ORIGIN}/bemutatkozas` },
-    ]);
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.setAttribute("data-page-jsonld", "true");
-    script.textContent = JSON.stringify(schema);
-    document.head.appendChild(script);
-    return () => { script.remove(); };
-  }, [t.nav.home, t.seo.introductionTitle]);
+  const jsonLd = useMemo(() => buildBreadcrumbJsonLd([
+    { name: t.nav.home, url: ORIGIN },
+    { name: t.seo.introductionTitle, url: `${ORIGIN}/bemutatkozas` },
+  ]), [t.nav.home, t.seo.introductionTitle]);
 
   return (
-    <Layout title={t.seo.introductionTitle} description={t.seo.introductionDescription} canonicalPath="/bemutatkozas">
+    <Layout title={t.seo.introductionTitle} description={t.seo.introductionDescription} canonicalPath="/bemutatkozas" jsonLd={jsonLd}>
       {/* Hero */}
       <section className="bg-dark-green py-20 text-center">
         <div className="container mx-auto px-4 max-w-3xl">

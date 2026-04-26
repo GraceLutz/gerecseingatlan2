@@ -247,21 +247,13 @@ const PropertiesPage = () => {
   const seoDescription = t.seo.propertiesDescription;
 
   const ORIGIN = "https://gerecseingatlan.hu";
-  useEffect(() => {
-    const schema = buildBreadcrumbJsonLd([
-      { name: t.nav.home, url: ORIGIN },
-      { name: seoTitle, url: `${ORIGIN}/ingatlanok` },
-    ]);
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.setAttribute("data-page-jsonld", "true");
-    script.textContent = JSON.stringify(schema);
-    document.head.appendChild(script);
-    return () => { script.remove(); };
-  }, [t.nav.home, seoTitle]);
+  const jsonLd = useMemo(() => buildBreadcrumbJsonLd([
+    { name: t.nav.home, url: ORIGIN },
+    { name: seoTitle, url: `${ORIGIN}/ingatlanok` },
+  ]), [t.nav.home, seoTitle]);
 
   return (
-    <Layout title={seoTitle} description={seoDescription} canonicalPath="/ingatlanok">
+    <Layout title={seoTitle} description={seoDescription} canonicalPath="/ingatlanok" jsonLd={jsonLd}>
       <section className="bg-dark-green py-16 text-center">
         <div className="container mx-auto px-4 max-w-3xl">
           <h1 data-editable="page.title" data-page={PAGE} className="text-4xl md:text-5xl font-heading font-bold text-primary-foreground mb-4">{pageTitle}</h1>

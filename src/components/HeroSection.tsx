@@ -53,21 +53,6 @@ const HeroSection = () => {
         >
           {heroCta}
         </Link>
-
-        <div className="mt-10 flex flex-wrap justify-center gap-3 md:gap-4" aria-label="Statisztikák">
-          {[
-            { value: "10+", label: "Év tapasztalat" },
-            { value: "350+", label: "Eladott ingatlan" },
-            { value: "500+", label: "Elégedett ügyfél" },
-          ].map((stat) => (
-            <span
-              key={stat.label}
-              className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-primary-foreground drop-shadow"
-            >
-              <strong className="font-semibold">{stat.value}</strong> {stat.label}
-            </span>
-          ))}
-        </div>
       </div>
 
       {/* Decorative bottom wave */}

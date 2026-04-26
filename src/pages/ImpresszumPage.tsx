@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
 import RichText from "@/components/RichText";
 import { Building2, Mail, Phone, Globe, Server } from "lucide-react";
 
@@ -53,6 +55,20 @@ const ImpresszumPage = () => {
 
   const seoTitle = t.seo.impresszumTitle;
   const seoDescription = t.seo.impresszumDescription;
+
+  const ORIGIN = "https://gerecseingatlan.hu";
+  useEffect(() => {
+    const schema = buildBreadcrumbJsonLd([
+      { name: t.nav.home, url: ORIGIN },
+      { name: seoTitle, url: `${ORIGIN}/impresszum` },
+    ]);
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-page-jsonld", "true");
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [t.nav.home, seoTitle]);
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath="/impresszum">

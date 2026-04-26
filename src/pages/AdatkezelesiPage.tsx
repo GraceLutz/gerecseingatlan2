@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
 import RichText from "@/components/RichText";
 import { ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -72,6 +74,20 @@ const AdatkezelesiPage = () => {
 
   const title = t.seo.privacyTitle;
   const description = t.seo.privacyDescription;
+
+  const ORIGIN = "https://gerecseingatlan.hu";
+  useEffect(() => {
+    const schema = buildBreadcrumbJsonLd([
+      { name: t.nav.home, url: ORIGIN },
+      { name: title, url: `${ORIGIN}/adatkezelesi-tajekoztato` },
+    ]);
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-page-jsonld", "true");
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [t.nav.home, title]);
 
   return (
     <Layout title={title} description={description} canonicalPath="/adatkezelesi-tajekoztato">

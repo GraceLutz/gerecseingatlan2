@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
+import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
 import RichText from "@/components/RichText";
 import { FileText } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -78,6 +80,20 @@ const ASZFPage = () => {
 
   const title = t.seo.termsTitle;
   const description = t.seo.termsDescription;
+
+  const ORIGIN = "https://gerecseingatlan.hu";
+  useEffect(() => {
+    const schema = buildBreadcrumbJsonLd([
+      { name: t.nav.home, url: ORIGIN },
+      { name: title, url: `${ORIGIN}/aszf` },
+    ]);
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-page-jsonld", "true");
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    return () => { script.remove(); };
+  }, [t.nav.home, title]);
 
   return (
     <Layout title={title} description={description} canonicalPath="/aszf">

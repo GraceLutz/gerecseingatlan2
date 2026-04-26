@@ -54,7 +54,7 @@ const HeroSection = () => {
           {heroCta}
         </Link>
 
-        <div className="mt-10 flex flex-wrap justify-center gap-3 md:gap-4" aria-label={t("hero.stats", "Statisztikák")}>
+        <div className="mt-10 flex flex-wrap justify-center gap-3 md:gap-4" aria-label="Statisztikák">
           {[
             { value: "10+", label: "Év tapasztalat" },
             { value: "350+", label: "Eladott ingatlan" },

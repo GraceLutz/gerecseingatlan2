@@ -14,9 +14,15 @@ interface LayoutProps {
   description?: string;
   /** Canonical path for SEO (without locale prefix) */
   canonicalPath?: string;
+  /** Open Graph image URL */
+  ogImage?: string;
+  /** Page type for og:type (defaults to "website") */
+  ogType?: string;
+  /** JSON-LD structured data to inject into the page head */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, title, description, canonicalPath }) => {
+const Layout: React.FC<LayoutProps> = ({ children, title, description, canonicalPath, ogImage, ogType, jsonLd }) => {
   const { t } = useLanguage();
   const skipLabel = t.common.skipToContent;
 
@@ -28,9 +34,9 @@ const Layout: React.FC<LayoutProps> = ({ children, title, description, canonical
       >
         {skipLabel}
       </a>
-      <SEOHead title={title} description={description} canonicalPath={canonicalPath} />
+      <SEOHead title={title} description={description} canonicalPath={canonicalPath} ogImage={ogImage} ogType={ogType} jsonLd={jsonLd} />
       <Header />
-      <main id="main-content" tabIndex={-1} className="flex-1 pt-20 md:pt-28 focus:outline-none">
+      <main id="main-content" tabIndex={-1} className="flex-1 pt-24 md:pt-36 focus:outline-none">
         {children}
       </main>
       <Footer />

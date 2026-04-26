@@ -233,7 +233,7 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20 md:h-28">
+        <div className="flex items-center justify-between h-24 md:h-36">
           <div className="relative mr-auto shrink-0" ref={logoEditorRef}>
             <Link
               to={localePath("/")}
@@ -245,7 +245,7 @@ const Header = () => {
               <img
                 src={logo}
                 alt={t.common.logoAlt}
-                className={`h-14 sm:h-16 md:h-20 lg:h-24 rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                className={`h-20 sm:h-24 md:h-32 lg:h-36 rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
                 style={
                   adminLogo.height
                     ? {
@@ -548,7 +548,7 @@ const Header = () => {
         {menuOpen && (
           <div
             id="mobile-menu"
-            className="lg:hidden pb-4 border-t border-[#0B2340]/15 max-h-[calc(100vh-5rem)] overflow-y-auto"
+            className="lg:hidden pb-4 border-t border-[#0B2340]/15 max-h-[calc(100vh-6rem)] overflow-y-auto"
           >
             {/* Mobile contact info — prominent position at top */}
             <div className="flex flex-col gap-1.5 px-2 pt-3 pb-3 border-b border-[#0B2340]/15">

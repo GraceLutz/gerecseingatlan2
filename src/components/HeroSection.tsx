@@ -12,7 +12,7 @@ const HeroSection = () => {
 
   return (
     <section
-      className="relative min-h-[85vh] flex items-end overflow-hidden"
+      className="relative min-h-[85vh] flex items-center overflow-hidden"
       aria-labelledby="hero-title"
     >
       {/* Decorative background image */}
@@ -29,11 +29,11 @@ const HeroSection = () => {
 
       {/* Gradient overlay for text legibility */}
       <div
-        className="absolute inset-0 bg-gradient-to-t from-primary/30 via-primary/15 to-primary/20"
+        className="absolute inset-0 bg-gradient-to-t from-primary/25 via-primary/10 to-primary/15"
         aria-hidden="true"
       />
 
-      <div className={`relative z-10 text-center px-4 max-w-4xl mx-auto pb-28 pt-48 md:pt-64 transition-opacity duration-500 ${textVisible ? "opacity-100" : "opacity-0"}`}>
+      <div className={`relative z-10 text-center px-4 max-w-4xl mx-auto py-20 md:py-24 transition-opacity duration-500 ${textVisible ? "opacity-100" : "opacity-0"}`}>
         <h1
           id="hero-title"
           data-editable="hero.title"
@@ -53,6 +53,21 @@ const HeroSection = () => {
         >
           {heroCta}
         </Link>
+
+        <div className="mt-10 flex flex-wrap justify-center gap-3 md:gap-4" aria-label={t("hero.stats", "Statisztikák")}>
+          {[
+            { value: "10+", label: "Év tapasztalat" },
+            { value: "350+", label: "Eladott ingatlan" },
+            { value: "500+", label: "Elégedett ügyfél" },
+          ].map((stat) => (
+            <span
+              key={stat.label}
+              className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-primary-foreground drop-shadow"
+            >
+              <strong className="font-semibold">{stat.value}</strong> {stat.label}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Decorative bottom wave */}

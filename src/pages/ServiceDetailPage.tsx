@@ -5,7 +5,7 @@ import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ArrowLeft, Send } from "lucide-react";
-import { services, getServiceBySlug } from "@/data/services";
+import { getServiceBySlug } from "@/data/services";
 import EditableButton from "@/components/EditableButton";
 import EditableText from "@/components/EditableText";
 import EditableList from "@/components/EditableList";
@@ -70,7 +70,6 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
     ? (t.seo as Record<string, string>)[`${seoKey}Description`]
     : `${title} ${t.serviceDetail.seoDescriptionSuffix}`;
 
-  const relatedServices = services.filter((s) => s.slug !== resolvedSlug).slice(0, 3);
 
   const ORIGIN = "https://gerecseingatlan.hu";
   useEffect(() => {
@@ -182,43 +181,6 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
             </div>
           )}
 
-          {relatedServices.length > 0 && (
-            <div className="mt-16">
-              <EditableText
-                pagePath={pagePath}
-                blockKey="service.otherServices"
-                fallback={t.serviceDetail.otherServices}
-                as="h2"
-                className="text-xl font-heading font-bold text-dark-green mb-6"
-              />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {relatedServices.map((rel) => {
-                  const RelIcon = rel.icon;
-                  return (
-                    <Link
-                      key={rel.slug}
-                      to={localePath(`/${rel.slug}`)}
-                      className="group bg-card rounded-lg p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all"
-                    >
-                      <div className="flex items-center gap-3 mb-2">
-                        <RelIcon
-                          size={20}
-                          className="text-primary"
-                          aria-hidden="true"
-                        />
-                        <h3 className="text-sm font-heading font-semibold text-foreground group-hover:text-primary transition-colors">
-                          {t.services[rel.titleKey]}
-                        </h3>
-                      </div>
-                      <span className="text-xs text-primary font-semibold group-hover:text-gold transition-colors">
-                        {t.services.more} →
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
       </section>
     </Layout>

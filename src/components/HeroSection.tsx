@@ -5,14 +5,14 @@ import heroBg from "@/assets/header2.jpg";
 
 const HeroSection = () => {
   const { t, localePath } = useLanguage();
-  const { content: heroTitle, loading } = useContentBlock("/", "hero.title", t.hero.title);
-  const { content: heroSubtitle } = useContentBlock("/", "hero.subtitle", t.hero.subtitle);
-  const { content: heroCta } = useContentBlock("/", "hero.cta", t.hero.cta);
+  const { content: heroTitle, loading } = useContentBlock("/", "hero.title", "");
+  const { content: heroSubtitle } = useContentBlock("/", "hero.subtitle", "");
+  const { content: heroCta } = useContentBlock("/", "hero.cta", "");
   const textVisible = !loading;
 
   return (
     <section
-      className="relative min-h-[70vh] flex items-end overflow-hidden"
+      className="relative min-h-[85vh] flex items-end overflow-hidden"
       aria-labelledby="hero-title"
     >
       {/* Decorative background image */}
@@ -20,7 +20,7 @@ const HeroSection = () => {
         <img
           src={heroBg}
           alt=""
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-[center_75%]"
           loading="eager"
           decoding="async"
           fetchPriority="high"

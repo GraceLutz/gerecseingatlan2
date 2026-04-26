@@ -34,6 +34,7 @@ const AdminContentListPage = lazy(() => import("./pages/admin/ContentListPage"))
 const AdminNewsletterPage = lazy(() => import("./pages/admin/NewsletterPage"));
 const AdminStaffPage = lazy(() => import("./pages/admin/StaffPage"));
 const AdminCalendarPage = lazy(() => import("./pages/admin/CalendarPage"));
+const AdminSettingsPage = lazy(() => import("./pages/admin/SettingsPage"));
 
 /* Legal / compliance pages — lazy-loaded since they are rarely visited */
 const ImpresszumPage = lazy(() => import("./pages/ImpresszumPage"));
@@ -144,8 +145,12 @@ const AppRoutes = () => (
             <Route path="hirlevel" element={<AdminNewsletterPage />} />
             <Route path="munkatarsak" element={<AdminStaffPage />} />
             <Route path="naptar" element={<AdminCalendarPage />} />
+            <Route path="beallitasok" element={<AdminSettingsPage />} />
             <Route index element={<AdminDashboardPage />} />
           </Route>
+
+          {/* Typo redirects */}
+          <Route path="/ergetikai-tanusitvany" element={<Navigate to="/energetikai-tanusitvany" replace />} />
 
           {/* Hungarian catch-all for service detail pages (must be after named routes) */}
           <Route path="/:slug" element={<ServiceDetailPage />} />
@@ -171,6 +176,7 @@ const AppRoutes = () => (
           <Route path="/en/belsoepiteszet-latvanyterv" element={<Navigate to="/en/interior-design" replace />} />
           <Route path="/en/teljeskoru-jogi-hatter" element={<Navigate to="/en/full-legal-support" replace />} />
           <Route path="/en/hitel-allami-tamogatasok" element={<Navigate to="/en/loans-and-subsidies" replace />} />
+          <Route path="/en/ergetikai-tanusitvany" element={<Navigate to="/en/energy-certificate" replace />} />
           <Route path="/en/energetikai-tanusitvany" element={<Navigate to="/en/energy-certificate" replace />} />
           <Route path="/en/villamos-biztonsagi-felulvizsgalat" element={<Navigate to="/en/electrical-safety-inspection" replace />} />
 

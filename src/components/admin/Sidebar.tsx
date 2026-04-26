@@ -7,6 +7,7 @@ import {
   Calendar,
   Mail,
   UserCog,
+  Settings,
   LogOut,
   X,
 } from "lucide-react";
@@ -85,6 +86,12 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
       <div className="border-t border-white/10 p-4">
         <ul className="space-y-1" role="list">
+          <li>
+            <NavLink to="/admin/beallitasok" className={linkClass} onClick={onClose}>
+              <Settings className="h-4 w-4 shrink-0" aria-hidden="true" />
+              Beállítások
+            </NavLink>
+          </li>
           <li>
             <button
               onClick={logout}

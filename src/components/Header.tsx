@@ -5,7 +5,7 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { useContent, useContentBlock } from "@/contexts/ContentContext";
 import { getCsrfToken } from "@/lib/csrf";
 import { Menu, X, ChevronDown, Minus, Plus, Save, GripVertical } from "lucide-react";
-const logo = "/gerecsenewlogo.png";
+const logo = "/newlogo.png";
 
 function FlagHU({ className = "" }: { className?: string }) {
   return (
@@ -233,8 +233,8 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-[12rem] md:h-[20rem]">
-          <div className="relative mr-auto shrink-0 flex items-center self-stretch overflow-hidden" ref={logoEditorRef}>
+        <div className="flex items-center justify-between h-[5rem] md:h-[10rem]">
+          <div className="relative mr-auto shrink-0 flex items-center self-stretch" ref={logoEditorRef}>
             <Link
               to={localePath("/")}
               className={`flex items-center gap-2 h-full ${focusRing}`}
@@ -245,7 +245,7 @@ const Header = () => {
               <img
                 src={logo}
                 alt={t.common.logoAlt}
-                className={`h-[11rem] md:h-[12.5rem] lg:h-[17.5rem] max-h-full w-auto rounded object-contain ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
+                className={`h-[4rem] md:h-[8rem] max-h-full w-auto rounded object-contain -ml-2 md:-ml-4 ${isAdmin ? "ring-2 ring-dashed ring-blue-400/50" : ""}`}
                 style={
                   (adminLogo.height || adminLogo.offsetX || adminLogo.offsetY)
                     ? {
@@ -490,7 +490,7 @@ const Header = () => {
               aria-label={lang === "hu" ? "Switch to English" : "Váltás magyarra"}
               className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border border-[#0B2340]/25 hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
             >
-              {lang === "hu" ? <FlagHU className="w-6 h-[18px] rounded-[2px]" /> : <FlagEN className="w-6 h-[18px] rounded-[2px]" />}
+              {lang === "hu" ? <FlagEN className="w-6 h-[18px] rounded-[2px]" /> : <FlagHU className="w-6 h-[18px] rounded-[2px]" />}
             </button>
             <button
               type="button"
@@ -520,7 +520,7 @@ const Header = () => {
               aria-label={lang === "hu" ? "Switch to English" : "Váltás magyarra"}
               className={`inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg hover:bg-[#0B2340]/10 transition-colors ${focusRing}`}
             >
-              {lang === "hu" ? <FlagHU className="w-6 h-[18px] rounded-[2px]" /> : <FlagEN className="w-6 h-[18px] rounded-[2px]" />}
+              {lang === "hu" ? <FlagEN className="w-6 h-[18px] rounded-[2px]" /> : <FlagHU className="w-6 h-[18px] rounded-[2px]" />}
             </button>
             <button
               type="button"

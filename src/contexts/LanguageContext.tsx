@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { hu } from "@/i18n/hu";
 import { en } from "@/i18n/en";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -81,13 +81,30 @@ export function translateEnToHu(enPath: string): string {
   return enPath;
 }
 
+const LANG_STORAGE_KEY = "gerecse-lang";
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isEn = location.pathname.startsWith("/en");
-  const [lang, setLang] = useState<Language>(isEn ? "en" : "hu");
+  const [lang, setLang] = useState<Language>(
+    location.pathname.startsWith("/en") ? "en" : "hu"
+  );
+  const didRedirectRef = useRef(false);
 
-  // Sync language state when URL changes (e.g., browser back/forward)
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  useEffect(() => {
+    if (didRedirectRef.current) return;
+    didRedirectRef.current = true;
+    const stored = localStorage.getItem(LANG_STORAGE_KEY);
+    if (stored === "en" && location.pathname === "/") {
+      setLang("en");
+      navigate("/en", { replace: true });
+    }
+  }, []);
+
   useEffect(() => {
     const urlLang = location.pathname.startsWith("/en") ? "en" : "hu";
     if (urlLang !== lang) {
@@ -97,6 +114,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setLanguage = useCallback((newLang: Language) => {
     setLang(newLang);
+    localStorage.setItem(LANG_STORAGE_KEY, newLang);
     const currentPath = location.pathname;
     const search = location.search;
 

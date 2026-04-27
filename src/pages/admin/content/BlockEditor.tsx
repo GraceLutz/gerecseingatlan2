@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Save, X, Plus, Trash2, Bold, Italic, Underline, Link, List, ListOrdered, Heading2, Heading3, Code, Eye } from "lucide-react";
+import { Save, X, Plus, Trash2, Bold, Italic, Underline, Link, List, ListOrdered, Heading2, Heading3, Code, Eye, Maximize2, Minimize2 } from "lucide-react";
 
 interface BilingualContent {
   hu: string;
@@ -71,17 +72,44 @@ function parseBilingualArray<T>(raw: string): { hu: T[]; en: T[] } {
 
 const HTML_RE = /<[a-z][\s\S]*>/i;
 
-function HtmlEditor({ value, onChange, placeholder, lang }: { value: string; onChange: (v: string) => void; placeholder: string; lang: string }) {
+function insertSnippet(textarea: HTMLTextAreaElement, before: string, after: string) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const selected = textarea.value.substring(start, end);
+  const replacement = before + (selected || "") + after;
+  const newValue = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+  textarea.value = newValue;
+  const cursorPos = start + before.length + (selected ? selected.length : 0);
+  textarea.setSelectionRange(cursorPos, cursorPos);
+  textarea.focus();
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+const SNIPPET_BUTTONS = [
+  { label: "H2", title: "Címsor 2", before: "<h2>", after: "</h2>" },
+  { label: "H3", title: "Címsor 3", before: "<h3>", after: "</h3>" },
+  { label: "P", title: "Bekezdés", before: "<p>", after: "</p>" },
+  { sep: true },
+  { icon: "bold", title: "Félkövér", before: "<strong>", after: "</strong>" },
+  { icon: "italic", title: "Dőlt", before: "<em>", after: "</em>" },
+  { icon: "link", title: "Link", before: '<a href="">', after: "</a>" },
+  { sep: true },
+  { icon: "list", title: "Felsorolás", before: "<ul>\n  <li>", after: "</li>\n</ul>" },
+  { icon: "listOrdered", title: "Számozott lista", before: "<ol>\n  <li>", after: "</li>\n</ol>" },
+] as const;
+
+function HtmlEditor({ value, onChange, placeholder, lang, fullscreen, onToggleFullscreen }: {
+  value: string; onChange: (v: string) => void; placeholder: string; lang: string;
+  fullscreen?: boolean; onToggleFullscreen?: () => void;
+}) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const sourceRef = useRef<HTMLTextAreaElement>(null);
   const [sourceMode, setSourceMode] = useState(false);
-  const sourceModeRef = useRef(sourceMode);
+  const [showPreview, setShowPreview] = useState(true);
 
   useEffect(() => {
-    const wasSource = sourceModeRef.current;
-    sourceModeRef.current = sourceMode;
     if (editorRef.current && !sourceMode) {
       editorRef.current.innerHTML = value;
-      if (!wasSource) editorRef.current.focus();
     }
   }, [sourceMode]);
 
@@ -108,57 +136,149 @@ function HtmlEditor({ value, onChange, placeholder, lang }: { value: string; onC
     editorRef.current?.focus();
   }, [handleInput]);
 
-  const toolbar = (
-    <div className="flex flex-wrap gap-0.5 p-1 border-b border-gray-200 bg-gray-50 rounded-t-md" role="toolbar" aria-label="Formázás">
-      <button type="button" onMouseDown={e => { e.preventDefault(); exec("bold"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Félkövér"><Bold className="h-4 w-4" /></button>
-      <button type="button" onMouseDown={e => { e.preventDefault(); exec("italic"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Dőlt"><Italic className="h-4 w-4" /></button>
-      <button type="button" onMouseDown={e => { e.preventDefault(); exec("underline"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Aláhúzott"><Underline className="h-4 w-4" /></button>
+  const handleSnippet = useCallback((before: string, after: string) => {
+    if (!sourceRef.current) return;
+    insertSnippet(sourceRef.current, before, after);
+    onChange(sourceRef.current.value);
+  }, [onChange]);
+
+  const iconMap: Record<string, React.ReactNode> = {
+    bold: <Bold className="h-4 w-4" />,
+    italic: <Italic className="h-4 w-4" />,
+    link: <Link className="h-4 w-4" />,
+    list: <List className="h-4 w-4" />,
+    listOrdered: <ListOrdered className="h-4 w-4" />,
+  };
+
+  const btnCls = "p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center";
+
+  const wysiwygToolbar = (
+    <div className="flex flex-wrap gap-0.5 p-1 border-b border-gray-200 bg-gray-50" role="toolbar" aria-label="Formázás">
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("bold"); }} className={btnCls} title="Félkövér"><Bold className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("italic"); }} className={btnCls} title="Dőlt"><Italic className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("underline"); }} className={btnCls} title="Aláhúzott"><Underline className="h-4 w-4" /></button>
       <span className="w-px bg-gray-300 mx-1 self-stretch" />
-      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("h2"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Címsor 2"><Heading2 className="h-4 w-4" /></button>
-      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("h3"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Címsor 3"><Heading3 className="h-4 w-4" /></button>
-      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("p"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center text-xs font-bold" title="Bekezdés">P</button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("h2"); }} className={btnCls} title="Címsor 2"><Heading2 className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("h3"); }} className={btnCls} title="Címsor 3"><Heading3 className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("p"); }} className={`${btnCls} text-xs font-bold`} title="Bekezdés">P</button>
       <span className="w-px bg-gray-300 mx-1 self-stretch" />
-      <button type="button" onMouseDown={e => { e.preventDefault(); exec("insertUnorderedList"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Felsorolás"><List className="h-4 w-4" /></button>
-      <button type="button" onMouseDown={e => { e.preventDefault(); exec("insertOrderedList"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Számozott lista"><ListOrdered className="h-4 w-4" /></button>
-      <button type="button" onMouseDown={e => { e.preventDefault(); handleLink(); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Link"><Link className="h-4 w-4" /></button>
-      <span className="w-px bg-gray-300 mx-1 self-stretch" />
-      <button type="button" onClick={() => setSourceMode(!sourceMode)} className={`p-1.5 rounded min-w-[36px] min-h-[36px] flex items-center justify-center ${sourceMode ? "bg-blue-100 text-blue-700" : "hover:bg-gray-200"}`} title={sourceMode ? "Vizuális nézet" : "HTML forrás"}>
-        {sourceMode ? <Eye className="h-4 w-4" /> : <Code className="h-4 w-4" />}
-      </button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("insertUnorderedList"); }} className={btnCls} title="Felsorolás"><List className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("insertOrderedList"); }} className={btnCls} title="Számozott lista"><ListOrdered className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); handleLink(); }} className={btnCls} title="Link"><Link className="h-4 w-4" /></button>
+      <span className="flex-1" />
+      <button type="button" onClick={() => setSourceMode(true)} className={btnCls} title="HTML forrás"><Code className="h-4 w-4" /></button>
+      {onToggleFullscreen && (
+        <button type="button" onClick={onToggleFullscreen} className={btnCls} title={fullscreen ? "Kilépés" : "Megnagyobbítás"}>
+          {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        </button>
+      )}
     </div>
   );
 
+  const sourceToolbar = (
+    <div className="flex flex-wrap gap-0.5 p-1 border-b border-gray-200 bg-gray-50" role="toolbar" aria-label="HTML beszúrás">
+      {SNIPPET_BUTTONS.map((btn, i) => {
+        if ("sep" in btn) return <span key={i} className="w-px bg-gray-300 mx-1 self-stretch" />;
+        return (
+          <button key={i} type="button" onClick={() => handleSnippet(btn.before, btn.after)} className={`${btnCls} ${btn.label ? "text-xs font-bold" : ""}`} title={btn.title}>
+            {btn.icon ? iconMap[btn.icon] : btn.label}
+          </button>
+        );
+      })}
+      <span className="flex-1" />
+      <button type="button" onClick={() => setShowPreview(!showPreview)} className={`${btnCls} ${showPreview ? "bg-blue-100 text-blue-700" : ""}`} title={showPreview ? "Előnézet elrejtése" : "Előnézet"}>
+        <Eye className="h-4 w-4" />
+      </button>
+      <button type="button" onClick={() => setSourceMode(false)} className={`${btnCls} bg-blue-100 text-blue-700`} title="Vizuális nézet">
+        <Eye className="h-4 w-4" />
+      </button>
+      {onToggleFullscreen && (
+        <button type="button" onClick={onToggleFullscreen} className={btnCls} title={fullscreen ? "Kilépés" : "Megnagyobbítás"}>
+          {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        </button>
+      )}
+    </div>
+  );
+
+  const editorHeight = fullscreen ? "flex-1" : "min-h-[14rem]";
+  const previewHeight = fullscreen ? "max-h-[40vh]" : "max-h-[16rem]";
+
   if (sourceMode) {
     return (
-      <div className="border border-gray-300 rounded-md overflow-hidden">
-        {toolbar}
-        <Textarea
+      <div className={`border border-gray-300 rounded-md overflow-hidden flex flex-col ${fullscreen ? "h-full" : ""}`}>
+        {sourceToolbar}
+        <textarea
+          ref={sourceRef}
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className="min-h-[12rem] font-mono text-sm bg-white resize-y border-0 rounded-none focus-visible:ring-0"
+          className={`${editorHeight} font-mono text-sm bg-white resize-y p-3 border-0 outline-none ${fullscreen ? "flex-1" : "min-h-[14rem]"}`}
           aria-label={`${lang === "hu" ? "Magyar" : "English"} HTML forrás`}
         />
+        {showPreview && (
+          <div className="border-t border-gray-200">
+            <div className="px-3 py-1.5 bg-gray-50 text-xs text-gray-500 font-medium uppercase tracking-wide">Előnézet</div>
+            <div
+              className={`p-3 bg-white overflow-y-auto rich-content prose prose-sm max-w-none ${previewHeight}`}
+              dangerouslySetInnerHTML={{ __html: value }}
+            />
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="border border-gray-300 rounded-md overflow-hidden">
-      {toolbar}
+    <div className={`border border-gray-300 rounded-md overflow-hidden flex flex-col ${fullscreen ? "h-full" : ""}`}>
+      {wysiwygToolbar}
       <div
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
         onInput={handleInput}
-        className="min-h-[12rem] p-3 bg-white text-sm focus:outline-none rich-content prose prose-sm max-w-none"
-        style={{ overflowY: "auto", maxHeight: "24rem" }}
+        className={`p-3 bg-white text-sm focus:outline-none rich-content prose prose-sm max-w-none ${fullscreen ? "flex-1 overflow-y-auto" : "min-h-[14rem]"}`}
+        style={fullscreen ? undefined : { overflowY: "auto", maxHeight: "28rem" }}
         data-placeholder={placeholder}
         role="textbox"
         aria-label={`${lang === "hu" ? "Magyar" : "English"} HTML szerkesztő`}
         aria-multiline="true"
       />
     </div>
+  );
+}
+
+function FullscreenModal({ children, onClose, title, onSave, saving }: {
+  children: React.ReactNode; onClose: () => void; title: string;
+  onSave?: () => void; saving?: boolean;
+}) {
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleEsc);
+    return () => { document.body.style.overflow = prev; document.removeEventListener("keydown", handleEsc); };
+  }, [onClose]);
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex flex-col bg-white">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 shrink-0">
+        <span className="text-sm font-semibold text-gray-700">{title}</span>
+        <div className="flex gap-2">
+          {onSave && (
+            <Button size="sm" onClick={onSave} disabled={saving}>
+              <Save className="h-4 w-4 mr-1" /> {saving ? "Mentés..." : "Mentés"}
+            </Button>
+          )}
+          <Button size="sm" variant="ghost" onClick={onClose}>
+            <X className="h-4 w-4 mr-1" /> Bezárás
+          </Button>
+        </div>
+      </div>
+      <div className="flex-1 overflow-hidden p-4">
+        {children}
+      </div>
+    </div>,
+    document.body
   );
 }
 
@@ -174,6 +294,7 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
 
   const contentHasHtml = HTML_RE.test(huContent) || HTML_RE.test(enContent);
   const [htmlMode, setHtmlMode] = useState(contentHasHtml);
+  const [fullscreen, setFullscreen] = useState(false);
 
   const initList = arrayMode === "list" ? parseBilingualArray<string>(block.content) : { hu: [], en: [] };
   const [huList, setHuList] = useState<string[]>(initList.hu);
@@ -385,84 +506,139 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
           </div>
         </div>
       ) : isBilingual ? (
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            {langTabs}
-            {!isShortText && (
-              <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none whitespace-nowrap">
-                <input
-                  type="checkbox"
-                  checked={htmlMode}
-                  onChange={(e) => setHtmlMode(e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-                HTML szerkesztő
-              </label>
-            )}
-          </div>
-          <div role="tabpanel">
-            {activeLang === "hu" ? (
-              isShortText ? (
+        <>
+          <div style={htmlMode && !isShortText ? { minWidth: "600px" } : undefined}>
+            <div className="flex items-center justify-between mb-2 gap-2">
+              {langTabs}
+              {!isShortText && (
+                <div className="flex items-center gap-3 shrink-0">
+                  <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={htmlMode}
+                      onChange={(e) => setHtmlMode(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    HTML
+                  </label>
+                  {htmlMode && (
+                    <button
+                      type="button"
+                      onClick={() => setFullscreen(true)}
+                      className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 whitespace-nowrap"
+                    >
+                      <Maximize2 className="h-3.5 w-3.5" />
+                      Megnagyobbítás
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+            <div role="tabpanel">
+              {activeLang === "hu" ? (
+                isShortText ? (
+                  <Input
+                    value={huContent}
+                    onChange={(e) => setHuContent(e.target.value)}
+                    placeholder="Magyar tartalom..."
+                    className="bg-white text-base md:text-sm min-h-[44px]"
+                    aria-label="Magyar tartalom"
+                  />
+                ) : htmlMode ? (
+                  <HtmlEditor
+                    key="hu"
+                    value={huContent}
+                    onChange={setHuContent}
+                    placeholder="Magyar tartalom..."
+                    lang="hu"
+                    onToggleFullscreen={() => setFullscreen(!fullscreen)}
+                  />
+                ) : (
+                  <Textarea
+                    value={huContent}
+                    onChange={(e) => setHuContent(e.target.value)}
+                    placeholder="Magyar tartalom..."
+                    className="min-h-[8rem] font-mono text-base md:text-sm bg-white resize-y"
+                    aria-label="Magyar tartalom"
+                  />
+                )
+              ) : isShortText ? (
                 <Input
-                  value={huContent}
-                  onChange={(e) => setHuContent(e.target.value)}
-                  placeholder="Magyar tartalom..."
+                  value={enContent}
+                  onChange={(e) => setEnContent(e.target.value)}
+                  placeholder="English content..."
                   className="bg-white text-base md:text-sm min-h-[44px]"
-                  aria-label="Magyar tartalom"
+                  aria-label="English content"
                 />
               ) : htmlMode ? (
                 <HtmlEditor
-                  key="hu"
-                  value={huContent}
-                  onChange={setHuContent}
-                  placeholder="Magyar tartalom..."
-                  lang="hu"
+                  key="en"
+                  value={enContent}
+                  onChange={setEnContent}
+                  placeholder="English content..."
+                  lang="en"
+                  onToggleFullscreen={() => setFullscreen(!fullscreen)}
                 />
               ) : (
                 <Textarea
-                  value={huContent}
-                  onChange={(e) => setHuContent(e.target.value)}
-                  placeholder="Magyar tartalom..."
+                  value={enContent}
+                  onChange={(e) => setEnContent(e.target.value)}
+                  placeholder="English content..."
                   className="min-h-[8rem] font-mono text-base md:text-sm bg-white resize-y"
-                  aria-label="Magyar tartalom"
+                  aria-label="English content"
                 />
-              )
-            ) : isShortText ? (
-              <Input
-                value={enContent}
-                onChange={(e) => setEnContent(e.target.value)}
-                placeholder="English content..."
-                className="bg-white text-base md:text-sm min-h-[44px]"
-                aria-label="English content"
-              />
-            ) : htmlMode ? (
-              <HtmlEditor
-                key="en"
-                value={enContent}
-                onChange={setEnContent}
-                placeholder="English content..."
-                lang="en"
-              />
-            ) : (
-              <Textarea
-                value={enContent}
-                onChange={(e) => setEnContent(e.target.value)}
-                placeholder="English content..."
-                className="min-h-[8rem] font-mono text-base md:text-sm bg-white resize-y"
-                aria-label="English content"
-              />
-            )}
+              )}
+            </div>
+
+            <div className="flex gap-2 mt-2 text-xs text-gray-500" aria-live="polite">
+              <span className={huContent ? "text-green-600" : "text-orange-500"}>
+                HU: {huContent ? `${huContent.length} karakter` : "üres"}
+              </span>
+              <span className={enContent ? "text-green-600" : "text-orange-500"}>
+                EN: {enContent ? `${enContent.length} chars` : "empty"}
+              </span>
+            </div>
           </div>
 
-          <div className="flex gap-2 mt-2 text-xs text-gray-500" aria-live="polite">
-            <span className={huContent ? "text-green-600" : "text-orange-500"}>
-              HU: {huContent ? `${huContent.length} karakter` : "üres"}
-            </span>
-            <span className={enContent ? "text-green-600" : "text-orange-500"}>
-              EN: {enContent ? `${enContent.length} chars` : "empty"}
-            </span>
-          </div>
-        </div>
+          {fullscreen && htmlMode && (
+            <FullscreenModal
+              onClose={() => setFullscreen(false)}
+              title={`${block.blockKey} — ${activeLang === "hu" ? "Magyar" : "English"} HTML`}
+              onSave={handleSave}
+              saving={saving}
+            >
+              <div className="h-full flex flex-col">
+                <div className="flex gap-1 mb-3 shrink-0" role="tablist">
+                  <button type="button" onClick={() => setActiveLang("hu")} className={`px-4 py-2 text-sm font-medium rounded-t border-b-2 ${activeLang === "hu" ? "border-blue-500 text-blue-700 bg-white" : "border-transparent text-gray-500"}`}>Magyar</button>
+                  <button type="button" onClick={() => setActiveLang("en")} className={`px-4 py-2 text-sm font-medium rounded-t border-b-2 ${activeLang === "en" ? "border-blue-500 text-blue-700 bg-white" : "border-transparent text-gray-500"}`}>English</button>
+                </div>
+                <div className="flex-1 min-h-0">
+                  {activeLang === "hu" ? (
+                    <HtmlEditor
+                      key="hu-fs"
+                      value={huContent}
+                      onChange={setHuContent}
+                      placeholder="Magyar tartalom..."
+                      lang="hu"
+                      fullscreen
+                      onToggleFullscreen={() => setFullscreen(false)}
+                    />
+                  ) : (
+                    <HtmlEditor
+                      key="en-fs"
+                      value={enContent}
+                      onChange={setEnContent}
+                      placeholder="English content..."
+                      lang="en"
+                      fullscreen
+                      onToggleFullscreen={() => setFullscreen(false)}
+                    />
+                  )}
+                </div>
+              </div>
+            </FullscreenModal>
+          )}
+        </>
       ) : (
         isShortText ? (
           <Input

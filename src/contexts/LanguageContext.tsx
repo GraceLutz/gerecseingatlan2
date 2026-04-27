@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { createContext, useContext, useCallback, useEffect, useMemo, useRef } from "react";
 import { hu } from "@/i18n/hu";
 import { en } from "@/i18n/en";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -86,11 +86,9 @@ const LANG_STORAGE_KEY = "gerecse-lang";
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [lang, setLang] = useState<Language>(
-    location.pathname.startsWith("/en") ? "en" : "hu"
-  );
-  const navigatingRef = useRef(false);
   const didRedirectRef = useRef(false);
+
+  const lang: Language = location.pathname.startsWith("/en") ? "en" : "hu";
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -101,22 +99,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     didRedirectRef.current = true;
     const stored = localStorage.getItem(LANG_STORAGE_KEY);
     if (stored === "en" && location.pathname === "/") {
-      navigatingRef.current = true;
-      setLang("en");
       navigate("/en", { replace: true });
     }
   }, []);
-
-  useEffect(() => {
-    if (navigatingRef.current) {
-      navigatingRef.current = false;
-      return;
-    }
-    const urlLang = location.pathname.startsWith("/en") ? "en" : "hu";
-    if (urlLang !== lang) {
-      setLang(urlLang);
-    }
-  }, [location.pathname, lang]);
 
   const setLanguage = useCallback((newLang: Language) => {
     localStorage.setItem(LANG_STORAGE_KEY, newLang);
@@ -124,13 +109,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const search = location.search;
 
     if (newLang === "en" && !currentPath.startsWith("/en")) {
-      navigatingRef.current = true;
-      setLang(newLang);
       const translatedPath = currentPath === "/" ? "" : translateHuToEn(currentPath);
       navigate("/en" + translatedPath + search);
     } else if (newLang === "hu" && currentPath.startsWith("/en")) {
-      navigatingRef.current = true;
-      setLang(newLang);
       const enPath = currentPath.replace(/^\/en/, "") || "/";
       const huPath = enPath === "/" ? "/" : translateEnToHu(enPath);
       navigate(huPath + search);

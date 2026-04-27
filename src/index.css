@@ -107,30 +107,6 @@
   }
 }
 
-@layer utilities {
-  .text-gold {
-    color: hsl(var(--gold));
-  }
-  .bg-dark-navy {
-    background-color: hsl(var(--dark-navy));
-  }
-  .bg-dark-green {
-    background-color: hsl(var(--dark-navy));
-  }
-  .bg-light-green {
-    background-color: hsl(var(--light-bg));
-  }
-  .bg-white {
-    background-color: #FFFFF0 !important;
-  }
-  .text-dark-green {
-    color: hsl(var(--dark-navy));
-  }
-  .text-dark-navy {
-    color: hsl(var(--dark-navy));
-  }
-}
-
 /* Smooth scroll and prevent horizontal overflow on mobile */
 html {
   scroll-behavior: smooth;
@@ -164,4 +140,40 @@ body {
 
 .animate-count-up {
   animation: count-up 0.4s ease-out forwards;
+}
+
+/* Service page HTML content styling */
+.rich-content h2 {
+  @apply text-xl font-heading font-bold text-[hsl(var(--dark-navy))] mt-6 mb-2;
+}
+
+.rich-content h3 {
+  @apply text-lg font-heading font-semibold text-[hsl(var(--dark-navy))] mt-4 mb-2;
+}
+
+.rich-content ul {
+  @apply list-disc pl-6 space-y-1.5 my-3;
+}
+
+.rich-content ol {
+  @apply list-decimal pl-6 space-y-1.5 my-3;
+}
+
+.rich-content li {
+  @apply text-muted-foreground font-body leading-relaxed text-base;
+}
+
+.rich-content strong,
+.rich-content b {
+  @apply font-bold text-foreground;
+}
+
+.rich-content a {
+  @apply text-[hsl(var(--main-navy))] underline hover:text-[hsl(var(--gold))] transition-colors;
+}
+
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
 }

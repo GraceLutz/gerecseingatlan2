@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Save, X, Plus, Trash2 } from "lucide-react";
+import { Save, X, Plus, Trash2, Bold, Italic, Underline, Link, List, ListOrdered, Heading2, Heading3, Code, Eye } from "lucide-react";
 
 interface BilingualContent {
   hu: string;
@@ -69,6 +69,99 @@ function parseBilingualArray<T>(raw: string): { hu: T[]; en: T[] } {
   return { hu: [], en: [] };
 }
 
+const HTML_RE = /<[a-z][\s\S]*>/i;
+
+function HtmlEditor({ value, onChange, placeholder, lang }: { value: string; onChange: (v: string) => void; placeholder: string; lang: string }) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [sourceMode, setSourceMode] = useState(false);
+  const sourceModeRef = useRef(sourceMode);
+
+  useEffect(() => {
+    const wasSource = sourceModeRef.current;
+    sourceModeRef.current = sourceMode;
+    if (editorRef.current && !sourceMode) {
+      editorRef.current.innerHTML = value;
+      if (!wasSource) editorRef.current.focus();
+    }
+  }, [sourceMode]);
+
+  const handleInput = useCallback(() => {
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  }, [onChange]);
+
+  const exec = useCallback((command: string, val?: string) => {
+    document.execCommand(command, false, val);
+    handleInput();
+    editorRef.current?.focus();
+  }, [handleInput]);
+
+  const handleLink = useCallback(() => {
+    const url = window.prompt("Link URL:");
+    if (url) exec("createLink", url);
+  }, [exec]);
+
+  const handleHeading = useCallback((tag: string) => {
+    document.execCommand("formatBlock", false, tag);
+    handleInput();
+    editorRef.current?.focus();
+  }, [handleInput]);
+
+  const toolbar = (
+    <div className="flex flex-wrap gap-0.5 p-1 border-b border-gray-200 bg-gray-50 rounded-t-md" role="toolbar" aria-label="Formázás">
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("bold"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Félkövér"><Bold className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("italic"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Dőlt"><Italic className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("underline"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Aláhúzott"><Underline className="h-4 w-4" /></button>
+      <span className="w-px bg-gray-300 mx-1 self-stretch" />
+      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("h2"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Címsor 2"><Heading2 className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("h3"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Címsor 3"><Heading3 className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); handleHeading("p"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center text-xs font-bold" title="Bekezdés">P</button>
+      <span className="w-px bg-gray-300 mx-1 self-stretch" />
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("insertUnorderedList"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Felsorolás"><List className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); exec("insertOrderedList"); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Számozott lista"><ListOrdered className="h-4 w-4" /></button>
+      <button type="button" onMouseDown={e => { e.preventDefault(); handleLink(); }} className="p-1.5 hover:bg-gray-200 rounded min-w-[36px] min-h-[36px] flex items-center justify-center" title="Link"><Link className="h-4 w-4" /></button>
+      <span className="w-px bg-gray-300 mx-1 self-stretch" />
+      <button type="button" onClick={() => setSourceMode(!sourceMode)} className={`p-1.5 rounded min-w-[36px] min-h-[36px] flex items-center justify-center ${sourceMode ? "bg-blue-100 text-blue-700" : "hover:bg-gray-200"}`} title={sourceMode ? "Vizuális nézet" : "HTML forrás"}>
+        {sourceMode ? <Eye className="h-4 w-4" /> : <Code className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+
+  if (sourceMode) {
+    return (
+      <div className="border border-gray-300 rounded-md overflow-hidden">
+        {toolbar}
+        <Textarea
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="min-h-[12rem] font-mono text-sm bg-white resize-y border-0 rounded-none focus-visible:ring-0"
+          aria-label={`${lang === "hu" ? "Magyar" : "English"} HTML forrás`}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-gray-300 rounded-md overflow-hidden">
+      {toolbar}
+      <div
+        ref={editorRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        className="min-h-[12rem] p-3 bg-white text-sm focus:outline-none rich-content prose prose-sm max-w-none"
+        style={{ overflowY: "auto", maxHeight: "24rem" }}
+        data-placeholder={placeholder}
+        role="textbox"
+        aria-label={`${lang === "hu" ? "Magyar" : "English"} HTML szerkesztő`}
+        aria-multiline="true"
+      />
+    </div>
+  );
+}
+
 export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEditorProps) {
   const isBilingual = block.contentType === "json";
   const bilingual = isBilingual ? parseBilingual(block.content) : null;
@@ -78,6 +171,9 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
   const [huContent, setHuContent] = useState(bilingual?.hu ?? (isBilingual ? "" : block.content));
   const [enContent, setEnContent] = useState(bilingual?.en ?? "");
   const [plainContent, setPlainContent] = useState(!isBilingual ? block.content : "");
+
+  const contentHasHtml = HTML_RE.test(huContent) || HTML_RE.test(enContent);
+  const [htmlMode, setHtmlMode] = useState(contentHasHtml);
 
   const initList = arrayMode === "list" ? parseBilingualArray<string>(block.content) : { hu: [], en: [] };
   const [huList, setHuList] = useState<string[]>(initList.hu);
@@ -290,7 +386,20 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
         </div>
       ) : isBilingual ? (
         <div>
-          {langTabs}
+          <div className="flex items-center justify-between mb-2">
+            {langTabs}
+            {!isShortText && (
+              <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  checked={htmlMode}
+                  onChange={(e) => setHtmlMode(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                HTML szerkesztő
+              </label>
+            )}
+          </div>
           <div role="tabpanel">
             {activeLang === "hu" ? (
               isShortText ? (
@@ -300,6 +409,14 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
                   placeholder="Magyar tartalom..."
                   className="bg-white text-base md:text-sm min-h-[44px]"
                   aria-label="Magyar tartalom"
+                />
+              ) : htmlMode ? (
+                <HtmlEditor
+                  key="hu"
+                  value={huContent}
+                  onChange={setHuContent}
+                  placeholder="Magyar tartalom..."
+                  lang="hu"
                 />
               ) : (
                 <Textarea
@@ -317,6 +434,14 @@ export default function BlockEditor({ block, onSave, onCancel, saving }: BlockEd
                 placeholder="English content..."
                 className="bg-white text-base md:text-sm min-h-[44px]"
                 aria-label="English content"
+              />
+            ) : htmlMode ? (
+              <HtmlEditor
+                key="en"
+                value={enContent}
+                onChange={setEnContent}
+                placeholder="English content..."
+                lang="en"
               />
             ) : (
               <Textarea

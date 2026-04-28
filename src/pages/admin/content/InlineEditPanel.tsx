@@ -3,6 +3,9 @@ import { X, Save, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "@/components/RichTextEditor";
+import { createBilingual } from "@/types/content";
+import type { Lang } from "@/types/content";
 
 interface EditTarget {
   blockKey: string;
@@ -13,7 +16,7 @@ interface EditTarget {
 
 interface InlineEditPanelProps {
   target: EditTarget;
-  lang: "hu" | "en";
+  lang: Lang;
   csrfToken: string | null;
   onSave: (blockKey: string, pagePath: string, content: string) => Promise<void>;
   onClose: () => void;
@@ -27,6 +30,12 @@ interface FaqItem {
   a: string;
 }
 
+const LIST_BLOCK_KEYS = ["benefits", "values", "items", "notRightFit"];
+
+function isListBlock(blockKey: string): boolean {
+  return LIST_BLOCK_KEYS.some((k) => blockKey.includes(k));
+}
+
 function detectMode(blockKey: string, content: string, tagName: string): EditorMode {
   if (blockKey.includes("cta") && (blockKey.includes("label") || blockKey.includes("url"))) return "button";
   if (tagName === "a" || tagName === "button") return "button";
@@ -36,14 +45,20 @@ function detectMode(blockKey: string, content: string, tagName: string): EditorM
     const data = parsed.hu ?? parsed;
     if (Array.isArray(data)) {
       if (data.length > 0 && typeof data[0] === "object" && "q" in data[0]) return "faq";
-      return "list";
+      if (isListBlock(blockKey)) return "list";
+      return "text";
     }
-  } catch { /* non-JSON content, fall through to heuristic */ }
+  } catch { /* not JSON */ }
 
-  if (blockKey.includes("items") || blockKey.includes("benefits")) return "list";
   if (blockKey.includes("faq")) return "faq";
+  if (isListBlock(blockKey)) return "list";
 
   return "text";
+}
+
+function joinParagraphs(paragraphs: string[]): string {
+  if (paragraphs.length === 0) return "";
+  return paragraphs.map((p) => `<p>${p}</p>`).join("");
 }
 
 function parseBilingualArray<T>(raw: string): { hu: T[]; en: T[] } {
@@ -68,7 +83,7 @@ export default function InlineEditPanel({
   onClose,
   onUnsavedChange,
 }: InlineEditPanelProps) {
-  const [activeLang, setActiveLang] = useState<"hu" | "en">(lang);
+  const [activeLang, setActiveLang] = useState<Lang>(lang);
   const [huContent, setHuContent] = useState("");
   const [enContent, setEnContent] = useState("");
   const [huList, setHuList] = useState<string[]>([]);
@@ -111,8 +126,10 @@ export default function InlineEditPanel({
           if (block && block.contentType === "json") {
             try {
               const parsed = JSON.parse(block.content);
-              setHuContent(parsed.hu || "");
-              setEnContent(parsed.en || "");
+              const hu = Array.isArray(parsed.hu) ? joinParagraphs(parsed.hu) : (parsed.hu || "");
+              const en = Array.isArray(parsed.en) ? joinParagraphs(parsed.en) : (parsed.en || "");
+              setHuContent(hu);
+              setEnContent(en);
             } catch {
               setHuContent(block.content);
               setEnContent("");
@@ -149,7 +166,7 @@ export default function InlineEditPanel({
       } else if (mode === "faq") {
         jsonContent = JSON.stringify({ hu: huFaq, en: enFaq });
       } else {
-        jsonContent = JSON.stringify({ hu: huContent, en: enContent });
+        jsonContent = createBilingual(huContent, enContent);
       }
       await onSave(target.blockKey, target.pagePath, jsonContent);
     } catch (err) {
@@ -289,12 +306,12 @@ export default function InlineEditPanel({
                       aria-label={activeLang === "hu" ? "Magyar szöveg" : "English text"}
                     />
                   ) : (
-                    <Textarea
+                    <RichTextEditor
+                      key={activeLang}
                       value={currentTextValue}
-                      onChange={(e) => handleTextChange(e.target.value)}
+                      onChange={handleTextChange}
                       placeholder={activeLang === "hu" ? "Magyar szöveg..." : "English text..."}
-                      className="min-h-[10rem] text-base md:text-sm resize-y"
-                      aria-label={activeLang === "hu" ? "Magyar szöveg" : "English text"}
+                      mode="rich"
                     />
                   )}
                 </>

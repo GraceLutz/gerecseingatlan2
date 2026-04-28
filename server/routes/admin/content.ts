@@ -82,14 +82,32 @@ const createBlockSchema = z.object({
  * If the existing block uses contentType "json" with a bilingual object,
  * merges the new value into the correct language slot and keeps the other
  * language intact. Returns { content, contentType } ready for DB update.
+ *
+ * If editLang is undefined, saves newContent as-is (caller sent pre-merged data).
+ * If newContent is already a bilingual JSON object, saves it directly to prevent double-nesting.
  */
 function mergeBilingualContent(
   existingContent: string,
   existingContentType: string,
   newContent: string,
-  editLang: "hu" | "en",
+  editLang: "hu" | "en" | undefined,
   requestedContentType?: string
 ): { content: string; contentType?: string } {
+  if (!editLang) {
+    return { content: newContent, contentType: requestedContentType };
+  }
+
+  // Detect if newContent is already a bilingual JSON object — skip merge to prevent double-nesting
+  try {
+    const newParsed = JSON.parse(newContent);
+    if (typeof newParsed === "object" && newParsed !== null && !Array.isArray(newParsed)
+        && ("hu" in newParsed || "en" in newParsed)) {
+      return { content: newContent };
+    }
+  } catch {
+    // Not JSON — proceed with merge
+  }
+
   if (existingContentType === "json") {
     try {
       const jsonContent = JSON.parse(existingContent);
@@ -282,7 +300,6 @@ router.patch(
       }
 
       const { pagePath, blockKey, content, contentType, lang } = parsed.data;
-      const editLang = lang || "hu";
 
       const [existing] = await db
         .select()
@@ -296,15 +313,31 @@ router.patch(
         .limit(1);
 
       if (!existing) {
-        // Auto-create as bilingual JSON so both languages are supported from the start
-        const bilingualContent = JSON.stringify({ [editLang]: content });
+        // Auto-create as bilingual JSON. If content is already bilingual, use it directly.
+        let createContent = content;
+        let createContentType: string = "json";
+        if (lang) {
+          createContent = JSON.stringify({ [lang]: content });
+        } else {
+          // Check if content is already bilingual JSON
+          try {
+            const parsed = JSON.parse(content);
+            if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed) && ("hu" in parsed || "en" in parsed)) {
+              createContent = content;
+            } else {
+              createContent = JSON.stringify({ hu: content });
+            }
+          } catch {
+            createContent = JSON.stringify({ hu: content });
+          }
+        }
         const [block] = await db
           .insert(contentBlocks)
           .values({
             pagePath,
             blockKey,
-            content: bilingualContent,
-            contentType: "json",
+            content: createContent,
+            contentType: createContentType,
             updatedBy: req.user!.id,
           })
           .returning();
@@ -321,7 +354,7 @@ router.patch(
       await saveVersionAndPrune(existing.id, existing.content, existing.contentType, req.user!.id);
 
       const merged = mergeBilingualContent(
-        existing.content, existing.contentType, content, editLang, contentType
+        existing.content, existing.contentType, content, lang, contentType
       );
 
       const updateData: Record<string, unknown> = {

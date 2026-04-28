@@ -7,7 +7,8 @@ import React, {
   useRef,
 } from "react";
 import { useLanguage } from "./LanguageContext";
-import type { ContentBlock, ResolvedContentType } from "@/types/content";
+import { extractLang } from "@/types/content";
+import type { ContentBlock, Lang, ResolvedContentType } from "@/types/content";
 
 interface ContentPageData {
   blocks: Record<string, ContentBlock>;
@@ -154,8 +155,11 @@ export function useContentBlock(
   const block = pageData.blocks[blockKey];
   const existsInDb = block !== undefined;
 
+  const rawContent = block?.content ?? fallback;
+  const content = extractLang(rawContent, lang as Lang);
+
   return {
-    content: block?.content ?? fallback,
+    content,
     contentType: block?.contentType ?? "text",
     loading: pageData.loading,
     existsInDb,
@@ -184,9 +188,14 @@ export function useContentArray<T = string>(
 
   if (!block) return { items: fallback, loading: pageData.loading };
 
-  if (block.contentType === "json-array") {
+  // Extract language from bilingual JSON wrapper if present
+  let rawContent = block.content;
+  const extracted = extractLang(rawContent, lang as Lang);
+  if (extracted !== rawContent) rawContent = extracted;
+
+  if (block.contentType === "json-array" || extracted !== block.content) {
     try {
-      const parsed = JSON.parse(block.content);
+      const parsed = JSON.parse(rawContent);
       if (Array.isArray(parsed)) return { items: parsed, loading: false };
     } catch {}
   }

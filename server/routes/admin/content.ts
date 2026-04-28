@@ -449,18 +449,26 @@ router.patch("/:id", requireRole("admin", "editor"), async (req, res) => {
 
     await saveVersionAndPrune(blockId, existing.content, existing.contentType, req.user!.id);
 
-    const editLang = bodyParsed.data.lang || "hu";
-    const merged = mergeBilingualContent(
-      existing.content, existing.contentType, bodyParsed.data.content, editLang, bodyParsed.data.contentType
-    );
+    let finalContent = bodyParsed.data.content;
+    let finalContentType = bodyParsed.data.contentType;
+
+    // Only merge into bilingual JSON when lang is explicitly provided.
+    // Without lang, callers (e.g. EditableList) may send pre-merged bilingual JSON directly.
+    if (bodyParsed.data.lang) {
+      const merged = mergeBilingualContent(
+        existing.content, existing.contentType, bodyParsed.data.content, bodyParsed.data.lang, bodyParsed.data.contentType
+      );
+      finalContent = merged.content;
+      finalContentType = merged.contentType;
+    }
 
     const updateData: Record<string, unknown> = {
-      content: merged.content,
+      content: finalContent,
       updatedBy: req.user!.id,
       updatedAt: new Date(),
     };
-    if (merged.contentType) {
-      updateData.contentType = merged.contentType;
+    if (finalContentType) {
+      updateData.contentType = finalContentType;
     }
 
     const [updated] = await db

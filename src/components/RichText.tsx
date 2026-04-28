@@ -9,7 +9,7 @@ const DANGEROUS_TAGS = [
 const DANGEROUS_TAG_SELECTOR = DANGEROUS_TAGS.join(", ");
 
 /** Strip dangerous HTML elements and event-handler attributes using the browser's DOMParser. */
-function sanitizeHtml(html: string): string {
+export function sanitizeHtml(html: string): string {
   const doc = new DOMParser().parseFromString(html, "text/html");
   doc.querySelectorAll(DANGEROUS_TAG_SELECTOR).forEach((el) => el.remove());
   doc.body.querySelectorAll("*").forEach((el) => {

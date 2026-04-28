@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Pencil, Check, X } from "lucide-react";
 import { getCsrfToken } from "@/lib/csrf";
 import RichTextEditor from "@/components/RichTextEditor";
+import { sanitizeHtml } from "@/components/RichText";
 import type { ResolvedContentType } from "@/types/content";
 
 interface EditableTextProps {
@@ -172,7 +173,7 @@ export default function EditableText({
           className={className}
           data-editable={blockKey}
           data-page={pagePath}
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
         />
       );
     }
@@ -247,7 +248,7 @@ export default function EditableText({
           {isEmpty ? (
             <Tag className="italic text-gray-400">[{blockKey}]</Tag>
           ) : isHtml ? (
-            <Tag dangerouslySetInnerHTML={{ __html: content }} />
+            <Tag dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }} />
           ) : (
             <Tag>{content}</Tag>
           )}

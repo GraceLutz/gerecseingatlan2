@@ -72,17 +72,67 @@ export function createBilingual(hu: string, en: string): string {
 /**
  * Extract a single language's value from bilingual JSON content.
  * Falls back to Hungarian, then returns the raw content if parsing fails.
+ *
+ * Includes a string-based fallback for malformed bilingual JSON where the
+ * inner HTML values contain unescaped quotes that break JSON.parse.
  */
 export function extractLang(content: string, lang: Lang): string {
-  try {
-    const parsed = JSON.parse(content);
-    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-      const value = parsed[lang] ?? parsed.hu;
-      if (typeof value === "string") return value;
-      if (value !== undefined) return JSON.stringify(value);
+  let result = content;
+  // Loop to handle double-nested bilingual JSON
+  for (let i = 0; i < 3 && (result.startsWith('{"hu":') || result.startsWith('{"en":')); i++) {
+    try {
+      const parsed = JSON.parse(result);
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+          && ("hu" in parsed || "en" in parsed)) {
+        const value = parsed[lang] ?? parsed.hu;
+        if (typeof value === "string") { result = value; continue; }
+        if (value !== undefined) return JSON.stringify(value);
+      }
+      break;
+    } catch {
+      const extracted = extractLangFallback(result, lang);
+      if (extracted !== null) { result = extracted; continue; }
+      break;
     }
-  } catch {
-    // Not JSON — return raw content
   }
-  return content;
+  return result;
+}
+
+/**
+ * String-based extraction for bilingual JSON with malformed inner values.
+ * Uses lastIndexOf to find the delimiter between language slots, avoiding
+ * confusion from unescaped quotes inside HTML content.
+ */
+function extractLangFallback(content: string, lang: Lang): string | null {
+  const otherLang = lang === "hu" ? "en" : "hu";
+  const langPrefix = `{"${lang}":"`;
+  const otherPrefix = `{"${otherLang}":"`;
+  const langDelim = `","${lang}":"`;
+  const otherDelim = `","${otherLang}":"`;
+
+  if (content.startsWith(langPrefix)) {
+    const valueStart = langPrefix.length;
+    const delimIdx = content.lastIndexOf(otherDelim);
+    if (delimIdx > valueStart) {
+      return content.slice(valueStart, delimIdx);
+    }
+    if (content.endsWith('"}')) {
+      return content.slice(valueStart, content.length - 2);
+    }
+  }
+
+  if (content.startsWith(otherPrefix)) {
+    const delimIdx = content.lastIndexOf(langDelim);
+    if (delimIdx !== -1) {
+      const valueStart = delimIdx + langDelim.length;
+      if (content.endsWith('"}')) {
+        return content.slice(valueStart, content.length - 2);
+      }
+    }
+    if (lang !== "hu") {
+      return extractLangFallback(content, "hu");
+    }
+  }
+
+  return null;
 }

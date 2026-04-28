@@ -7,11 +7,7 @@ import React, {
   useRef,
 } from "react";
 import { useLanguage } from "./LanguageContext";
-
-interface ContentBlock {
-  content: string;
-  contentType: string;
-}
+import type { ContentBlock, ResolvedContentType } from "@/types/content";
 
 interface ContentPageData {
   blocks: Record<string, ContentBlock>;
@@ -22,6 +18,7 @@ interface ContentPageData {
 interface ContentContextValue {
   getPageContent: (pagePath: string) => ContentPageData;
   fetchPageContent: (pagePath: string) => Promise<void>;
+  updateBlockContent: (pagePath: string, blockKey: string, content: string, contentType: ResolvedContentType) => void;
   isAdmin: boolean;
   setIsAdmin: (value: boolean) => void;
 }
@@ -90,9 +87,31 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     [pages]
   );
 
+  /** Optimistic update — patches a single block in local state after a successful API save. */
+  const updateBlockContent = useCallback(
+    (pagePath: string, blockKey: string, content: string, contentType: ResolvedContentType) => {
+      const normalizedPath = `/${pagePath.replace(/^\//, "")}`;
+      setPages((prev) => {
+        const pageData = prev[normalizedPath];
+        if (!pageData) return prev;
+        return {
+          ...prev,
+          [normalizedPath]: {
+            ...pageData,
+            blocks: {
+              ...pageData.blocks,
+              [blockKey]: { content, contentType },
+            },
+          },
+        };
+      });
+    },
+    []
+  );
+
   const value = useMemo(
-    () => ({ getPageContent, fetchPageContent, isAdmin, setIsAdmin }),
-    [getPageContent, fetchPageContent, isAdmin, setIsAdmin],
+    () => ({ getPageContent, fetchPageContent, updateBlockContent, isAdmin, setIsAdmin }),
+    [getPageContent, fetchPageContent, updateBlockContent, isAdmin, setIsAdmin],
   );
 
   return (
@@ -118,7 +137,7 @@ export function useContentBlock(
   pagePath: string,
   blockKey: string,
   fallback: string
-): { content: string; contentType: string; loading: boolean } {
+): { content: string; contentType: string; loading: boolean; existsInDb: boolean } {
   const { getPageContent, fetchPageContent } = useContent();
   const { lang } = useLanguage();
   const pageData = getPageContent(pagePath);
@@ -133,11 +152,13 @@ export function useContentBlock(
   }, [pagePath, lang, fetchPageContent]);
 
   const block = pageData.blocks[blockKey];
+  const existsInDb = block !== undefined;
 
   return {
     content: block?.content ?? fallback,
     contentType: block?.contentType ?? "text",
     loading: pageData.loading,
+    existsInDb,
   };
 }
 

@@ -37,10 +37,11 @@ function injectStyles() {
 }
 
 function getEditableInfo(el: HTMLElement) {
+  const hasRichContent = el.querySelector("*") !== null;
   return {
     blockKey: el.getAttribute("data-editable")!,
     pagePath: el.getAttribute("data-page") || "/",
-    content: el.textContent || "",
+    content: hasRichContent ? el.innerHTML : (el.textContent || ""),
     tagName: el.tagName.toLowerCase(),
     rect: el.getBoundingClientRect(),
   };
@@ -100,11 +101,15 @@ function handleParentMessages(event: MessageEvent) {
   switch (event.data.type) {
     case "ve:update-content": {
       const { blockKey, pagePath, content } = event.data.payload;
-      const el = document.querySelector(
-        `[data-editable="${blockKey}"][data-page="${pagePath}"]`
-      ) as HTMLElement | null;
+      const selector = `[data-editable="${CSS.escape(blockKey)}"][data-page="${CSS.escape(pagePath)}"]`;
+      const el = document.querySelector(selector) as HTMLElement | null;
       if (el) {
-        el.textContent = content;
+        const looksLikeHtml = /<[a-z][\s\S]*>/i.test(content);
+        if (looksLikeHtml) {
+          el.innerHTML = content;
+        } else {
+          el.textContent = content;
+        }
       }
       break;
     }

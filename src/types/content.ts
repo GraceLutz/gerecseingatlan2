@@ -43,7 +43,9 @@ export interface ContentBlock {
 
 /**
  * Parse a bilingual JSON string into a BilingualContent object.
- * Returns null if the string is not valid bilingual JSON.
+ * Accepts content with only one language present (common for blocks
+ * where English hasn't been set yet). Returns null only if the string
+ * is not a valid JSON object with at least one language key.
  */
 export function parseBilingual(content: string): BilingualContent | null {
   try {
@@ -52,10 +54,9 @@ export function parseBilingual(content: string): BilingualContent | null {
       typeof parsed === "object" &&
       parsed !== null &&
       !Array.isArray(parsed) &&
-      typeof parsed.hu === "string" &&
-      typeof parsed.en === "string"
+      (typeof parsed.hu === "string" || typeof parsed.en === "string")
     ) {
-      return { hu: parsed.hu, en: parsed.en };
+      return { hu: parsed.hu ?? "", en: parsed.en ?? "" };
     }
     return null;
   } catch {

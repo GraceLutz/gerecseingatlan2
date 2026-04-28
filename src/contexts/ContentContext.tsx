@@ -137,7 +137,7 @@ export function useContentBlock(
   pagePath: string,
   blockKey: string,
   fallback: string
-): { content: string; contentType: string; loading: boolean; existsInDb: boolean } {
+): { content: string; contentType: ResolvedContentType; loading: boolean; existsInDb: boolean } {
   const { getPageContent, fetchPageContent } = useContent();
   const { lang } = useLanguage();
   const pageData = getPageContent(pagePath);

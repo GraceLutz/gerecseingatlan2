@@ -34,7 +34,7 @@ export default function EditableText({
   contentType: defaultContentType = "text",
 }: EditableTextProps) {
   const isBlockTag = BLOCK_TAGS.has(Tag as string);
-  const { isAdmin, updateBlockContent } = useContent();
+  const { isAdmin, updateBlockContent, fetchPageContent } = useContent();
   const { lang } = useLanguage();
   const { content, contentType, loading, existsInDb } = useContentBlock(
     pagePath,
@@ -89,6 +89,7 @@ export default function EditableText({
           throw new Error(data.error || `Mentés sikertelen (${res.status})`);
         }
         updateBlockContent(pagePath, blockKey, newContent, resolvedContentType);
+        fetchPageContent(pagePath).catch(() => {});
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Hiba történt a mentés során."
@@ -97,7 +98,7 @@ export default function EditableText({
         setSaving(false);
       }
     },
-    [pagePath, blockKey, resolvedContentType, lang, updateBlockContent]
+    [pagePath, blockKey, resolvedContentType, lang, updateBlockContent, fetchPageContent]
   );
 
   const handleDraftChange = useCallback((newContent: string) => {

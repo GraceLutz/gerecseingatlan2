@@ -63,7 +63,6 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
 
   const { content: title } = useContentBlock(pagePath, "service.title", t.services[service.titleKey]);
   const { content: subtitle } = useContentBlock(pagePath, "service.subtitle", "");
-  const { items: paragraphs } = useContentArray(pagePath, "service.paragraphs", [t.services[service.descKey]]);
   const { items: benefits } = useContentArray(pagePath, "service.benefits", []);
 
   const Icon = service.icon;
@@ -128,22 +127,13 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
             {t.nav.home}
           </Link>
 
-          <div className="space-y-4 mb-12 rich-content" data-editable="service.paragraphs" data-page={pagePath}>
-            {paragraphs.map((paragraph, i) => {
-              const hasHtml = /<[a-z][\s\S]*>/i.test(paragraph);
-              return (
-                <EditableText
-                  key={i}
-                  pagePath={pagePath}
-                  blockKey={`service.paragraphs[${i}]`}
-                  fallback={paragraph}
-                  as={hasHtml ? "div" : "p"}
-                  contentType={hasHtml ? "html" : "text"}
-                  className="text-muted-foreground font-body leading-relaxed text-base"
-                />
-              );
-            })}
-          </div>
+          <EditableList
+            pagePath={pagePath}
+            blockKey="service.paragraphs"
+            fallback={[t.services[service.descKey]]}
+            className="space-y-4 mb-12"
+            itemClassName="text-muted-foreground font-body leading-relaxed text-base"
+          />
 
           {benefits.length > 0 && (
             <div className="mb-12 p-6 bg-light-bg rounded-xl">

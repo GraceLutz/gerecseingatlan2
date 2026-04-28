@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { isTipTapJson, renderTipTapJson } from "./RichTextEditor";
 
 const HTML_RE = /<[a-z][\s\S]*>/i;
 
@@ -32,17 +33,22 @@ interface RichTextProps {
   "data-page"?: string;
 }
 
-/** Renders content as sanitized HTML (if it contains tags) or plain text. */
+/** Renders content as sanitized HTML, TipTap JSON, or plain text. */
 export default function RichText({ content, className, ...rest }: RichTextProps) {
-  const sanitized = useMemo(
-    () => (HTML_RE.test(content) ? sanitizeHtml(content) : null),
-    [content]
-  );
+  const renderedHtml = useMemo(() => {
+    if (isTipTapJson(content)) {
+      return sanitizeHtml(renderTipTapJson(content));
+    }
+    if (HTML_RE.test(content)) {
+      return sanitizeHtml(content);
+    }
+    return null;
+  }, [content]);
 
-  if (sanitized !== null) {
+  if (renderedHtml !== null) {
     return (
       <div
-        dangerouslySetInnerHTML={{ __html: sanitized }}
+        dangerouslySetInnerHTML={{ __html: renderedHtml }}
         className={`rich-content ${className ?? ""}`}
         {...rest}
       />

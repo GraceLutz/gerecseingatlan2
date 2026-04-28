@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from "@tiptap/react";
+import { generateHTML } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
@@ -16,18 +17,53 @@ import {
   Unlink,
 } from "lucide-react";
 
+const EXTENSIONS_FOR_RENDER = [
+  StarterKit.configure({
+    heading: { levels: [2, 3] },
+    blockquote: false,
+    codeBlock: false,
+    code: false,
+    horizontalRule: false,
+  }),
+  Underline,
+  Link.configure({ openOnClick: false }),
+];
+
+/** Detect whether a string is TipTap JSON (has type:"doc"). */
+export function isTipTapJson(content: string): boolean {
+  if (!content || content[0] !== "{") return false;
+  try {
+    const parsed = JSON.parse(content);
+    return parsed?.type === "doc";
+  } catch {
+    return false;
+  }
+}
+
+/** Convert TipTap JSON string to HTML for the public renderer. */
+export function renderTipTapJson(json: string): string {
+  try {
+    const doc = JSON.parse(json);
+    return generateHTML(doc, EXTENSIONS_FOR_RENDER);
+  } catch {
+    return "";
+  }
+}
+
 /** Props for the RichTextEditor component. */
 export interface RichTextEditorProps {
-  /** HTML string value */
+  /** Content string — HTML or TipTap JSON depending on outputFormat */
   value: string;
-  /** Called with the updated HTML string on every edit */
-  onChange: (html: string) => void;
+  /** Called with the updated content string on every edit */
+  onChange: (content: string) => void;
   /** Placeholder text shown when the editor is empty */
   placeholder?: string;
   /** Additional CSS class names */
   className?: string;
   /** 'rich' shows the full toolbar; 'plain' hides it for simple text inputs */
   mode?: "rich" | "plain";
+  /** Output format: 'html' returns HTML string, 'json' returns TipTap JSON string */
+  outputFormat?: "html" | "json";
 }
 
 interface ToolbarButtonProps {
@@ -66,6 +102,18 @@ function ToolbarButton({
   );
 }
 
+/** Parse initial content — handles both HTML strings and TipTap JSON strings. */
+function parseInitialContent(value: string): string | Record<string, unknown> {
+  if (isTipTapJson(value)) {
+    try {
+      return JSON.parse(value) as Record<string, unknown>;
+    } catch {
+      return value;
+    }
+  }
+  return value;
+}
+
 /** Reusable TipTap WYSIWYG editor with rich and plain modes. */
 export default function RichTextEditor({
   value,
@@ -73,6 +121,7 @@ export default function RichTextEditor({
   placeholder,
   className = "",
   mode = "rich",
+  outputFormat = "html",
 }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -97,9 +146,13 @@ export default function RichTextEditor({
         placeholder: placeholder ?? "",
       }),
     ],
-    content: value,
+    content: parseInitialContent(value),
     onUpdate: ({ editor: ed }) => {
-      onChange(ed.getHTML());
+      if (outputFormat === "json") {
+        onChange(JSON.stringify(ed.getJSON()));
+      } else {
+        onChange(ed.getHTML());
+      }
     },
     editorProps: {
       attributes: {
@@ -115,10 +168,15 @@ export default function RichTextEditor({
 
   // Sync external value changes (e.g. language switch) without losing cursor
   useEffect(() => {
-    if (editor && !editor.isDestroyed && editor.getHTML() !== value) {
-      editor.commands.setContent(value, false);
+    if (!editor || editor.isDestroyed) return;
+    const currentOutput =
+      outputFormat === "json"
+        ? JSON.stringify(editor.getJSON())
+        : editor.getHTML();
+    if (currentOutput !== value) {
+      editor.commands.setContent(parseInitialContent(value), false);
     }
-  }, [editor, value]);
+  }, [editor, value, outputFormat]);
 
   const insertLink = useCallback(() => {
     if (!editor) return;

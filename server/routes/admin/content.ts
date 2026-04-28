@@ -157,7 +157,7 @@ function mergeBilingualContent(
       // JSON parse failure — fall through to raw save
     }
   }
-  return { content: newContent, contentType: requestedContentType };
+  return { content: flattenDoubleNested(newContent), contentType: requestedContentType };
 }
 
 /**

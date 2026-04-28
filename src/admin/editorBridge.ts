@@ -104,7 +104,7 @@ function handleParentMessages(event: MessageEvent) {
       const selector = `[data-editable="${CSS.escape(blockKey)}"][data-page="${CSS.escape(pagePath)}"]`;
       const el = document.querySelector(selector) as HTMLElement | null;
       if (el) {
-        const looksLikeHtml = /<[a-z][\s\S]*>/i.test(content);
+        const looksLikeHtml = /<(?:p|h[1-6]|div|span|ul|ol|li|strong|em|a|br)\b/i.test(content);
         if (looksLikeHtml) {
           el.innerHTML = content;
         } else {

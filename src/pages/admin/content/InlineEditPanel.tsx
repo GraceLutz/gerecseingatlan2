@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { X, Save, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from "@/components/RichTextEditor";
 import { createBilingual } from "@/types/content";
 import type { Lang } from "@/types/content";
@@ -17,7 +16,6 @@ interface EditTarget {
 interface InlineEditPanelProps {
   target: EditTarget;
   lang: Lang;
-  csrfToken: string | null;
   onSave: (blockKey: string, pagePath: string, content: string) => Promise<void>;
   onClose: () => void;
   onUnsavedChange: () => void;
@@ -78,7 +76,6 @@ function parseBilingualArray<T>(raw: string): { hu: T[]; en: T[] } {
 export default function InlineEditPanel({
   target,
   lang,
-  csrfToken,
   onSave,
   onClose,
   onUnsavedChange,
@@ -393,12 +390,11 @@ export default function InlineEditPanel({
                         className="text-base md:text-sm min-h-[44px]"
                         aria-label={`Kérdés ${i + 1}`}
                       />
-                      <Textarea
+                      <RichTextEditor
                         value={item.a}
-                        onChange={(e) => updateFaqItem(i, "a", e.target.value)}
+                        onChange={(html) => updateFaqItem(i, "a", html)}
                         placeholder="Válasz..."
-                        className="text-base md:text-sm min-h-[5rem] resize-y"
-                        aria-label={`Válasz ${i + 1}`}
+                        mode="plain"
                       />
                     </div>
                   ))}

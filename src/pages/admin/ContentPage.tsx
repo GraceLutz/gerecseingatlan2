@@ -309,7 +309,6 @@ export default function ContentPage() {
             <InlineEditPanel
               target={editTarget}
               lang={iframeLang}
-              csrfToken={csrfToken}
               onSave={handleSave}
               onClose={handleClose}
               onUnsavedChange={() => setHasUnsaved(true)}

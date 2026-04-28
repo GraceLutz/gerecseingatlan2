@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useContent, useContentBlock } from "@/contexts/ContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Pencil, Check, X } from "lucide-react";
 import { getCsrfToken } from "@/lib/csrf";
 
@@ -24,7 +25,8 @@ export default function EditableButton({
   fallbackUrl,
   className = "",
 }: EditableButtonProps) {
-  const { isAdmin } = useContent();
+  const { isAdmin, updateBlockContent } = useContent();
+  const { lang } = useLanguage();
   const { content: label } = useContentBlock(pagePath, labelKey, fallbackLabel);
   const { content: url } = useContentBlock(pagePath, urlKey, fallbackUrl);
 
@@ -57,15 +59,16 @@ export default function EditableButton({
           pagePath: `/${pagePath.replace(/^\//, "")}`,
           blockKey,
           content,
-          contentType: "text",
+          lang,
         }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || `Mentés sikertelen (${res.status})`);
       }
+      updateBlockContent(pagePath, blockKey, content, "text");
     },
-    [pagePath]
+    [pagePath, lang, updateBlockContent]
   );
 
   const handleSave = useCallback(async () => {

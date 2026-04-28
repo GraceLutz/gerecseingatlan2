@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useContent, useContentArray } from "@/contexts/ContentContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Pencil, Check, X, Trash2, Plus } from "lucide-react";
 import { getCsrfToken } from "@/lib/csrf";
 
@@ -24,7 +25,8 @@ export default function EditableList({
   itemClassName = "",
   ordered = false,
 }: EditableListProps) {
-  const { isAdmin } = useContent();
+  const { isAdmin, updateBlockContent } = useContent();
+  const { lang } = useLanguage();
   const { items, loading } = useContentArray<string>(
     pagePath,
     blockKey,
@@ -37,36 +39,93 @@ export default function EditableList({
   const [error, setError] = useState<string | null>(null);
   const editableRef = useRef<HTMLLIElement>(null);
 
+  const itemsJson = JSON.stringify(items);
   useEffect(() => {
-    setLocalItems(items);
-  }, [items]);
+    setLocalItems(JSON.parse(itemsJson) as string[]);
+  }, [itemsJson]);
 
+  /**
+   * Saves array items with correct bilingual JSON structure.
+   * Uses PATCH /:id to store arrays as real JSON values (not stringified),
+   * preserving the other language's data intact.
+   */
   const saveItems = useCallback(
     async (newItems: string[]) => {
       setSaving(true);
       setError(null);
       try {
         const csrf = getCsrfToken();
-        const res = await fetch(`/api/admin/content/by-path`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            ...(csrf ? { "x-csrf-token": csrf } : {}),
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            pagePath: `/${pagePath.replace(/^\//, "")}`,
-            blockKey,
-            content: JSON.stringify(newItems),
-            contentType: "json",
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(
-            data.error || `Mentés sikertelen (${res.status})`
-          );
+        const normalizedPath = `/${pagePath.replace(/^\//, "")}`;
+        const encodedPath = encodeURIComponent(normalizedPath.slice(1));
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+          ...(csrf ? { "x-csrf-token": csrf } : {}),
+        };
+
+        // Fetch raw block to get both languages' data and block ID
+        const rawRes = await fetch(
+          `/api/admin/content/page/${encodedPath}`,
+          { credentials: "include" }
+        );
+
+        let existingBlock: { id: string; content: string; contentType: string } | null = null;
+        if (rawRes.ok) {
+          const rawData = await rawRes.json();
+          existingBlock = rawData.blocks?.find(
+            (b: { blockKey: string }) => b.blockKey === blockKey
+          ) ?? null;
         }
+
+        // Build merged bilingual content with arrays as real values
+        let mergedContent: Record<string, unknown> = {};
+        if (existingBlock?.contentType === "json") {
+          try {
+            const parsed = JSON.parse(existingBlock.content);
+            if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+              mergedContent = parsed;
+            }
+          } catch {
+            // Corrupted JSON — start fresh
+          }
+        }
+        mergedContent[lang] = newItems;
+
+        if (existingBlock) {
+          // Update existing block via PATCH /:id (bypasses by-path bilingual string merge)
+          const res = await fetch(`/api/admin/content/${existingBlock.id}`, {
+            method: "PATCH",
+            headers,
+            credentials: "include",
+            body: JSON.stringify({
+              content: JSON.stringify(mergedContent),
+              contentType: "json",
+            }),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || `Mentés sikertelen (${res.status})`);
+          }
+        } else {
+          // Create new block
+          const res = await fetch(`/api/admin/content`, {
+            method: "POST",
+            headers,
+            credentials: "include",
+            body: JSON.stringify({
+              pagePath: normalizedPath,
+              blockKey,
+              content: JSON.stringify(mergedContent),
+              contentType: "json",
+            }),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || `Mentés sikertelen (${res.status})`);
+          }
+        }
+
+        // Optimistic update so the UI reflects the change immediately
+        updateBlockContent(pagePath, blockKey, JSON.stringify(newItems), "json-array");
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Hiba történt a mentés során."
@@ -75,7 +134,7 @@ export default function EditableList({
         setSaving(false);
       }
     },
-    [pagePath, blockKey]
+    [pagePath, blockKey, lang, updateBlockContent]
   );
 
   const startEditing = useCallback((index: number) => {

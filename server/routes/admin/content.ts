@@ -52,9 +52,13 @@ async function saveVersionAndPrune(
   }
 }
 
+const contentTypeEnum = z.enum(["text", "html", "markdown", "json"]);
+const langEnum = z.enum(["hu", "en"]);
+
 const updateBlockSchema = z.object({
   content: z.string(),
-  contentType: z.enum(["text", "html", "markdown", "json"]).optional(),
+  contentType: contentTypeEnum.optional(),
+  lang: langEnum.optional(),
 });
 
 const createBlockSchema = z.object({
@@ -69,8 +73,36 @@ const createBlockSchema = z.object({
     .max(255)
     .regex(/^[a-zA-Z0-9._[\]-]+$/),
   content: z.string(),
-  contentType: z.enum(["text", "html", "markdown", "json"]).default("text"),
+  contentType: contentTypeEnum.default("text"),
+  lang: langEnum.optional(),
 });
+
+/**
+ * Merge a single-language edit into the existing bilingual JSON content.
+ * If the existing block uses contentType "json" with a bilingual object,
+ * merges the new value into the correct language slot and keeps the other
+ * language intact. Returns { content, contentType } ready for DB update.
+ */
+function mergeBilingualContent(
+  existingContent: string,
+  existingContentType: string,
+  newContent: string,
+  editLang: "hu" | "en",
+  requestedContentType?: string
+): { content: string; contentType?: string } {
+  if (existingContentType === "json") {
+    try {
+      const jsonContent = JSON.parse(existingContent);
+      if (typeof jsonContent === "object" && jsonContent !== null && !Array.isArray(jsonContent)) {
+        jsonContent[editLang] = newContent;
+        return { content: JSON.stringify(jsonContent) };
+      }
+    } catch {
+      // JSON parse failure — fall through to raw save
+    }
+  }
+  return { content: newContent, contentType: requestedContentType };
+}
 
 /**
  * GET /api/admin/content/pages
@@ -237,7 +269,8 @@ router.patch(
           .max(255)
           .regex(/^[a-zA-Z0-9._[\]-]+$/),
         content: z.string(),
-        contentType: z.enum(["text", "html", "markdown", "json"]).optional(),
+        contentType: contentTypeEnum.optional(),
+        lang: langEnum.optional(),
       });
 
       const parsed = schema.safeParse(req.body);
@@ -248,7 +281,8 @@ router.patch(
         });
       }
 
-      const { pagePath, blockKey, content, contentType } = parsed.data;
+      const { pagePath, blockKey, content, contentType, lang } = parsed.data;
+      const editLang = lang || "hu";
 
       const [existing] = await db
         .select()
@@ -262,14 +296,15 @@ router.patch(
         .limit(1);
 
       if (!existing) {
-        // Auto-create the block if it doesn't exist yet
+        // Auto-create as bilingual JSON so both languages are supported from the start
+        const bilingualContent = JSON.stringify({ [editLang]: content });
         const [block] = await db
           .insert(contentBlocks)
           .values({
             pagePath,
             blockKey,
-            content,
-            contentType: contentType ?? "text",
+            content: bilingualContent,
+            contentType: "json",
             updatedBy: req.user!.id,
           })
           .returning();
@@ -285,13 +320,17 @@ router.patch(
 
       await saveVersionAndPrune(existing.id, existing.content, existing.contentType, req.user!.id);
 
+      const merged = mergeBilingualContent(
+        existing.content, existing.contentType, content, editLang, contentType
+      );
+
       const updateData: Record<string, unknown> = {
-        content,
+        content: merged.content,
         updatedBy: req.user!.id,
         updatedAt: new Date(),
       };
-      if (contentType) {
-        updateData.contentType = contentType;
+      if (merged.contentType) {
+        updateData.contentType = merged.contentType;
       }
 
       const [updated] = await db
@@ -330,7 +369,8 @@ router.post("/", requireRole("admin", "editor"), async (req, res) => {
       });
     }
 
-    const { pagePath, blockKey, content, contentType } = parsed.data;
+    const { pagePath, blockKey, content, contentType, lang } = parsed.data;
+    const editLang = lang || "hu";
 
     const existing = await db
       .select({ id: contentBlocks.id })
@@ -349,13 +389,14 @@ router.post("/", requireRole("admin", "editor"), async (req, res) => {
       });
     }
 
+    const bilingualContent = JSON.stringify({ [editLang]: content });
     const [block] = await db
       .insert(contentBlocks)
       .values({
         pagePath,
         blockKey,
-        content,
-        contentType,
+        content: bilingualContent,
+        contentType: "json",
         updatedBy: req.user!.id,
       })
       .returning();
@@ -408,14 +449,18 @@ router.patch("/:id", requireRole("admin", "editor"), async (req, res) => {
 
     await saveVersionAndPrune(blockId, existing.content, existing.contentType, req.user!.id);
 
-    // Update the block
+    const editLang = bodyParsed.data.lang || "hu";
+    const merged = mergeBilingualContent(
+      existing.content, existing.contentType, bodyParsed.data.content, editLang, bodyParsed.data.contentType
+    );
+
     const updateData: Record<string, unknown> = {
-      content: bodyParsed.data.content,
+      content: merged.content,
       updatedBy: req.user!.id,
       updatedAt: new Date(),
     };
-    if (bodyParsed.data.contentType) {
-      updateData.contentType = bodyParsed.data.contentType;
+    if (merged.contentType) {
+      updateData.contentType = merged.contentType;
     }
 
     const [updated] = await db

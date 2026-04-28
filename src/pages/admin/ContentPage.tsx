@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { PAGE_REGISTRY } from "./content/pageRegistry";
 import InlineEditPanel from "./content/InlineEditPanel";
+import { extractLang } from "@/types/content";
+import type { Lang } from "@/types/content";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Home, Info, Building2, Users, Mail, HelpCircle, Briefcase, MessageSquare, FileText,
@@ -34,7 +36,7 @@ export default function ContentPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const [selectedPath, setSelectedPath] = useState("/");
-  const [iframeLang, setIframeLang] = useState<"hu" | "en">("hu");
+  const [iframeLang, setIframeLang] = useState<Lang>("hu");
   const [device, setDevice] = useState<DeviceMode>("desktop");
   const [mode, setMode] = useState<EditorMode>("edit");
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
@@ -96,7 +98,7 @@ export default function ContentPage() {
 
     iframeRef.current?.contentWindow?.postMessage({
       type: "ve:update-content",
-      payload: { blockKey, pagePath, content: getLangContent(content, iframeLang) },
+      payload: { blockKey, pagePath, content: extractLang(content, iframeLang) },
     }, window.location.origin);
 
     setHasUnsaved(false);
@@ -319,11 +321,3 @@ export default function ContentPage() {
   );
 }
 
-function getLangContent(jsonContent: string, lang: "hu" | "en"): string {
-  try {
-    const parsed = JSON.parse(jsonContent);
-    return parsed[lang] ?? parsed["hu"] ?? jsonContent;
-  } catch {
-    return jsonContent;
-  }
-}

@@ -78,6 +78,43 @@ const createBlockSchema = z.object({
 });
 
 /**
+ * Detect and flatten double-nested bilingual JSON before writing to the DB.
+ *
+ * Double-nesting looks like: {"hu":"{\"hu\":\"actual\",\"en\":\"text\"}","en":"..."}
+ * The hu/en values are themselves stringified bilingual JSON objects.
+ * This flattens them by parsing the inner JSON and extracting the matching language value.
+ *
+ * Only triggers when actual double-nesting is detected — a cheap typeof+parse check.
+ */
+function flattenDoubleNested(content: string): string {
+  try {
+    const outer = JSON.parse(content);
+    if (typeof outer !== "object" || outer === null || Array.isArray(outer)) return content;
+    if (!("hu" in outer) && !("en" in outer)) return content;
+
+    let changed = false;
+    for (const lang of ["hu", "en"] as const) {
+      const val = outer[lang];
+      if (typeof val !== "string") continue;
+      try {
+        const inner = JSON.parse(val);
+        if (typeof inner === "object" && inner !== null && !Array.isArray(inner)
+            && ("hu" in inner || "en" in inner)) {
+          outer[lang] = inner[lang] ?? inner.hu ?? val;
+          changed = true;
+        }
+      } catch {
+        // Not JSON — leave as-is
+      }
+    }
+
+    return changed ? JSON.stringify(outer) : content;
+  } catch {
+    return content;
+  }
+}
+
+/**
  * Merge a single-language edit into the existing bilingual JSON content.
  * If the existing block uses contentType "json" with a bilingual object,
  * merges the new value into the correct language slot and keeps the other
@@ -85,6 +122,7 @@ const createBlockSchema = z.object({
  *
  * If editLang is undefined, saves newContent as-is (caller sent pre-merged data).
  * If newContent is already a bilingual JSON object, saves it directly to prevent double-nesting.
+ * Always runs flattenDoubleNested on the final result as a safety net.
  */
 function mergeBilingualContent(
   existingContent: string,
@@ -94,7 +132,7 @@ function mergeBilingualContent(
   requestedContentType?: string
 ): { content: string; contentType?: string } {
   if (!editLang) {
-    return { content: newContent, contentType: requestedContentType };
+    return { content: flattenDoubleNested(newContent), contentType: requestedContentType };
   }
 
   // Detect if newContent is already a bilingual JSON object — skip merge to prevent double-nesting
@@ -102,7 +140,7 @@ function mergeBilingualContent(
     const newParsed = JSON.parse(newContent);
     if (typeof newParsed === "object" && newParsed !== null && !Array.isArray(newParsed)
         && ("hu" in newParsed || "en" in newParsed)) {
-      return { content: newContent };
+      return { content: flattenDoubleNested(newContent) };
     }
   } catch {
     // Not JSON — proceed with merge
@@ -113,7 +151,7 @@ function mergeBilingualContent(
       const jsonContent = JSON.parse(existingContent);
       if (typeof jsonContent === "object" && jsonContent !== null && !Array.isArray(jsonContent)) {
         jsonContent[editLang] = newContent;
-        return { content: JSON.stringify(jsonContent) };
+        return { content: flattenDoubleNested(JSON.stringify(jsonContent)) };
       }
     } catch {
       // JSON parse failure — fall through to raw save
@@ -336,7 +374,7 @@ router.patch(
           .values({
             pagePath,
             blockKey,
-            content: createContent,
+            content: flattenDoubleNested(createContent),
             contentType: createContentType,
             updatedBy: req.user!.id,
           })
@@ -422,7 +460,7 @@ router.post("/", requireRole("admin", "editor"), async (req, res) => {
       });
     }
 
-    const bilingualContent = JSON.stringify({ [editLang]: content });
+    const bilingualContent = flattenDoubleNested(JSON.stringify({ [editLang]: content }));
     const [block] = await db
       .insert(contentBlocks)
       .values({
@@ -496,7 +534,7 @@ router.patch("/:id", requireRole("admin", "editor"), async (req, res) => {
     }
 
     const updateData: Record<string, unknown> = {
-      content: finalContent,
+      content: flattenDoubleNested(finalContent),
       updatedBy: req.user!.id,
       updatedAt: new Date(),
     };

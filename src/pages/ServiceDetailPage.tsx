@@ -127,12 +127,13 @@ function ServiceContent({ service, resolvedSlug }: { service: ReturnType<typeof 
             {t.nav.home}
           </Link>
 
-          <EditableList
+          <EditableText
             pagePath={pagePath}
             blockKey="service.paragraphs"
-            fallback={[t.services[service.descKey]]}
-            className="space-y-4 mb-12"
-            itemClassName="text-muted-foreground font-body leading-relaxed text-base"
+            fallback={`<p>${t.services[service.descKey]}</p>`}
+            as="div"
+            contentType="html"
+            className="space-y-4 mb-12 text-muted-foreground font-body leading-relaxed text-base rich-content"
           />
 
           {benefits.length > 0 && (

@@ -1,7 +1,10 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useContent, useContentBlock } from "@/contexts/ContentContext";
-import { Pencil, Check, X, Bold, Italic, Link } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Pencil, Check, X } from "lucide-react";
 import { getCsrfToken } from "@/lib/csrf";
+import RichTextEditor from "@/components/RichTextEditor";
+import type { ResolvedContentType } from "@/types/content";
 
 interface EditableTextProps {
   pagePath: string;
@@ -14,10 +17,13 @@ interface EditableTextProps {
 
 const AUTO_SAVE_INTERVAL = 10000;
 
-/**
- * Inline-editable content block.
- * Supports plain text and HTML with a floating formatting toolbar.
- */
+const BLOCK_TAGS = new Set([
+  "div", "section", "article", "aside", "header", "footer", "main", "nav",
+  "h1", "h2", "h3", "h4", "h5", "h6", "p", "blockquote", "ul", "ol", "li",
+  "figure", "figcaption", "details", "summary",
+]);
+
+/** Inline editable text/HTML component. Uses TipTap for rich editing in admin mode. */
 export default function EditableText({
   pagePath,
   blockKey,
@@ -26,27 +32,34 @@ export default function EditableText({
   className = "",
   contentType: defaultContentType = "text",
 }: EditableTextProps) {
-  const { isAdmin } = useContent();
-  const { content, contentType, loading } = useContentBlock(
+  const isBlockTag = BLOCK_TAGS.has(Tag as string);
+  const { isAdmin, updateBlockContent } = useContent();
+  const { lang } = useLanguage();
+  const { content, contentType, loading, existsInDb } = useContentBlock(
     pagePath,
     blockKey,
     fallback
   );
 
   const isHtml = contentType === "html" || defaultContentType === "html";
+  const isEmpty = existsInDb && !content;
 
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(content);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const editableRef = useRef<HTMLElement>(null);
-  const autoSaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const draftRef = useRef(draft);
+  const contentRef = useRef(content);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const textInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setDraft(content);
     draftRef.current = content;
+    contentRef.current = content;
   }, [content]);
+
+  const resolvedContentType = (contentType || defaultContentType) as ResolvedContentType;
 
   const saveContent = useCallback(
     async (newContent: string) => {
@@ -54,7 +67,8 @@ export default function EditableText({
       setError(null);
       try {
         const csrf = getCsrfToken();
-        const res = await fetch(`/api/admin/content/by-path`, {
+        const normalizedPath = `/${pagePath.replace(/^\//, "")}`;
+        const res = await fetch("/api/admin/content/by-path", {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -62,18 +76,18 @@ export default function EditableText({
           },
           credentials: "include",
           body: JSON.stringify({
-            pagePath: `/${pagePath.replace(/^\//, "")}`,
+            pagePath: normalizedPath,
             blockKey,
             content: newContent,
-            contentType: contentType || defaultContentType,
+            contentType: resolvedContentType,
+            lang,
           }),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(
-            data.error || `Mentés sikertelen (${res.status})`
-          );
+          throw new Error(data.error || `Mentés sikertelen (${res.status})`);
         }
+        updateBlockContent(pagePath, blockKey, newContent, resolvedContentType);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Hiba történt a mentés során."
@@ -82,101 +96,65 @@ export default function EditableText({
         setSaving(false);
       }
     },
-    [pagePath, blockKey, contentType, defaultContentType]
+    [pagePath, blockKey, resolvedContentType, lang, updateBlockContent]
   );
 
-  const readDraft = useCallback(() => {
-    if (!editableRef.current) return "";
-    return isHtml
-      ? editableRef.current.innerHTML
-      : (editableRef.current.textContent ?? "");
-  }, [isHtml]);
+  const handleDraftChange = useCallback((newContent: string) => {
+    setDraft(newContent);
+    draftRef.current = newContent;
+  }, []);
+
+  const clearAutoSave = useCallback(() => {
+    if (autoSaveTimerRef.current) {
+      clearInterval(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = null;
+    }
+  }, []);
 
   const startEditing = useCallback(() => {
     setIsEditing(true);
     setError(null);
-    setTimeout(() => {
-      if (editableRef.current) {
-        if (isHtml) {
-          editableRef.current.innerHTML = draft;
-        }
-        editableRef.current.focus();
-      }
-    }, 0);
-
     autoSaveTimerRef.current = setInterval(() => {
-      if (draftRef.current !== content) {
+      if (draftRef.current !== contentRef.current) {
         saveContent(draftRef.current);
       }
     }, AUTO_SAVE_INTERVAL);
-  }, [content, draft, isHtml, saveContent]);
+    if (!isHtml) {
+      setTimeout(() => textInputRef.current?.focus(), 0);
+    }
+  }, [isHtml, saveContent]);
 
   const stopEditing = useCallback(
     (save: boolean) => {
-      if (autoSaveTimerRef.current) {
-        clearInterval(autoSaveTimerRef.current);
-        autoSaveTimerRef.current = null;
-      }
+      clearAutoSave();
       setIsEditing(false);
-      if (save && draft !== content) {
-        saveContent(draft);
+      if (save && draftRef.current !== contentRef.current) {
+        saveContent(draftRef.current);
       } else if (!save) {
-        setDraft(content);
-        if (editableRef.current) {
-          if (isHtml) {
-            editableRef.current.innerHTML = content;
-          } else {
-            editableRef.current.textContent = content;
-          }
-        }
+        setDraft(contentRef.current);
+        draftRef.current = contentRef.current;
       }
     },
-    [draft, content, isHtml, saveContent]
+    [saveContent, clearAutoSave]
   );
 
-  const handleInput = useCallback(() => {
-    const newContent = readDraft();
-    setDraft(newContent);
-    draftRef.current = newContent;
-  }, [readDraft]);
-
-  const handleKeyDown = useCallback(
+  const handleTextKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         stopEditing(false);
       }
-      if (e.key === "Enter" && !e.shiftKey && contentType === "text") {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         stopEditing(true);
       }
     },
-    [stopEditing, contentType]
+    [stopEditing]
   );
-
-  const execFormat = useCallback(
-    (command: string, value?: string) => {
-      document.execCommand(command, false, value);
-      handleInput();
-      editableRef.current?.focus();
-    },
-    [handleInput]
-  );
-
-  const handleLinkInsert = useCallback(() => {
-    const url = window.prompt("Link URL:");
-    if (url) {
-      execFormat("createLink", url);
-    }
-  }, [execFormat]);
 
   useEffect(() => {
-    return () => {
-      if (autoSaveTimerRef.current) {
-        clearInterval(autoSaveTimerRef.current);
-      }
-    };
-  }, []);
+    return clearAutoSave;
+  }, [clearAutoSave]);
 
   if (loading && !content) {
     return (
@@ -187,6 +165,7 @@ export default function EditableText({
   }
 
   if (!isAdmin) {
+    if (isEmpty) return null;
     if (isHtml) {
       return (
         <Tag
@@ -197,76 +176,43 @@ export default function EditableText({
         />
       );
     }
-    return <Tag className={className} data-editable={blockKey} data-page={pagePath}>{content}</Tag>;
+    return (
+      <Tag className={className} data-editable={blockKey} data-page={pagePath}>
+        {content}
+      </Tag>
+    );
   }
 
+  const WrapperTag = isBlockTag ? "div" : "span";
+
   return (
-    <span
-      className={`group relative inline-block ${className}`}
+    <WrapperTag
+      className={`group relative ${isBlockTag ? "block" : "inline-block"} ${className}`}
       data-editable={blockKey}
       data-page={pagePath}
     >
       {isEditing ? (
         <>
-          {isHtml && (
-            <div
-              className="absolute -top-12 left-0 flex gap-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-1"
-              role="toolbar"
-              aria-label="Szövegformázás"
-            >
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  execFormat("bold");
-                }}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 rounded"
-                aria-label="Félkövér"
-                title="Félkövér"
-              >
-                <Bold className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  execFormat("italic");
-                }}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 rounded"
-                aria-label="Dőlt"
-                title="Dőlt"
-              >
-                <Italic className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  handleLinkInsert();
-                }}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 rounded"
-                aria-label="Link"
-                title="Link"
-              >
-                <Link className="h-5 w-5" />
-              </button>
-            </div>
+          {isHtml ? (
+            <RichTextEditor
+              value={draft}
+              onChange={handleDraftChange}
+              mode="rich"
+              placeholder={`${blockKey} szerkesztése`}
+            />
+          ) : (
+            <input
+              ref={textInputRef}
+              type="text"
+              value={draft}
+              onChange={(e) => handleDraftChange(e.target.value)}
+              onKeyDown={handleTextKeyDown}
+              onBlur={() => stopEditing(true)}
+              className="w-full outline-2 outline-dashed outline-blue-400 rounded px-2 py-1 min-w-[2rem] focus:outline-blue-600 bg-white text-inherit"
+              aria-label={`${blockKey} szerkesztése`}
+            />
           )}
-          <Tag
-            ref={editableRef as React.Ref<HTMLElement>}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={handleInput}
-            onKeyDown={handleKeyDown}
-            onBlur={() => stopEditing(true)}
-            className="outline-2 outline-dashed outline-blue-400 rounded px-1 min-w-[2rem] focus:outline-blue-600"
-            role="textbox"
-            aria-label={`${blockKey} szerkesztése`}
-            aria-multiline={contentType !== "text"}
-          >
-            {isHtml ? undefined : draft}
-          </Tag>
-          <span className={`absolute ${isHtml ? "-top-[4rem]" : "-top-[3rem]"} right-0 flex gap-1 z-50`}>
+          <span className="absolute -top-[3rem] right-0 flex gap-1 z-50">
             <button
               type="button"
               onClick={(e) => {
@@ -298,7 +244,9 @@ export default function EditableText({
         </>
       ) : (
         <>
-          {isHtml ? (
+          {isEmpty ? (
+            <Tag className="italic text-gray-400">[{blockKey}]</Tag>
+          ) : isHtml ? (
             <Tag dangerouslySetInnerHTML={{ __html: content }} />
           ) : (
             <Tag>{content}</Tag>
@@ -325,6 +273,6 @@ export default function EditableText({
           {error}
         </span>
       )}
-    </span>
+    </WrapperTag>
   );
 }

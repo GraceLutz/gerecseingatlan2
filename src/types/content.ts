@@ -136,3 +136,36 @@ function extractLangFallback(content: string, lang: Lang): string | null {
 
   return null;
 }
+
+/**
+ * Convert a JSON array string to HTML paragraphs.
+ * Returns null if the input is not a JSON array of strings.
+ *
+ * Used by normalizeContent and downstream renderers to convert
+ * CMS content like '["p1","p2"]' into '<p>p1</p><p>p2</p>'.
+ * Does NOT sanitize HTML within array items — that is the renderer's
+ * responsibility (see RichText.sanitizeHtml).
+ */
+export function jsonArrayToHtml(content: string): string | null {
+  try {
+    const parsed = JSON.parse(content);
+    if (!Array.isArray(parsed)) return null;
+    if (parsed.length === 0) return "";
+    if (!parsed.every((item): item is string => typeof item === "string")) return null;
+    return parsed.map((p) => `<p>${p}</p>`).join("");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Extract language from bilingual JSON and convert JSON arrays to HTML paragraphs.
+ * Combines extractLang (bilingual unwrapping) with jsonArrayToHtml (array rendering).
+ *
+ * Use this for rendering content on the public site.
+ * Use extractLang directly when you need the raw value (e.g. useContentArray).
+ */
+export function normalizeContent(content: string, lang: Lang): string {
+  const extracted = extractLang(content, lang);
+  return jsonArrayToHtml(extracted) ?? extracted;
+}

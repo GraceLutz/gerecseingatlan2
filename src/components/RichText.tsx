@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { isTipTapJson, renderTipTapJson } from "./RichTextEditor";
+import { jsonArrayToHtml } from "@/types/content";
 
 const HTML_RE = /<[a-z][\s\S]*>/i;
 
@@ -33,9 +34,12 @@ interface RichTextProps {
   "data-page"?: string;
 }
 
-/** Renders content as sanitized HTML, TipTap JSON, or plain text. */
+/** Renders content as sanitized HTML, TipTap JSON, JSON array paragraphs, or plain text. */
 export default function RichText({ content, className, ...rest }: RichTextProps) {
   const renderedHtml = useMemo(() => {
+    const arrayHtml = jsonArrayToHtml(content);
+    if (arrayHtml) return sanitizeHtml(arrayHtml);
+
     if (isTipTapJson(content)) {
       return sanitizeHtml(renderTipTapJson(content));
     }

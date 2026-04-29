@@ -5,7 +5,7 @@ import { Pencil, Check, X } from "lucide-react";
 import { getCsrfToken } from "@/lib/csrf";
 import RichTextEditor from "@/components/RichTextEditor";
 import { sanitizeHtml } from "@/components/RichText";
-import type { ResolvedContentType } from "@/types/content";
+import { jsonArrayToHtml, type ResolvedContentType } from "@/types/content";
 
 interface EditableTextProps {
   pagePath: string;
@@ -42,7 +42,8 @@ export default function EditableText({
     fallback
   );
 
-  const isHtml = contentType === "html" || defaultContentType === "html";
+  const arrayHtml = jsonArrayToHtml(content);
+  const isRichText = contentType === "html" || defaultContentType === "html" || arrayHtml !== null;
   const isEmpty = existsInDb && !content;
 
   const [isEditing, setIsEditing] = useState(false);
@@ -121,10 +122,10 @@ export default function EditableText({
         saveContent(draftRef.current);
       }
     }, AUTO_SAVE_INTERVAL);
-    if (!isHtml) {
+    if (!isRichText) {
       setTimeout(() => textInputRef.current?.focus(), 0);
     }
-  }, [isHtml, saveContent]);
+  }, [isRichText, saveContent]);
 
   const stopEditing = useCallback(
     (save: boolean) => {
@@ -168,13 +169,14 @@ export default function EditableText({
 
   if (!isAdmin) {
     if (isEmpty) return null;
-    if (isHtml) {
+    if (isRichText) {
+      const displayHtml = arrayHtml ?? content;
       return (
         <Tag
           className={className}
           data-editable={blockKey}
           data-page={pagePath}
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(displayHtml) }}
         />
       );
     }
@@ -195,7 +197,7 @@ export default function EditableText({
     >
       {isEditing ? (
         <>
-          {isHtml ? (
+          {isRichText ? (
             <RichTextEditor
               value={draft}
               onChange={handleDraftChange}
@@ -248,8 +250,8 @@ export default function EditableText({
         <>
           {isEmpty ? (
             <Tag className="italic text-gray-400">[{blockKey}]</Tag>
-          ) : isHtml ? (
-            <Tag dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }} />
+          ) : isRichText ? (
+            <Tag dangerouslySetInnerHTML={{ __html: sanitizeHtml(arrayHtml ?? content) }} />
           ) : (
             <Tag>{content}</Tag>
           )}

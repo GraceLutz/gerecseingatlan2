@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Save, X, Plus, Trash2 } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
-import { parseBilingual, createBilingual } from "@/types/content";
+import { parseBilingual, createBilingual, jsonArrayToHtml } from "@/types/content";
 import type { Lang, BilingualContent } from "@/types/content";
 
 interface FaqItem {
@@ -66,15 +66,6 @@ function detectArrayMode(content: string, blockKey: string): EditorMode {
   return "text";
 }
 
-/**
- * Join an array of paragraph strings into a single HTML string
- * for use in the TipTap rich text editor.
- */
-function joinParagraphs(paragraphs: string[]): string {
-  if (paragraphs.length === 0) return "";
-  return paragraphs.map((p) => `<p>${p}</p>`).join("");
-}
-
 function parseBilingualArray<T>(raw: string): { hu: T[]; en: T[] } {
   try {
     const parsed = JSON.parse(raw);
@@ -105,8 +96,8 @@ function initBilingualText(content: string): { hu: string; en: string } {
   try {
     const parsed = JSON.parse(content);
     if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-      const hu = Array.isArray(parsed.hu) ? joinParagraphs(parsed.hu) : String(parsed.hu ?? "");
-      const en = Array.isArray(parsed.en) ? joinParagraphs(parsed.en) : String(parsed.en ?? "");
+      const hu = Array.isArray(parsed.hu) ? (jsonArrayToHtml(JSON.stringify(parsed.hu)) ?? "") : String(parsed.hu ?? "");
+      const en = Array.isArray(parsed.en) ? (jsonArrayToHtml(JSON.stringify(parsed.en)) ?? "") : String(parsed.en ?? "");
       return { hu, en };
     }
   } catch { /* not JSON */ }

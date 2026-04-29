@@ -3,7 +3,7 @@ import { X, Save, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import RichTextEditor from "@/components/RichTextEditor";
-import { createBilingual } from "@/types/content";
+import { createBilingual, jsonArrayToHtml } from "@/types/content";
 import type { Lang } from "@/types/content";
 
 interface EditTarget {
@@ -52,11 +52,6 @@ function detectMode(blockKey: string, content: string, tagName: string): EditorM
   if (isListBlock(blockKey)) return "list";
 
   return "text";
-}
-
-function joinParagraphs(paragraphs: string[]): string {
-  if (paragraphs.length === 0) return "";
-  return paragraphs.map((p) => `<p>${p}</p>`).join("");
 }
 
 function parseBilingualArray<T>(raw: string): { hu: T[]; en: T[] } {
@@ -123,8 +118,8 @@ export default function InlineEditPanel({
           if (block && block.contentType === "json") {
             try {
               const parsed = JSON.parse(block.content);
-              const hu = Array.isArray(parsed.hu) ? joinParagraphs(parsed.hu) : (parsed.hu || "");
-              const en = Array.isArray(parsed.en) ? joinParagraphs(parsed.en) : (parsed.en || "");
+              const hu = Array.isArray(parsed.hu) ? (jsonArrayToHtml(JSON.stringify(parsed.hu)) ?? "") : (parsed.hu || "");
+              const en = Array.isArray(parsed.en) ? (jsonArrayToHtml(JSON.stringify(parsed.en)) ?? "") : (parsed.en || "");
               setHuContent(hu);
               setEnContent(en);
             } catch {

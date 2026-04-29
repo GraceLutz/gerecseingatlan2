@@ -7,7 +7,7 @@ import React, {
   useRef,
 } from "react";
 import { useLanguage } from "./LanguageContext";
-import { extractLang } from "@/types/content";
+import { extractLang, normalizeContent } from "@/types/content";
 import type { ContentBlock, Lang, ResolvedContentType } from "@/types/content";
 
 interface ContentPageData {
@@ -156,7 +156,7 @@ export function useContentBlock(
   const existsInDb = block !== undefined;
 
   const rawContent = block?.content ?? fallback;
-  const content = extractLang(rawContent, lang as Lang);
+  const content = normalizeContent(rawContent, lang as Lang);
 
   return {
     content,

@@ -51,8 +51,10 @@ interface Invitee {
 interface EventFormData {
   title: string;
   description: string;
-  startDatetime: string;
-  endDatetime: string;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
   staffId: string;
   eventType: string;
   location: string;
@@ -75,22 +77,30 @@ const STAFF_COLORS = [
 const EMPTY_FORM: EventFormData = {
   title: "",
   description: "",
-  startDatetime: "",
-  endDatetime: "",
+  startDate: "",
+  startTime: "",
+  endDate: "",
+  endTime: "",
   staffId: "",
   eventType: "egyeb",
   location: "",
   color: "",
 };
 
-function toLocalDatetimeValue(iso: string): string {
+function toLocalDate(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-function fromLocalDatetimeValue(local: string): string {
-  return new Date(local).toISOString();
+function toLocalTime(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function combineDateTime(date: string, time: string): string {
+  return new Date(`${date}T${time}`).toISOString();
 }
 
 export default function CalendarPage() {
@@ -239,8 +249,10 @@ export default function CalendarPage() {
     setSelectedInviteeIds([]);
     setForm({
       ...EMPTY_FORM,
-      startDatetime: toLocalDatetimeValue(selectInfo.startStr),
-      endDatetime: toLocalDatetimeValue(selectInfo.endStr),
+      startDate: toLocalDate(selectInfo.startStr),
+      startTime: toLocalTime(selectInfo.startStr),
+      endDate: toLocalDate(selectInfo.endStr),
+      endTime: toLocalTime(selectInfo.endStr),
     });
     setModalOpen(true);
   };
@@ -253,8 +265,10 @@ export default function CalendarPage() {
     setForm({
       title: event.title,
       description: event.description ?? "",
-      startDatetime: toLocalDatetimeValue(event.startDatetime),
-      endDatetime: toLocalDatetimeValue(event.endDatetime),
+      startDate: toLocalDate(event.startDatetime),
+      startTime: toLocalTime(event.startDatetime),
+      endDate: toLocalDate(event.endDatetime),
+      endTime: toLocalTime(event.endDatetime),
       staffId: event.staffId ?? "",
       eventType: event.eventType,
       location: event.location ?? "",
@@ -308,8 +322,8 @@ export default function CalendarPage() {
       const body: any = {
         title: form.title,
         description: form.description || null,
-        startDatetime: fromLocalDatetimeValue(form.startDatetime),
-        endDatetime: fromLocalDatetimeValue(form.endDatetime),
+        startDatetime: combineDateTime(form.startDate, form.startTime),
+        endDatetime: combineDateTime(form.endDate, form.endTime),
         staffId: form.staffId || null,
         eventType: form.eventType,
         location: form.location || null,
@@ -583,45 +597,65 @@ export default function CalendarPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label
-                    htmlFor="event-start"
+                    htmlFor="event-start-date"
                     className="block text-sm font-medium text-foreground mb-1"
                   >
                     Kezdés *
                   </label>
-                  <input
-                    id="event-start"
-                    type="datetime-local"
-                    required
-                    value={form.startDatetime}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        startDatetime: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      id="event-start-date"
+                      type="date"
+                      required
+                      value={form.startDate}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, startDate: e.target.value }))
+                      }
+                      className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <input
+                      id="event-start-time"
+                      type="time"
+                      required
+                      value={form.startTime}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, startTime: e.target.value }))
+                      }
+                      className="w-28 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      aria-label="Kezdés időpontja"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label
-                    htmlFor="event-end"
+                    htmlFor="event-end-date"
                     className="block text-sm font-medium text-foreground mb-1"
                   >
                     Befejezés *
                   </label>
-                  <input
-                    id="event-end"
-                    type="datetime-local"
-                    required
-                    value={form.endDatetime}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        endDatetime: e.target.value,
-                      }))
-                    }
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      id="event-end-date"
+                      type="date"
+                      required
+                      value={form.endDate}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, endDate: e.target.value }))
+                      }
+                      className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <input
+                      id="event-end-time"
+                      type="time"
+                      required
+                      value={form.endTime}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, endTime: e.target.value }))
+                      }
+                      className="w-28 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      aria-label="Befejezés időpontja"
+                    />
+                  </div>
                 </div>
               </div>
 

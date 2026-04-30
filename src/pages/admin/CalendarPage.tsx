@@ -625,56 +625,55 @@ export default function CalendarPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label
-                    htmlFor="event-start-date"
-                    className="block text-sm font-medium text-foreground mb-1"
-                  >
-                    Kezdés *
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <input
-                      id="event-start-date"
-                      type="date"
-                      required
-                      value={form.startDate}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, startDate: e.target.value }))
-                      }
-                      className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <TimePicker
-                      value={form.startTime}
-                      onChange={(v) => setForm((f) => ({ ...f, startTime: v }))}
-                      ariaLabel="Kezdés időpontja"
-                    />
-                  </div>
+              <div>
+                <label
+                  htmlFor="event-start-date"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
+                  Kezdés *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="event-start-date"
+                    type="date"
+                    required
+                    value={form.startDate}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, startDate: e.target.value }))
+                    }
+                    className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <TimePicker
+                    value={form.startTime}
+                    onChange={(v) => setForm((f) => ({ ...f, startTime: v }))}
+                    ariaLabel="Kezdés időpontja"
+                  />
                 </div>
-                <div>
-                  <label
-                    htmlFor="event-end-date"
-                    className="block text-sm font-medium text-foreground mb-1"
-                  >
-                    Befejezés *
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <input
-                      id="event-end-date"
-                      type="date"
-                      required
-                      value={form.endDate}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, endDate: e.target.value }))
-                      }
-                      className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <TimePicker
-                      value={form.endTime}
-                      onChange={(v) => setForm((f) => ({ ...f, endTime: v }))}
-                      ariaLabel="Befejezés időpontja"
-                    />
-                  </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="event-end-date"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
+                  Befejezés *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="event-end-date"
+                    type="date"
+                    required
+                    value={form.endDate}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, endDate: e.target.value }))
+                    }
+                    className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <TimePicker
+                    value={form.endTime}
+                    onChange={(v) => setForm((f) => ({ ...f, endTime: v }))}
+                    ariaLabel="Befejezés időpontja"
+                  />
                 </div>
               </div>
 

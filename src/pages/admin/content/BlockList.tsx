@@ -173,7 +173,7 @@ export default function BlockList({ page, blocks, csrfToken, onRefresh }: BlockL
   };
 
   const formatDate = (d: string) =>
-    new Date(d).toLocaleString("hu-HU", { timeZone: "Europe/Budapest" });
+    new Date(d).toLocaleString("hu-HU", { timeZone: "Europe/Budapest", hour12: false });
 
   return (
     <div>

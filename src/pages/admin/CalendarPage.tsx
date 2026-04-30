@@ -514,6 +514,11 @@ export default function CalendarPage() {
             datesSet={handleDatesSet}
             height="auto"
             nowIndicator={true}
+            slotLabelFormat={{
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }}
             eventTimeFormat={{
               hour: "2-digit",
               minute: "2-digit",

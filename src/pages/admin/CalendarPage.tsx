@@ -514,6 +514,10 @@ export default function CalendarPage() {
             datesSet={handleDatesSet}
             height="auto"
             nowIndicator={true}
+            slotMinTime="00:00:00"
+            slotMaxTime="24:00:00"
+            slotDuration="00:30:00"
+            slotLabelInterval="01:00:00"
             slotLabelFormat={{
               hour: "2-digit",
               minute: "2-digit",

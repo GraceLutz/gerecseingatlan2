@@ -7,15 +7,17 @@ import PropertyGallery from "@/components/PropertyGallery";
 import PropertyContactForm from "@/components/PropertyContactForm";
 import PropertyMap from "@/components/PropertyMap";
 import SimilarProperties from "@/components/SimilarProperties";
+import { useToast } from "@/hooks/use-toast";
 import { useParams, Link } from "react-router-dom";
-import { useEffect } from "react";
-import { Maximize, BedDouble, Bath, Calendar, Thermometer, Zap, Building, Car, Trees, ChevronRight } from "lucide-react";
+import { useEffect, useCallback } from "react";
+import { Maximize, BedDouble, Bath, Calendar, Thermometer, Zap, Building, Car, Trees, ChevronRight, Facebook, Mail, Copy } from "lucide-react";
 
 const PropertyDetailPage = () => {
   const { t, lang, localePath } = useLanguage();
   const { formatPrice } = useCurrency();
   const { properties, isLoading } = useProperties();
   const { id } = useParams();
+  const { toast } = useToast();
 
   const property = properties.find(p => p.id === id);
 
@@ -42,6 +44,32 @@ const PropertyDetailPage = () => {
   const title = lang === "hu" ? property.titleHu : property.titleEn;
   const description = lang === "hu" ? property.descriptionHu : property.descriptionEn;
   const statusLabel = property.status === "sale" ? t.featured.forSale : t.featured.forRent;
+
+  const handleFacebookShare = useCallback(() => {
+    const url = encodeURIComponent(window.location.href);
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      "_blank",
+      "noopener,noreferrer,width=600,height=400",
+    );
+  }, []);
+
+  const handleEmailShare = useCallback(() => {
+    const subject = encodeURIComponent(`Ingatlan: ${title}`);
+    const body = encodeURIComponent(
+      `Nézd meg ezt az ingatlant a Gerecse Ingatlannál:\n\n${title}\n${window.location.href}`,
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }, [title]);
+
+  const handleCopyLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast({ title: "Link másolva!" });
+    } catch {
+      toast({ title: "A link másolása nem sikerült.", variant: "destructive" });
+    }
+  }, [toast]);
 
   const details = [
     property.area > 0 ? { icon: Maximize, label: t.properties.area, value: `${property.area} m²` } : null,
@@ -135,6 +163,37 @@ const PropertyDetailPage = () => {
             }`}>
               {statusLabel}
             </span>
+          </div>
+
+          {/* Social sharing buttons */}
+          <div className="flex items-center gap-4 mt-4" role="group" aria-label={lang === "hu" ? "Megosztás" : "Share"}>
+            <button
+              type="button"
+              onClick={handleFacebookShare}
+              className="flex flex-col items-center gap-1 min-w-[44px] min-h-[44px] p-2 rounded-lg bg-[#1877F2] text-white hover:bg-[#166FE5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-green"
+              aria-label="Facebook"
+            >
+              <Facebook size={20} aria-hidden="true" />
+              <span className="text-xs font-body">Facebook</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleEmailShare}
+              className="flex flex-col items-center gap-1 min-w-[44px] min-h-[44px] p-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-green"
+              aria-label="Email"
+            >
+              <Mail size={20} aria-hidden="true" />
+              <span className="text-xs font-body">Email</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="flex flex-col items-center gap-1 min-w-[44px] min-h-[44px] p-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-dark-green"
+              aria-label={lang === "hu" ? "Link másolása" : "Copy link"}
+            >
+              <Copy size={20} aria-hidden="true" />
+              <span className="text-xs font-body">{lang === "hu" ? "Link" : "Copy"}</span>
+            </button>
           </div>
         </div>
       </section>

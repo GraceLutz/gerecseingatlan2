@@ -110,7 +110,7 @@ function TimePicker({ value, onChange, ariaLabel }: { value: string; onChange: (
       <select
         value={String(h).padStart(2, '0')}
         onChange={e => onChange(`${e.target.value}:${String(m).padStart(2, '0')}`)}
-        className="px-2 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-20 px-2 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         aria-label={ariaLabel ? `${ariaLabel} óra` : 'Óra'}
       >
         {Array.from({length: 24}, (_, i) => (
@@ -123,7 +123,7 @@ function TimePicker({ value, onChange, ariaLabel }: { value: string; onChange: (
       <select
         value={String(m).padStart(2, '0')}
         onChange={e => onChange(`${String(h).padStart(2, '0')}:${e.target.value}`)}
-        className="px-2 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-20 px-2 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         aria-label={ariaLabel ? `${ariaLabel} perc` : 'Perc'}
       >
         {['00','05','10','15','20','25','30','35','40','45','50','55'].map(min => (
@@ -587,8 +587,8 @@ export default function CalendarPage() {
             if (e.target === e.currentTarget) setModalOpen(false);
           }}
         >
-          <div className="bg-card w-full max-w-lg mx-4 rounded-xl shadow-xl border border-border max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-5 border-b border-border">
+          <div className="bg-card w-[95vw] sm:w-full max-w-2xl mx-4 rounded-xl shadow-xl border border-border max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-5 md:p-8 border-b border-border">
               <h2
                 id="event-modal-title"
                 className="text-lg font-heading font-semibold text-foreground"
@@ -604,7 +604,7 @@ export default function CalendarPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            <form onSubmit={handleSubmit} className="p-5 md:p-8 space-y-4">
               <div>
                 <label
                   htmlFor="event-title"
@@ -625,7 +625,7 @@ export default function CalendarPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label
                     htmlFor="event-start-date"
@@ -633,7 +633,7 @@ export default function CalendarPage() {
                   >
                     Kezdés *
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       id="event-start-date"
                       type="date"
@@ -658,7 +658,7 @@ export default function CalendarPage() {
                   >
                     Befejezés *
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       id="event-end-date"
                       type="date"
@@ -678,7 +678,7 @@ export default function CalendarPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label
                     htmlFor="event-type"

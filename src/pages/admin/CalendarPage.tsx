@@ -103,6 +103,37 @@ function combineDateTime(date: string, time: string): string {
   return new Date(`${date}T${time}`).toISOString();
 }
 
+function TimePicker({ value, onChange, ariaLabel }: { value: string; onChange: (v: string) => void; ariaLabel?: string }) {
+  const [h, m] = (value || '00:00').split(':').map(Number);
+  return (
+    <div className="flex gap-1 items-center" role="group" aria-label={ariaLabel}>
+      <select
+        value={String(h).padStart(2, '0')}
+        onChange={e => onChange(`${e.target.value}:${String(m).padStart(2, '0')}`)}
+        className="px-2 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        aria-label={ariaLabel ? `${ariaLabel} óra` : 'Óra'}
+      >
+        {Array.from({length: 24}, (_, i) => (
+          <option key={i} value={String(i).padStart(2, '0')}>
+            {String(i).padStart(2, '0')}
+          </option>
+        ))}
+      </select>
+      <span className="text-muted-foreground font-bold" aria-hidden="true">:</span>
+      <select
+        value={String(m).padStart(2, '0')}
+        onChange={e => onChange(`${String(h).padStart(2, '0')}:${e.target.value}`)}
+        className="px-2 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        aria-label={ariaLabel ? `${ariaLabel} perc` : 'Perc'}
+      >
+        {['00','05','10','15','20','25','30','35','40','45','50','55'].map(min => (
+          <option key={min} value={min}>{min}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export default function CalendarPage() {
   const { csrfToken } = useAuth();
 
@@ -613,16 +644,10 @@ export default function CalendarPage() {
                       }
                       className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                    <input
-                      id="event-start-time"
-                      type="time"
-                      required
+                    <TimePicker
                       value={form.startTime}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, startTime: e.target.value }))
-                      }
-                      className="w-28 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label="Kezdés időpontja"
+                      onChange={(v) => setForm((f) => ({ ...f, startTime: v }))}
+                      ariaLabel="Kezdés időpontja"
                     />
                   </div>
                 </div>
@@ -644,16 +669,10 @@ export default function CalendarPage() {
                       }
                       className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                    <input
-                      id="event-end-time"
-                      type="time"
-                      required
+                    <TimePicker
                       value={form.endTime}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, endTime: e.target.value }))
-                      }
-                      className="w-28 px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label="Befejezés időpontja"
+                      onChange={(v) => setForm((f) => ({ ...f, endTime: v }))}
+                      ariaLabel="Befejezés időpontja"
                     />
                   </div>
                 </div>

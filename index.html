@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="hu">
+<html lang="hu-HU">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +17,7 @@
     <meta name="theme-color" content="#1B2A4A" />
 
     <!-- Set lang attribute based on URL before first paint to avoid flash -->
-    <script>document.documentElement.lang=location.pathname.startsWith('/en')?'en':'hu'</script>
+    <script>document.documentElement.lang=(location.pathname==='/en'||location.pathname.startsWith('/en/'))?'en':'hu-HU'</script>
 
     <!-- Fonts self-hosted in /fonts/ for GDPR compliance (no external Google requests) -->
     <!-- @font-face declarations are in src/index.css -->

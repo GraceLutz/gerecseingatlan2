@@ -10,7 +10,7 @@ import SimilarProperties from "@/components/SimilarProperties";
 import { useToast } from "@/hooks/use-toast";
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useCallback } from "react";
-import { Maximize, BedDouble, Bath, Calendar, Thermometer, Zap, Building, Car, Trees, ChevronRight, Facebook, Mail, Copy } from "lucide-react";
+import { Maximize, BedDouble, Bath, Calendar, Thermometer, Zap, Building, Car, Trees, ChevronRight, Facebook, Mail, Copy, Share2 } from "lucide-react";
 
 const PropertyDetailPage = () => {
   const { t, lang, localePath } = useLanguage();
@@ -165,8 +165,15 @@ const PropertyDetailPage = () => {
             </span>
           </div>
 
-          {/* Social sharing buttons */}
-          <div className="flex items-center gap-4 mt-4" role="group" aria-label={lang === "hu" ? "Megosztás" : "Share"}>
+          {/* Social sharing section */}
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Share2 size={18} className="text-primary-foreground/80" aria-hidden="true" />
+              <span className="text-sm font-heading font-semibold text-primary-foreground/80">
+                {lang === "hu" ? "Megosztás" : "Share"}
+              </span>
+            </div>
+            <div className="flex items-center gap-4" role="group" aria-label={lang === "hu" ? "Megosztás" : "Share"}>
             <button
               type="button"
               onClick={handleFacebookShare}
@@ -194,6 +201,7 @@ const PropertyDetailPage = () => {
               <Copy size={20} aria-hidden="true" />
               <span className="text-xs font-body">{lang === "hu" ? "Link" : "Copy"}</span>
             </button>
+            </div>
           </div>
         </div>
       </section>

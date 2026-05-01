@@ -145,15 +145,6 @@ export function parseFeedXml(xmlString: string): FeedResult {
       const subCategory = mapAltipusToSubCategory(data.altipus);
       const typeCode = subCategoryToTypeCode(subCategory);
       const typeLabel = getSubCategoryLabel(subCategory);
-
-      // TEMP: log raw building type fields for mapping verification
-      log("info", "property_type_debug", {
-        propertyId: data.id,
-        altipus: data.altipus,
-        subCategory,
-        typeLabel,
-        adat_85_raw: rawAttrs.adat_85,
-      });
       const city = data.telepules || "Ismeretlen";
       const area = data.alapterulet;
       const images = extractImages(data.kepek);

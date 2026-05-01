@@ -77,7 +77,6 @@ export type PropertyCategory =
 export type PropertySubCategory =
   | "tegla-lakas"
   | "panel-lakas"
-  | "ujepitesu-lakas"
   | "csaladi-haz"
   | "ikerhaz"
   | "sorhaz"
@@ -259,11 +258,11 @@ export function mapTipusToCategory(code: number): PropertyCategory {
   return tipusToCategoryMap[code] ?? "egyeb";
 }
 
-/** altipus code → PropertySubCategory (IF9 feed: 2=tégla, 3=panel) */
+/** altipus code → PropertySubCategory */
 const altipusToSubCategoryMap: Record<number, PropertySubCategory> = {
   1: "garzon",
-  2: "tegla-lakas",
-  3: "panel-lakas",
+  2: "panel-lakas",
+  3: "tegla-lakas",
   4: "csaladi-haz",
   5: "ikerhaz",
   6: "sorhaz",
@@ -284,9 +283,8 @@ export function mapAltipusToSubCategory(code?: number): PropertySubCategory {
 
 /** SubCategory → Hungarian display label */
 const subCategoryLabels: Record<PropertySubCategory, string> = {
-  "tegla-lakas": "Tégla lakás",
-  "panel-lakas": "Panel lakás",
-  "ujepitesu-lakas": "Újépítésű",
+  "tegla-lakas": "tégla lakás",
+  "panel-lakas": "panellakás",
   "csaladi-haz": "családi ház",
   "ikerhaz": "ikerház",
   "sorhaz": "sorház",

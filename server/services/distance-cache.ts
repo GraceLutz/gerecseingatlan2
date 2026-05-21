@@ -1,6 +1,7 @@
+import { z } from "zod";
 import { db } from "../db/index.js";
 import { distanceCache } from "../db/schema/agent.js";
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 
 const DISTANCE_TTL_DAYS = 7;
 
@@ -8,6 +9,11 @@ export interface CachedDistance {
   distanceM: number;
   durationS: number;
 }
+
+const cachedDistanceSchema = z.object({
+  distanceM: z.number().int().nonnegative(),
+  durationS: z.number().int().nonnegative(),
+});
 
 export async function getCachedDistance(
   originLat: number,
@@ -31,7 +37,17 @@ export async function getCachedDistance(
       .limit(1);
 
     if (!row) return null;
-    return { distanceM: row.distanceM, durationS: row.durationS };
+
+    const parsed = cachedDistanceSchema.safeParse({
+      distanceM: row.distanceM,
+      durationS: row.durationS,
+    });
+    if (!parsed.success) {
+      console.error("[distance-cache] Invalid cached data:", parsed.error.message);
+      return null;
+    }
+
+    return parsed.data;
   } catch (err) {
     console.error("[distance-cache] Read error:", err instanceof Error ? err.message : String(err));
     return null;
@@ -51,25 +67,12 @@ export async function setCachedDistance(
 
   try {
     await db
-      .delete(distanceCache)
-      .where(
-        and(
-          eq(distanceCache.originLat, originLat),
-          eq(distanceCache.originLng, originLng),
-          eq(distanceCache.destPlaceId, destPlaceId),
-          eq(distanceCache.mode, mode),
-        ),
-      );
-
-    await db.insert(distanceCache).values({
-      originLat,
-      originLng,
-      destPlaceId,
-      mode,
-      distanceM,
-      durationS,
-      expiresAt,
-    });
+      .insert(distanceCache)
+      .values({ originLat, originLng, destPlaceId, mode, distanceM, durationS, expiresAt })
+      .onConflictDoUpdate({
+        target: [distanceCache.originLat, distanceCache.originLng, distanceCache.destPlaceId, distanceCache.mode],
+        set: { distanceM, durationS, expiresAt },
+      });
   } catch (err) {
     console.error("[distance-cache] Write error:", err instanceof Error ? err.message : String(err));
   }

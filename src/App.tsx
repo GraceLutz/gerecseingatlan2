@@ -35,6 +35,7 @@ const AdminNewsletterPage = lazy(() => import("./pages/admin/NewsletterPage"));
 const AdminStaffPage = lazy(() => import("./pages/admin/StaffPage"));
 const AdminCalendarPage = lazy(() => import("./pages/admin/CalendarPage"));
 const AdminSettingsPage = lazy(() => import("./pages/admin/SettingsPage"));
+const AdminAiAgentPage = lazy(() => import("./pages/admin/AiAgentPage"));
 
 /* Legal / compliance pages — lazy-loaded since they are rarely visited */
 const ImpresszumPage = lazy(() => import("./pages/ImpresszumPage"));
@@ -75,7 +76,7 @@ class ErrorBoundary extends React.Component<
 
   render() {
     if (this.state.hasError) {
-      const isEn = typeof window !== "undefined" && window.location.pathname.startsWith("/en");
+      const isEn = typeof window !== "undefined" && (window.location.pathname === "/en" || window.location.pathname.startsWith("/en/"));
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
           <div className="text-center max-w-md">
@@ -146,6 +147,7 @@ const AppRoutes = () => (
             <Route path="munkatarsak" element={<AdminStaffPage />} />
             <Route path="naptar" element={<AdminCalendarPage />} />
             <Route path="beallitasok" element={<AdminSettingsPage />} />
+            <Route path="ai-agent" element={<AdminAiAgentPage />} />
             <Route index element={<AdminDashboardPage />} />
           </Route>
 

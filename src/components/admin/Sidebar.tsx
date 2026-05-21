@@ -7,6 +7,7 @@ import {
   Calendar,
   Mail,
   UserCog,
+  Bot,
   Settings,
   LogOut,
   X,
@@ -22,6 +23,7 @@ const navItems = [
 
 const adminOnlyItems = [
   { to: "/admin/felhasznalok", label: "Felhasználók", icon: UserCog },
+  { to: "/admin/ai-agent", label: "AI Asszisztens", icon: Bot },
 ];
 
 interface SidebarProps {

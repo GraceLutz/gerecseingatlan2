@@ -10,6 +10,7 @@
  */
 
 import { SchemaType, type FunctionDeclaration } from "@google/generative-ai";
+import { z } from "zod";
 import { fetchFeed } from "../ingatlan-feed";
 import type { NormalizedProperty } from "../../shared/types/property";
 
@@ -139,43 +140,60 @@ export const AGENT_TOOL_DECLARATIONS: FunctionDeclaration[] = [
   },
 ];
 
+// ─── Tool Argument Schemas (Zod validation) ────────────────
+
+const SearchNearbySchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+  type: z.string(),
+  radius: z.number().int().optional(),
+});
+
+const PlaceDetailsSchema = z.object({
+  placeId: z.string(),
+});
+
+const DistanceSchema = z.object({
+  originLat: z.number(),
+  originLng: z.number(),
+  destLat: z.number(),
+  destLng: z.number(),
+  mode: z.enum(["driving", "walking", "transit"]),
+});
+
+const SearchPropertiesSchema = z.object({
+  city: z.string().optional(),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
+  minRooms: z.number().int().optional(),
+  maxRooms: z.number().int().optional(),
+  category: z.string().optional(),
+  listingType: z.enum(["elado", "kiado"]).optional(),
+});
+
+const PropertyDetailsSchema = z.object({
+  propertyId: z.string(),
+});
+
+type SearchNearbyParams = z.infer<typeof SearchNearbySchema>;
+type PlaceDetailsParams = z.infer<typeof PlaceDetailsSchema>;
+type DistanceParams = z.infer<typeof DistanceSchema>;
+type SearchPropertiesParams = z.infer<typeof SearchPropertiesSchema>;
+type PropertyDetailsParams = z.infer<typeof PropertyDetailsSchema>;
+
 // ─── Tool Execution ─────────────────────────────────────────
 
-interface SearchNearbyParams {
-  lat: number;
-  lng: number;
-  type: string;
-  radius?: number;
-}
-
-interface PlaceDetailsParams {
-  placeId: string;
-}
-
-interface DistanceParams {
-  originLat: number;
-  originLng: number;
-  destLat: number;
-  destLng: number;
-  mode: "driving" | "walking" | "transit";
-}
-
-interface SearchPropertiesParams {
-  city?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minRooms?: number;
-  maxRooms?: number;
-  category?: string;
-  listingType?: "elado" | "kiado";
-}
-
-interface PropertyDetailsParams {
-  propertyId: string;
-}
+const TOOL_SCHEMAS: Record<string, z.ZodSchema> = {
+  search_nearby_places: SearchNearbySchema,
+  get_place_details: PlaceDetailsSchema,
+  calculate_distance: DistanceSchema,
+  search_properties: SearchPropertiesSchema,
+  get_property_details: PropertyDetailsSchema,
+};
 
 /**
  * Executes a tool call by dispatching to the appropriate service.
+ * Validates args with Zod before dispatch.
  * Google Maps tools delegate to server/services/google-maps.ts (Builder 4).
  * Property tools query the in-memory XML feed cache.
  */
@@ -185,19 +203,30 @@ export async function executeTool(
 ): Promise<{ result: unknown; citations: Citation[] }> {
   log("info", "tool_execute", { tool: name, args });
 
+  const schema = TOOL_SCHEMAS[name];
+  if (!schema) {
+    log("warn", "unknown_tool", { tool: name });
+    return { result: { error: `Ismeretlen eszköz: ${name}` }, citations: [] };
+  }
+
+  const parsed = schema.safeParse(args);
+  if (!parsed.success) {
+    log("warn", "invalid_tool_args", { tool: name, errors: parsed.error.issues });
+    return { result: { error: "Érvénytelen paraméterek." }, citations: [] };
+  }
+
   switch (name) {
     case "search_nearby_places":
-      return executeSearchNearbyPlaces(args as unknown as SearchNearbyParams);
+      return executeSearchNearbyPlaces(parsed.data as SearchNearbyParams);
     case "get_place_details":
-      return executeGetPlaceDetails(args as unknown as PlaceDetailsParams);
+      return executeGetPlaceDetails(parsed.data as PlaceDetailsParams);
     case "calculate_distance":
-      return executeCalculateDistance(args as unknown as DistanceParams);
+      return executeCalculateDistance(parsed.data as DistanceParams);
     case "search_properties":
-      return executeSearchProperties(args as unknown as SearchPropertiesParams);
+      return executeSearchProperties(parsed.data as SearchPropertiesParams);
     case "get_property_details":
-      return executeGetPropertyDetails(args as unknown as PropertyDetailsParams);
+      return executeGetPropertyDetails(parsed.data as PropertyDetailsParams);
     default:
-      log("warn", "unknown_tool", { tool: name });
       return { result: { error: `Ismeretlen eszköz: ${name}` }, citations: [] };
   }
 }

@@ -60,6 +60,10 @@ function getClient(): GoogleGenerativeAI {
   return genAI;
 }
 
+// ─── Model configuration ────────────────────────────────────
+
+const GEMINI_MODEL = "gemini-2.0-flash";
+
 // ─── Cost estimation ────────────────────────────────────────
 
 const COST_PER_1M_INPUT_TOKENS_EUR = 0.092;
@@ -86,7 +90,7 @@ export async function sendMessage(
   const client = getClient();
 
   const model = client.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: GEMINI_MODEL,
     systemInstruction: systemPrompt,
     ...(tools?.length
       ? { tools: [{ functionDeclarations: tools }] }

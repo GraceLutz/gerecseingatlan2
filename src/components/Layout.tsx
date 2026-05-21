@@ -3,6 +3,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import ScrollToTop from "./ScrollToTop";
 import CookieConsent from "./CookieConsent";
+import ChatWidget from "./ChatWidget";
 import SEOHead from "./SEOHead";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -36,12 +37,13 @@ const Layout: React.FC<LayoutProps> = ({ children, title, description, canonical
       </a>
       <SEOHead title={title} description={description} canonicalPath={canonicalPath} ogImage={ogImage} ogType={ogType} jsonLd={jsonLd} />
       <Header />
-      <main id="main-content" tabIndex={-1} className="flex-1 pt-[12rem] md:pt-[20rem] focus:outline-none">
+      <main id="main-content" tabIndex={-1} className="flex-1 pt-[5rem] md:pt-[10rem] focus:outline-none">
         {children}
       </main>
       <Footer />
       <ScrollToTop />
       <CookieConsent />
+      <ChatWidget />
     </div>
   );
 };

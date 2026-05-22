@@ -1,5 +1,6 @@
 import { User, Bot } from "lucide-react";
 import CitationChip, { type Citation } from "./CitationChip";
+import { sanitizeHtml } from "./RichText";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -49,7 +50,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, citations }) =
               ? "bg-dark-green text-white rounded-tr-sm"
               : "bg-muted text-foreground rounded-tl-sm"
           }`}
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderMarkdown(content)) }}
         />
         {citations && citations.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1" aria-label="Hivatkozott helyek">

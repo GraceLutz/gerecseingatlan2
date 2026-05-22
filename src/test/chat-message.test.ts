@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { renderMarkdown } from "../components/ChatMessage";
+import { renderMarkdown, ERROR_MESSAGES } from "../components/ChatMessage";
+import type { ErrorType } from "../components/ChatMessage";
 
 describe("renderMarkdown", () => {
   describe("HTML escaping (XSS prevention)", () => {
@@ -97,5 +98,27 @@ describe("renderMarkdown", () => {
       const result = renderMarkdown("sima szöveg");
       expect(result).toBe("sima szöveg");
     });
+  });
+});
+
+describe("ERROR_MESSAGES", () => {
+  it("has Hungarian messages for all error types", () => {
+    const types: ErrorType[] = ["network", "rate_limit", "budget", "api_down"];
+    for (const type of types) {
+      expect(ERROR_MESSAGES[type]).toBeTruthy();
+      expect(typeof ERROR_MESSAGES[type]).toBe("string");
+    }
+  });
+
+  it("network error mentions retry", () => {
+    expect(ERROR_MESSAGES.network).toContain("Próbálja újra");
+  });
+
+  it("rate_limit error mentions waiting", () => {
+    expect(ERROR_MESSAGES.rate_limit).toContain("később");
+  });
+
+  it("budget error indicates temporary unavailability", () => {
+    expect(ERROR_MESSAGES.budget).toContain("átmenetileg");
   });
 });

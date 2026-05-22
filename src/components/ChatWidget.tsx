@@ -1,44 +1,50 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { MessageCircle, X, Send, RotateCcw, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { MessageCircle, ChevronDown } from "lucide-react";
 import { useProperties } from "@/hooks/useProperties";
+import ChatHeader from "./chat/ChatHeader";
+import ChatInput from "./chat/ChatInput";
+import TypingIndicator from "./chat/TypingIndicator";
+import EmptyState from "./chat/EmptyState";
 import ChatMessage from "./ChatMessage";
-import type { Citation } from "./CitationChip";
 
 interface ChatWidgetProps {
   propertyId?: string;
 }
 
+type MessageRole = "user" | "assistant" | "system";
+
 interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: MessageRole;
   content: string;
-  citations?: Citation[];
+  timestamp: Date;
 }
 
-interface AgentResponse {
+interface ChatApiResponse {
   reply: string;
-  citations?: Citation[];
-  suggestions?: string[];
-  costEstimate?: number;
+  sources?: string[];
 }
+
+const MAX_MESSAGE_LENGTH = 500;
 
 const SUGGESTED_QUESTIONS_PROPERTY = [
   "Milyen boltok vannak a közelben?",
   "Mennyi idő a városközpontig?",
   "Van-e iskola a környéken?",
-  "Hasonló ingatlanok a környéken?",
-];
-
-const SUGGESTED_QUESTIONS_GLOBAL = [
-  "Milyen ingatlanokat ajánlanak?",
-  "Mely településeken vannak eladó házak?",
+  "Hány szobás az ingatlan?",
 ];
 
 function generateId(): string {
   return crypto.randomUUID();
+}
+
+function errorMessageForStatus(status: number): string {
+  if (status === 429)
+    return "Túl sok kérdést küldött rövid idő alatt. Kérjük, várjon egy kicsit, majd próbálja újra.";
+  if (status === 503)
+    return "A szolgáltatás átmenetileg nem elérhető. Kérjük, próbálja később.";
+  return "Sajnálom, hiba történt a válasz feldolgozása során.";
 }
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
@@ -47,7 +53,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
 
   const detectedPropertyId = useMemo(() => {
     if (propIdProp) return propIdProp;
-    const match = location.pathname.match(/\/ingatlan\/([^/]+)/);
+    const match = location.pathname.match(/\/(?:ingatlan|en\/property)\/([^/]+)/);
     return match?.[1] || undefined;
   }, [propIdProp, location.pathname]);
 
@@ -60,90 +66,185 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId] = useState(generateId);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isOnline, setIsOnline] = useState(true);
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const [hasNewMessage, setHasNewMessage] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [retryMessage, setRetryMessage] = useState<string | null>(null);
 
-  const suggestions = detectedPropertyId ? SUGGESTED_QUESTIONS_PROPERTY : SUGGESTED_QUESTIONS_GLOBAL;
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const bottomSentinelRef = useRef<HTMLDivElement>(null);
 
+  const suggestions = SUGGESTED_QUESTIONS_PROPERTY;
+
+  // Mobile detection
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const mql = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Scroll tracking via IntersectionObserver
+  useEffect(() => {
+    const sentinel = bottomSentinelRef.current;
+    const container = scrollContainerRef.current;
+    if (!sentinel || !container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isAtBottom = entry.isIntersecting;
+        setUserScrolledUp(!isAtBottom);
+        if (isAtBottom) setHasNewMessage(false);
+      },
+      { root: container, threshold: 0.1 },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [isOpen]);
+
+  // Auto-scroll to bottom on new messages (if not scrolled up)
+  useEffect(() => {
+    if (!userScrolledUp && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    } else if (userScrolledUp && messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.role === "assistant") {
+        setHasNewMessage(true);
+      }
     }
-  }, [messages]);
+  }, [messages, isLoading, userScrolledUp]);
 
+  // Focus input when widget opens
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
+    if (isOpen) {
+      setTimeout(() => {
+        const textarea = document.querySelector<HTMLTextAreaElement>(
+          '[aria-label="Üzenet bevitele"]',
+        );
+        textarea?.focus();
+      }, 100);
     }
   }, [isOpen]);
+
+
+  const scrollToBottom = useCallback(() => {
+    scrollContainerRef.current?.scrollTo({
+      top: scrollContainerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+    setHasNewMessage(false);
+  }, []);
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
 
-    const userMsg: Message = { id: generateId(), role: "user", content: text.trim() };
+    const trimmed = text.trim();
+    const userMsg: Message = {
+      id: generateId(),
+      role: "user",
+      content: trimmed,
+      timestamp: new Date(),
+    };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
+    setRetryMessage(null);
 
     try {
-      const history = messages.map((m) => ({ role: m.role, content: m.content }));
-      const res = await fetch("/api/agent/chat", {
+      const conversationHistory = messages
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .map((m) => ({
+          role: m.role === "user" ? "user" as const : "model" as const,
+          parts: [{ text: m.content }],
+        }));
+
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId,
-          propertyId: detectedPropertyId || undefined,
-          message: text.trim(),
-          history,
+          propertyId: detectedPropertyId,
+          userMessage: trimmed,
+          conversationHistory: conversationHistory.slice(-10),
         }),
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        const errorData = await res.json().catch(() => null);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: generateId(),
+            role: "system" as const,
+            content: errorData?.reply || errorMessageForStatus(res.status),
+            timestamp: new Date(),
+          },
+        ]);
+        setRetryMessage(trimmed);
+        setIsOnline(res.status !== 503);
+        return;
       }
 
-      const data: AgentResponse = await res.json();
+      const data: ChatApiResponse = await res.json();
       const assistantMsg: Message = {
         id: generateId(),
         role: "assistant",
         content: data.reply,
-        citations: data.citations,
+        timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMsg]);
+      setIsOnline(true);
     } catch {
-      const errorMsg: Message = {
-        id: generateId(),
-        role: "assistant",
-        content: "Sajnálom, hiba történt. Kérjük próbálja újra később.",
-      };
-      setMessages((prev) => [...prev, errorMsg]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: generateId(),
+          role: "system" as const,
+          content: "Nem sikerült csatlakozni a szerverhez. Ellenőrizze az internetkapcsolatát.",
+          timestamp: new Date(),
+        },
+      ]);
+      setRetryMessage(trimmed);
+      setIsOnline(false);
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, messages, detectedPropertyId, sessionId]);
+  }, [isLoading, messages, detectedPropertyId]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRetry = useCallback(() => {
+    if (retryMessage) {
+      setMessages((prev) => prev.filter((m) => m.role !== "system"));
+      sendMessage(retryMessage);
+    }
+  }, [retryMessage, sendMessage]);
+
+  const handleSend = useCallback(() => {
     sendMessage(input);
-  };
+  }, [input, sendMessage]);
 
-  const handleNewConversation = () => {
+  const handleNewConversation = useCallback(() => {
     setMessages([]);
     setInput("");
-  };
+    setRetryMessage(null);
+  }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
       setIsOpen(false);
     }
-  };
+  }, []);
 
-  const title = detectedPropertyId ? "Kérdezzen az ingatlanról" : "Kérdezzen tőlünk";
+  const panelClasses = isMobile
+    ? "fixed inset-0 z-50 bg-background flex flex-col"
+    : "fixed bottom-6 right-6 z-50 w-[400px] h-[600px] max-h-[80vh] bg-background border border-border rounded-xl shadow-2xl flex flex-col";
 
   return (
     <>
-      {/* Floating trigger button */}
       {!isOpen && (
         <button
           type="button"
@@ -155,106 +256,109 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
         </button>
       )}
 
-      {/* Chat panel */}
-      {isOpen && (
+      {isOpen && !detectedPropertyId && (
         <div
-          className="fixed bottom-0 right-0 z-50 w-full sm:w-[400px] sm:bottom-6 sm:right-6 h-full sm:h-[600px] sm:max-h-[80vh] bg-background border border-border rounded-none sm:rounded-xl shadow-2xl flex flex-col"
+          className={panelClasses}
+          style={isMobile ? { height: "100dvh", paddingBottom: "env(safe-area-inset-bottom)" } : undefined}
           role="dialog"
           aria-modal="true"
-          aria-label={title}
+          aria-label="Gerecse Asszisztens chat"
           onKeyDown={handleKeyDown}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b bg-dark-green text-white rounded-none sm:rounded-t-xl">
-            <h2 className="text-sm font-heading font-semibold">{title}</h2>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleNewConversation}
-                className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/10"
-                aria-label="Új beszélgetés"
-              >
-                <RotateCcw size={16} aria-hidden="true" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(false)}
-                className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/10"
-                aria-label="Chat bezárása"
-              >
-                <X size={16} aria-hidden="true" />
-              </Button>
-            </div>
+          <ChatHeader
+            isOnline={isOnline}
+            onMinimize={() => setIsOpen(false)}
+            onNewConversation={handleNewConversation}
+            onClose={isMobile ? () => setIsOpen(false) : undefined}
+            isMobile={isMobile}
+          />
+          <div className="flex-1 flex items-center justify-center px-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              A chat funkció csak ingatlan részletes oldalon érhető el. Válasszon egy ingatlant a kínálatból!
+            </p>
           </div>
+          <div className="px-4 py-2 border-t border-border text-center text-xs text-muted-foreground">
+            Telefon: +36-70-6 132 658
+          </div>
+        </div>
+      )}
 
-          {/* Messages area */}
-          <ScrollArea className="flex-1 px-4 py-3" ref={scrollRef}>
-            <div className="flex flex-col gap-3" role="list" aria-label="Üzenetek">
-              {messages.length === 0 && (
-                <div className="text-center text-muted-foreground text-sm py-6">
-                  <p className="mb-4">
-                    {detectedPropertyId
-                      ? "Kérdezzen az ingatlan környékéről!"
-                      : "Miben segíthetek?"}
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    {suggestions.map((q) => (
-                      <button
-                        key={q}
-                        type="button"
-                        onClick={() => sendMessage(q)}
-                        className="text-left px-3 py-2 rounded-lg border border-border text-xs hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {messages.map((msg) => (
+      {isOpen && detectedPropertyId && (
+        <div
+          className={panelClasses}
+          style={isMobile ? { height: "100dvh", paddingBottom: "env(safe-area-inset-bottom)" } : undefined}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Gerecse Asszisztens chat"
+          onKeyDown={handleKeyDown}
+        >
+          <ChatHeader
+            propertyTitle={property?.title}
+            isOnline={isOnline}
+            onMinimize={() => setIsOpen(false)}
+            onNewConversation={handleNewConversation}
+            onClose={isMobile ? () => setIsOpen(false) : undefined}
+            isMobile={isMobile}
+          />
+
+          <div
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto px-4 py-3 relative"
+            role="log"
+            aria-live="polite"
+            aria-label="Üzenetek"
+          >
+            {messages.length === 0 && (
+              <EmptyState
+                hasPropertyContext={true}
+                suggestions={suggestions}
+                onSelectQuestion={sendMessage}
+              />
+            )}
+
+            {messages.map((msg) => (
+              <div key={msg.id} className="mb-3">
                 <ChatMessage
-                  key={msg.id}
                   role={msg.role}
                   content={msg.content}
-                  citations={msg.citations}
+                  timestamp={msg.timestamp}
+                  onRetry={msg.role === "system" && retryMessage ? handleRetry : undefined}
                 />
-              ))}
-              {isLoading && (
-                <div className="flex items-center gap-2 text-muted-foreground text-sm" aria-live="polite">
-                  <Loader2 size={14} className="animate-spin" aria-hidden="true" />
-                  <span>Gondolkodom...</span>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
+              </div>
+            ))}
 
-          {/* Input area */}
-          <form
-            onSubmit={handleSubmit}
-            className="flex items-center gap-2 px-4 py-3 border-t"
-          >
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Írja be kérdését..."
-              disabled={isLoading}
-              className="flex-1 min-h-[40px] px-3 py-2 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-              aria-label="Üzenet bevitele"
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!input.trim() || isLoading}
-              className="h-10 w-10 shrink-0 bg-dark-green hover:bg-dark-green/90"
-              aria-label="Küldés"
+            {isLoading && (
+              <div className="mb-3">
+                <TypingIndicator />
+              </div>
+            )}
+
+            <div ref={bottomSentinelRef} className="h-1" />
+          </div>
+
+          {hasNewMessage && userScrolledUp && (
+            <button
+              type="button"
+              onClick={scrollToBottom}
+              className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full bg-dark-green text-white text-xs shadow-lg hover:bg-dark-green/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Ugrás az új üzenethez"
             >
-              <Send size={16} aria-hidden="true" />
-            </Button>
-          </form>
+              <ChevronDown size={14} aria-hidden="true" />
+              Új üzenet
+            </button>
+          )}
+
+          <ChatInput
+            value={input}
+            onChange={setInput}
+            onSend={handleSend}
+            isLoading={isLoading}
+            maxLength={MAX_MESSAGE_LENGTH}
+          />
+
+          <div className="px-4 py-2 border-t border-border text-center text-xs text-muted-foreground">
+            Telefon: +36-70-6 132 658
+          </div>
         </div>
       )}
     </>

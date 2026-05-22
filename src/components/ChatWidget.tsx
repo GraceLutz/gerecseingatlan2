@@ -35,6 +35,13 @@ const SUGGESTED_QUESTIONS_PROPERTY = [
   "Hány szobás az ingatlan?",
 ];
 
+const SUGGESTED_QUESTIONS_GLOBAL = [
+  "Milyen ingatlanok vannak Tatán?",
+  "Keresek 3 szobás házat 50 millió alatt",
+  "Milyen kiadó lakások vannak?",
+  "Ajánljon családi házat kerttel",
+];
+
 function generateId(): string {
   return crypto.randomUUID();
 }
@@ -75,7 +82,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
 
-  const suggestions = SUGGESTED_QUESTIONS_PROPERTY;
+  const suggestions = detectedPropertyId ? SUGGESTED_QUESTIONS_PROPERTY : SUGGESTED_QUESTIONS_GLOBAL;
 
   // Mobile detection
   useEffect(() => {
@@ -168,7 +175,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          propertyId: detectedPropertyId,
+          ...(detectedPropertyId && { propertyId: detectedPropertyId }),
           userMessage: trimmed,
           conversationHistory: conversationHistory.slice(-10),
         }),
@@ -256,34 +263,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
         </button>
       )}
 
-      {isOpen && !detectedPropertyId && (
-        <div
-          className={panelClasses}
-          style={isMobile ? { height: "100dvh", paddingBottom: "env(safe-area-inset-bottom)" } : undefined}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Gerecse Asszisztens chat"
-          onKeyDown={handleKeyDown}
-        >
-          <ChatHeader
-            isOnline={isOnline}
-            onMinimize={() => setIsOpen(false)}
-            onNewConversation={handleNewConversation}
-            onClose={isMobile ? () => setIsOpen(false) : undefined}
-            isMobile={isMobile}
-          />
-          <div className="flex-1 flex items-center justify-center px-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              A chat funkció csak ingatlan részletes oldalon érhető el. Válasszon egy ingatlant a kínálatból!
-            </p>
-          </div>
-          <div className="px-4 py-2 border-t border-border text-center text-xs text-muted-foreground">
-            Telefon: +36-70-6 132 658
-          </div>
-        </div>
-      )}
-
-      {isOpen && detectedPropertyId && (
+      {isOpen && (
         <div
           className={panelClasses}
           style={isMobile ? { height: "100dvh", paddingBottom: "env(safe-area-inset-bottom)" } : undefined}
@@ -310,7 +290,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
           >
             {messages.length === 0 && (
               <EmptyState
-                hasPropertyContext={true}
+                hasPropertyContext={!!detectedPropertyId}
                 suggestions={suggestions}
                 onSelectQuestion={sendMessage}
               />

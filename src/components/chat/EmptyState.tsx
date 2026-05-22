@@ -25,7 +25,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     <p className="text-xs text-muted-foreground mb-6 max-w-[260px]">
       {hasPropertyContext
         ? "Üdvözlöm! Tegye fel kérdését a most megtekintett ingatlannal vagy környékével kapcsolatban."
-        : "Segítek ingatlanokat keresni és a környékről tájékoztatni. Miben segíthetek?"}
+        : "Üdvözlöm! Segítek megtalálni az Önnek megfelelő ingatlant. Kérdezzen bátran a kínálatunkról!"}
     </p>
     <SuggestedQuestions questions={suggestions} onSelect={onSelectQuestion} />
   </div>

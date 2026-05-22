@@ -7,12 +7,21 @@ interface ChatMessageProps {
   citations?: Citation[];
 }
 
-function renderMarkdown(text: string): string {
+function escapeHtml(text: string): string {
   return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderMarkdown(text: string): string {
+  return escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/`(.+?)`/g, '<code class="bg-muted px-1 rounded text-xs">$1</code>')
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline text-dark-green">$1</a>')
+    .replace(/\[(.+?)\]\((https?:\/\/.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline text-dark-green">$1</a>')
     .replace(/\n/g, "<br />");
 }
 
@@ -54,4 +63,5 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, citations }) =
   );
 };
 
+export { renderMarkdown };
 export default ChatMessage;

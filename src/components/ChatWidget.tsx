@@ -29,17 +29,17 @@ interface ChatApiResponse {
 const MAX_MESSAGE_LENGTH = 500;
 
 const SUGGESTED_QUESTIONS_PROPERTY = [
-  "Milyen boltok vannak a közelben?",
-  "Mennyi idő a városközpontig?",
-  "Van-e iskola a környéken?",
-  "Hány szobás az ingatlan?",
+  "Mennyibe kerül és hány szobás?",
+  "Milyen iskolák, boltok vannak a közelben?",
+  "Mikor lehet megtekinteni?",
+  "Hitelre is megvásárolható?",
 ];
 
 const SUGGESTED_QUESTIONS_GLOBAL = [
-  "Milyen ingatlanok vannak Tatán?",
-  "Keresek 3 szobás házat 50 millió alatt",
-  "Milyen kiadó lakások vannak?",
-  "Ajánljon családi házat kerttel",
+  "Milyen ingatlanok vannak Dorogon?",
+  "Keresek egy 2 szobás lakást",
+  "Melyik a legjobb ár-érték arányú ingatlanuk?",
+  "Van olyan ingatlan ami CSOK Plusszal vehető?",
 ];
 
 function generateId(): string {
@@ -176,6 +176,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...(detectedPropertyId && { propertyId: detectedPropertyId }),
+          currentPath: location.pathname,
           userMessage: trimmed,
           conversationHistory: conversationHistory.slice(-10),
         }),
@@ -337,7 +338,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
           />
 
           <div className="px-4 py-2 border-t border-border text-center text-xs text-muted-foreground">
-            Telefon: +36-70-6 132 658
+            Telefon: +36 70 613 2658
           </div>
         </div>
       )}

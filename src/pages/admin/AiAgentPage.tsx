@@ -17,7 +17,6 @@ import {
   AlertTriangle,
   Phone,
   Settings,
-  Save,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -305,12 +304,14 @@ export default function AiAgentPage() {
                 ) : stats.isError ? (
                   <AlertCircle size={20} className="text-red-400 mt-1" aria-hidden="true" />
                 ) : (
-                  <p className={`text-2xl font-bold ${getBudgetColor(budgetPercent)}`}>
-                    {formatEur(stats.data?.currentMonthSpend.total ?? 0)} €
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatHuf(stats.data?.currentMonthSpend.total ?? 0, eurToHuf)}
-                  </p>
+                  <>
+                    <p className={`text-2xl font-bold ${getBudgetColor(budgetPercent)}`}>
+                      {formatEur(stats.data?.currentMonthSpend.total ?? 0)} €
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatHuf(stats.data?.currentMonthSpend.total ?? 0, eurToHuf)}
+                    </p>
+                  </>
                 )}
               </div>
             </div>
@@ -367,12 +368,14 @@ export default function AiAgentPage() {
                 ) : stats.isError ? (
                   <AlertCircle size={20} className="text-red-400 mt-1" aria-hidden="true" />
                 ) : (
-                  <p className="text-2xl font-bold text-purple-600">
-                    {formatEur(stats.data?.currentMonthSpend.byService.gemini ?? 0)} €
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatHuf(stats.data?.currentMonthSpend.byService.gemini ?? 0, eurToHuf)}
-                  </p>
+                  <>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {formatEur(stats.data?.currentMonthSpend.byService.gemini ?? 0)} €
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatHuf(stats.data?.currentMonthSpend.byService.gemini ?? 0, eurToHuf)}
+                    </p>
+                  </>
                 )}
               </div>
             </div>
@@ -393,12 +396,14 @@ export default function AiAgentPage() {
                 ) : stats.isError ? (
                   <AlertCircle size={20} className="text-red-400 mt-1" aria-hidden="true" />
                 ) : (
-                  <p className="text-2xl font-bold text-amber-600">
-                    {formatEur(stats.data?.currentMonthSpend.byService.google_maps ?? 0)} €
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatHuf(stats.data?.currentMonthSpend.byService.google_maps ?? 0, eurToHuf)}
-                  </p>
+                  <>
+                    <p className="text-2xl font-bold text-amber-600">
+                      {formatEur(stats.data?.currentMonthSpend.byService.google_maps ?? 0)} €
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatHuf(stats.data?.currentMonthSpend.byService.google_maps ?? 0, eurToHuf)}
+                    </p>
+                  </>
                 )}
               </div>
             </div>

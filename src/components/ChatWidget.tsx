@@ -32,7 +32,7 @@ const SUGGESTED_QUESTIONS_PROPERTY = [
   "Mennyibe kerül és hány szobás?",
   "Milyen iskolák, boltok vannak a közelben?",
   "Mikor lehet megtekinteni?",
-  "Hitelre is megvásárolható?",
+  "Milyen állapotban van az ingatlan?",
 ];
 
 const SUGGESTED_QUESTIONS_GLOBAL = [
@@ -222,7 +222,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, messages, detectedPropertyId]);
+  }, [isLoading, messages, detectedPropertyId, location.pathname]);
 
   const handleRetry = useCallback(() => {
     if (retryMessage) {

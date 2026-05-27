@@ -19,6 +19,8 @@ import propertiesRoutes, { feedAdminRouter } from "./routes/properties";
 import staffPublicRoutes from "./routes/staff";
 import agentRoutes from "./routes/agent";
 import agentAdminRoutes from "./routes/admin/agent";
+import chatRoutes from "./routes/chat";
+import reviewsRoutes from "./routes/reviews";
 import { requireAuth, validateCsrf } from "./middleware/auth";
 import { fetchFeed, startAutoRefresh } from "./ingatlan-feed";
 import path from "path";
@@ -135,11 +137,12 @@ app.use("/uploads", express.static(path.resolve(__dirname, "../uploads"), {
 
 // ─── Admin auth routes ────────────────────────────────────
 const loginLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  limit: 5,
+  windowMs: 15 * 60 * 1000,
+  limit: process.env.NODE_ENV !== "production" ? 200 : 20,
   standardHeaders: "draft-7",
   legacyHeaders: false,
-  message: { error: "Túl sok bejelentkezési kísérlet. Próbálja újra 1 perc múlva." },
+  skipSuccessfulRequests: true,
+  message: { error: "Túl sok bejelentkezési kísérlet. Kérjük, próbálja újra 15 perc múlva." },
 });
 
 app.use("/api/admin/login", loginLimiter);
@@ -166,7 +169,14 @@ app.use("/api/calendar", calendarPublicRoutes);
 app.use("/api", contactRoutes);
 app.use("/api/properties", propertiesRoutes);
 app.use("/api/staff", staffPublicRoutes);
+app.use("/api/reviews", reviewsRoutes);
 app.use("/api/agent", agentRoutes);
+app.use("/api", chatRoutes);
+
+// ─── Legacy service page redirect ────────────────────────────────────
+app.get("/ingatlan-ertekesites-berbeadas", (_req, res) => {
+  res.redirect(301, "/ingatlan-ertekesites");
+});
 
 // ─── API 404 catch-all (JSON, never empty body or HTML) ─────────────
 app.all("/api/{*splat}", (_req: express.Request, res: express.Response) => {
@@ -272,6 +282,17 @@ async function start() {
       server: {
         middlewareMode: true,
         hmr: { port: 24679 },
+        watch: {
+          ignored: [
+            "**/.bridgespace/**",
+            "**/.claude/**",
+            "**/uploads/**",
+            "**/server/**",
+            "**/backend/**",
+            "**/*.sql",
+            "**/*.md",
+          ],
+        },
       },
       appType: "custom",
     });

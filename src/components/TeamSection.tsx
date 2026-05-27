@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
 import { Phone, Mail } from "lucide-react";
@@ -22,20 +22,48 @@ interface TeamMember {
   roleEn: string;
   phone?: string;
   email?: string;
-  photo?: string;
 }
 
 const FALLBACK_MEMBERS: TeamMember[] = [
   {
     nameHu: "Csonka Szilvia",
     nameEn: "Szilvia Csonka",
+    roleHu: "Iroda vezető",
+    roleEn: "Office Manager",
+    phone: "+36 70 613 2658",
+    email: "szilvia.geszting@gmail.com",
+  },
+  {
+    nameHu: "Komoróczki Éva",
+    nameEn: "Éva Komoróczki",
     roleHu: "Ingatlanközvetítő",
     roleEn: "Real Estate Agent",
-    phone: "+36 70 613 2658",
-    email: "szilvia.bugany@gmail.com",
-    photo: "/team-szilvia.jpg",
+    phone: "+36 20 575 6958",
+    email: "ekomoroczki@gmail.com",
   },
 ];
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function InitialsAvatar({ name }: { name: string }) {
+  return (
+    <div
+      className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center"
+      aria-hidden="true"
+    >
+      <span className="text-2xl font-heading font-bold text-primary">
+        {getInitials(name)}
+      </span>
+    </div>
+  );
+}
 
 const TeamSection = () => {
   const { t, lang } = useLanguage();
@@ -56,40 +84,37 @@ const TeamSection = () => {
           setApiMembers(data.staff);
         }
       })
-      .catch(() => {
-        // Fallback to hardcoded data silently
+      .catch((err) => {
+        console.error("Failed to fetch staff data, using fallback:", err);
       });
+  }, []);
+
+  const [brokenPhotos, setBrokenPhotos] = useState<Set<string>>(new Set());
+
+  const handleImgError = useCallback((memberId: string) => {
+    setBrokenPhotos((prev) => new Set(prev).add(memberId));
   }, []);
 
   const renderApiMembers = (members: StaffApiMember[]) => (
     <>
       {members.map((member) => {
-        const initials = member.name
-          .split(" ")
-          .map((n) => n[0])
-          .join("");
+        const showPhoto = member.photoUrl && !brokenPhotos.has(member.id);
 
         return (
           <article
             key={member.id}
             className="bg-card rounded-xl p-6 shadow-sm border border-border text-center hover:shadow-md transition-shadow flex flex-col"
           >
-            {member.photoUrl ? (
+            {showPhoto ? (
               <img
-                src={member.photoUrl}
+                src={member.photoUrl!}
                 alt={member.name}
                 className="w-20 h-20 mx-auto mb-4 rounded-full object-cover"
                 style={{ objectPosition: `${member.focalPointX}% ${member.focalPointY}%` }}
+                onError={() => handleImgError(member.id)}
               />
             ) : (
-              <div
-                className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center"
-                aria-hidden="true"
-              >
-                <span className="text-2xl font-heading font-bold text-primary">
-                  {initials}
-                </span>
-              </div>
+              <InitialsAvatar name={member.name} />
             )}
             <h3 className="text-lg font-heading font-semibold text-foreground mb-1">
               {member.name}
@@ -129,33 +154,13 @@ const TeamSection = () => {
     <>
       {FALLBACK_MEMBERS.map((member) => {
         const name = lang === "hu" ? member.nameHu : member.nameEn;
-        const initials = name
-          .split(" ")
-          .map((n) => n[0])
-          .join("");
 
         return (
           <article
             key={name}
             className="bg-card rounded-xl p-6 shadow-sm border border-border text-center hover:shadow-md transition-shadow flex flex-col"
           >
-            {member.photo ? (
-              <img
-                src={member.photo}
-                alt={name}
-                className="w-20 h-20 mx-auto mb-4 rounded-full object-cover"
-                style={{ objectPosition: "center 25%" }}
-              />
-            ) : (
-              <div
-                className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center"
-                aria-hidden="true"
-              >
-                <span className="text-2xl font-heading font-bold text-primary">
-                  {initials}
-                </span>
-              </div>
-            )}
+            <InitialsAvatar name={name} />
             <h3 className="text-lg font-heading font-semibold text-foreground mb-1">
               {name}
             </h3>

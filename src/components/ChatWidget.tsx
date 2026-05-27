@@ -199,10 +199,29 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
       }
 
       const data: ChatApiResponse = await res.json();
+      let displayReply = data.reply;
+
+      const leadMatch = displayReply.match(/\[LEAD_CAPTURED:\s*(\+?\d[\d\s-]+)\]/);
+      if (leadMatch) {
+        displayReply = displayReply.replace(/\[LEAD_CAPTURED:\s*\+?\d[\d\s-]+\]/, "").trim();
+        const capturedPhone = leadMatch[1].replace(/[\s-]/g, "");
+        const recentMessages = messages.slice(-10).map((m) => `${m.role}: ${m.content}`).join("\n");
+        fetch("/api/chat/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: capturedPhone,
+            propertyId: detectedPropertyId || undefined,
+            currentPath: location.pathname,
+            summary: recentMessages.slice(0, 5000),
+          }),
+        }).catch(() => {});
+      }
+
       const assistantMsg: Message = {
         id: generateId(),
         role: "assistant",
-        content: data.reply,
+        content: displayReply,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMsg]);

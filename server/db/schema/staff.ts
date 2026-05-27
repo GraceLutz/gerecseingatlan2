@@ -24,6 +24,7 @@ export const staff = pgTable("staff", {
   sortOrder: integer("sort_order").notNull().default(0),
   focalPointX: integer("focal_point_x").notNull().default(50),
   focalPointY: integer("focal_point_y").notNull().default(25),
+  color: varchar("color", { length: 7 }).default("#3B82F6"),
   userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

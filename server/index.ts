@@ -23,6 +23,7 @@ import chatRoutes from "./routes/chat";
 import reviewsRoutes from "./routes/reviews";
 import { requireAuth, validateCsrf } from "./middleware/auth";
 import { fetchFeed, startAutoRefresh } from "./ingatlan-feed";
+import { startReminderScheduler } from "./services/calendar-reminders";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
@@ -364,6 +365,8 @@ async function start() {
         msg: "INGATLAN_XML_URL not set — auto-refresh disabled",
       }));
     }
+
+    startReminderScheduler();
   });
 }
 

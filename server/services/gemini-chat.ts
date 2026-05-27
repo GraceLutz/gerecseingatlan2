@@ -300,6 +300,17 @@ export async function generateChatResponse(req: ChatRequest): Promise<ChatRespon
   const feedUrl = process.env.INGATLAN_XML_URL!;
   const feed = await fetchFeed(feedUrl);
 
+  const mode = req.propertyId ? "property" : "global";
+  console.log(JSON.stringify({
+    level: "info",
+    ts: new Date().toISOString(),
+    module: "gemini-chat",
+    event: "chat_mode_selected",
+    mode,
+    propertyId: req.propertyId ?? null,
+    currentPath: req.currentPath ?? null,
+  }));
+
   if (req.propertyId) {
     return generatePropertyResponse(req, feed.properties);
   }
@@ -334,6 +345,11 @@ ${req.userMessage}`;
     const result = await chat.sendMessage(userMessageWithContext);
     const response = result.response;
     const reply = response.text().trim();
+
+    if (!reply) {
+      console.error(JSON.stringify({ level: "error", ts: new Date().toISOString(), module: "gemini-chat", event: "empty_property_reply", propertyId: req.propertyId }));
+      return { reply: FALLBACK_ERROR, tokensUsed: 0 };
+    }
 
     const groundingMetadata = (response as any).candidates?.[0]?.groundingMetadata;
     const sources = groundingMetadata?.groundingChunks
@@ -379,6 +395,11 @@ ${req.userMessage}`;
     const result = await chat.sendMessage(userMessageWithContext);
     const response = result.response;
     const reply = response.text().trim();
+
+    if (!reply) {
+      console.error(JSON.stringify({ level: "error", ts: new Date().toISOString(), module: "gemini-chat", event: "empty_global_reply", currentPath: req.currentPath }));
+      return { reply: FALLBACK_ERROR, tokensUsed: 0 };
+    }
 
     const groundingMetadata = (response as any).candidates?.[0]?.groundingMetadata;
     const sources = groundingMetadata?.groundingChunks

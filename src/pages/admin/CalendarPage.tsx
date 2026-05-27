@@ -38,6 +38,7 @@ interface StaffMember {
   name: string;
   email: string | null;
   active: boolean;
+  color: string | null;
 }
 
 interface Invitee {
@@ -254,8 +255,8 @@ export default function CalendarPage() {
 
   const getStaffColor = (staffId: string | null): string => {
     if (!staffId) return "#6B7280";
-    const idx = staffList.findIndex((s) => s.id === staffId);
-    return idx >= 0 ? STAFF_COLORS[idx % STAFF_COLORS.length] : "#6B7280";
+    const member = staffList.find((s) => s.id === staffId);
+    return member?.color ?? "#3B82F6";
   };
 
   const filteredEvents = events.filter((e) => {
@@ -465,7 +466,7 @@ export default function CalendarPage() {
                 Munkatársak
               </h3>
               <div className="space-y-2">
-                {staffList.map((s, i) => (
+                {staffList.map((s) => (
                   <label
                     key={s.id}
                     className="flex items-center gap-2 text-sm cursor-pointer"
@@ -479,8 +480,7 @@ export default function CalendarPage() {
                     <span
                       className="w-3 h-3 rounded-full flex-shrink-0"
                       style={{
-                        backgroundColor:
-                          STAFF_COLORS[i % STAFF_COLORS.length],
+                        backgroundColor: s.color ?? "#3B82F6",
                       }}
                       aria-hidden="true"
                     />

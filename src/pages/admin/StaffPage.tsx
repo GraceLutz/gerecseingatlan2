@@ -39,6 +39,7 @@ interface StaffMember {
   showEmail: boolean;
   showPhone: boolean;
   sortOrder: number;
+  color: string | null;
   userId: string | null;
   createdAt: string;
   updatedAt: string;
@@ -53,6 +54,7 @@ interface StaffFormData {
   active: boolean;
   showEmail: boolean;
   showPhone: boolean;
+  color: string;
   dashboardAccess: boolean;
 }
 
@@ -77,6 +79,7 @@ const EMPTY_FORM: StaffFormData = {
   active: true,
   showEmail: true,
   showPhone: true,
+  color: "#3B82F6",
   dashboardAccess: false,
 };
 
@@ -101,6 +104,7 @@ export default function StaffPage() {
 
   const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [brokenPhotos, setBrokenPhotos] = useState<Set<string>>(new Set());
 
   const showSuccess = (msg: string) => {
     setSuccess(msg);
@@ -120,6 +124,7 @@ export default function StaffPage() {
       if (!res.ok) throw new Error("Hiba történt a munkatársak betöltésekor.");
       const data = await res.json();
       setStaffList(data.staff);
+      setBrokenPhotos(new Set());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Hiba történt a munkatársak betöltésekor.");
     } finally {
@@ -176,6 +181,7 @@ export default function StaffPage() {
       active: member.active,
       showEmail: member.showEmail,
       showPhone: member.showPhone,
+      color: member.color ?? "#3B82F6",
       dashboardAccess: false,
     });
     setFormErrors({});
@@ -420,11 +426,12 @@ export default function StaffPage() {
             >
               <div className="flex items-start gap-4">
                 <div className="relative flex-shrink-0">
-                  {member.photoUrl ? (
+                  {member.photoUrl && !brokenPhotos.has(member.id) ? (
                     <img
                       src={member.photoUrl}
                       alt={`${member.name} profilképe`}
                       className="w-16 h-16 rounded-full object-cover"
+                      onError={() => setBrokenPhotos((prev) => new Set(prev).add(member.id))}
                     />
                   ) : (
                     <div
@@ -470,9 +477,16 @@ export default function StaffPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gold font-medium mt-0.5">
-                    {member.roleTitle}
-                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: member.color ?? "#3B82F6" }}
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm text-gold font-medium">
+                      {member.roleTitle}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -759,6 +773,30 @@ export default function StaffPage() {
                   className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
                   placeholder="Rövid bemutatkozó szöveg..."
                 />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="staff-color"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
+                  Naptár szín
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="staff-color"
+                    type="color"
+                    value={form.color}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, color: e.target.value }))
+                    }
+                    className="w-10 h-10 rounded border border-border cursor-pointer"
+                    aria-label="Munkatárs naptár színe"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {form.color}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-2">

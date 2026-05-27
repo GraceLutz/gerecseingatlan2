@@ -41,6 +41,7 @@ const createStaffSchema = z.object({
   showPhone: z.boolean().default(true),
   focalPointX: z.number().int().min(0).max(100).default(50),
   focalPointY: z.number().int().min(0).max(100).default(25),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Érvénytelen szín formátum.").default("#3B82F6"),
   dashboardAccess: z.boolean().default(false),
 });
 
@@ -56,6 +57,7 @@ const updateStaffSchema = z.object({
   sortOrder: z.number().int().min(0).optional(),
   focalPointX: z.number().int().min(0).max(100).optional(),
   focalPointY: z.number().int().min(0).max(100).optional(),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Érvénytelen szín formátum.").optional(),
 });
 
 const idSchema = z.string().uuid("Érvénytelen azonosító.");

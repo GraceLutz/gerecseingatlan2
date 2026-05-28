@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface AgentStats {
-  budgetEur: number;
+  budgetUsd: number;
   currentMonthSpend: {
     total: number;
     byService: {
@@ -86,7 +86,7 @@ interface LeadsResponse {
   pagination: PaginationInfo;
 }
 
-const DEFAULT_EUR_TO_HUF = 400;
+const DEFAULT_USD_TO_HUF = 380;
 
 async function fetchStats(): Promise<AgentStats> {
   const res = await fetch("/api/admin/agent/stats", { credentials: "include" });
@@ -120,20 +120,20 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function formatEur(value: number): string {
+function formatUsd(value: number): string {
   return value.toLocaleString("hu-HU", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 }
 
-function formatHuf(eurValue: number, rate: number): string {
-  const huf = Math.round(eurValue * rate);
+function formatHuf(usdValue: number, rate: number): string {
+  const huf = Math.round(usdValue * rate);
   return huf.toLocaleString("hu-HU").replace(/,/g, " ") + " Ft";
 }
 
-function eurWithHuf(eurValue: number, rate: number): string {
-  return `${formatEur(eurValue)} € (${formatHuf(eurValue, rate)})`;
+function usdWithHuf(usdValue: number, rate: number): string {
+  return `${formatUsd(usdValue)} $ (${formatHuf(usdValue, rate)})`;
 }
 
 const LEAD_STATUS_LABELS: Record<string, string> = {
@@ -191,7 +191,7 @@ export default function AiAgentPage() {
   const [leadsPage, setLeadsPage] = useState(1);
   const [leadsStatusFilter, setLeadsStatusFilter] = useState<string>("");
   const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
-  const [eurToHuf, setEurToHuf] = useState(DEFAULT_EUR_TO_HUF);
+  const [usdToHuf, setUsdToHuf] = useState(DEFAULT_USD_TO_HUF);
 
   const stats = useQuery({
     queryKey: ["admin", "agent", "stats"],
@@ -306,10 +306,10 @@ export default function AiAgentPage() {
                 ) : (
                   <>
                     <p className={`text-2xl font-bold ${getBudgetColor(budgetPercent)}`}>
-                      {formatEur(stats.data?.currentMonthSpend.total ?? 0)} €
+                      {formatUsd(stats.data?.currentMonthSpend.total ?? 0)} $
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatHuf(stats.data?.currentMonthSpend.total ?? 0, eurToHuf)}
+                      {formatHuf(stats.data?.currentMonthSpend.total ?? 0, usdToHuf)}
                     </p>
                   </>
                 )}
@@ -319,7 +319,7 @@ export default function AiAgentPage() {
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
                   <span>{budgetPercent}%</span>
-                  <span>{eurWithHuf(stats.data.budgetEur, eurToHuf)} keret</span>
+                  <span>{usdWithHuf(stats.data.budgetUsd, usdToHuf)} keret</span>
                 </div>
                 <Progress
                   value={Math.min(budgetPercent, 100)}
@@ -370,10 +370,10 @@ export default function AiAgentPage() {
                 ) : (
                   <>
                     <p className="text-2xl font-bold text-purple-600">
-                      {formatEur(stats.data?.currentMonthSpend.byService.gemini ?? 0)} €
+                      {formatUsd(stats.data?.currentMonthSpend.byService.gemini ?? 0)} $
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatHuf(stats.data?.currentMonthSpend.byService.gemini ?? 0, eurToHuf)}
+                      {formatHuf(stats.data?.currentMonthSpend.byService.gemini ?? 0, usdToHuf)}
                     </p>
                   </>
                 )}
@@ -398,10 +398,10 @@ export default function AiAgentPage() {
                 ) : (
                   <>
                     <p className="text-2xl font-bold text-amber-600">
-                      {formatEur(stats.data?.currentMonthSpend.byService.google_maps ?? 0)} €
+                      {formatUsd(stats.data?.currentMonthSpend.byService.google_maps ?? 0)} $
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatHuf(stats.data?.currentMonthSpend.byService.google_maps ?? 0, eurToHuf)}
+                      {formatHuf(stats.data?.currentMonthSpend.byService.google_maps ?? 0, usdToHuf)}
                     </p>
                   </>
                 )}
@@ -811,7 +811,7 @@ export default function AiAgentPage() {
               </label>
               <input
                 type="text"
-                value="gemini-2.0-flash"
+                value="gemini-2.5-flash"
                 disabled
                 className="w-full px-3 py-2 border border-border rounded-lg bg-gray-50 text-sm text-muted-foreground cursor-not-allowed"
                 aria-label="Gemini modell (csak olvasható)"
@@ -819,25 +819,27 @@ export default function AiAgentPage() {
             </div>
             <div>
               <label htmlFor="settings-budget" className="block text-sm font-medium text-foreground mb-1">
-                Havi keret (EUR)
+                Havi keret (USD)
               </label>
               <input
                 id="settings-budget"
                 type="number"
-                defaultValue={stats.data?.budgetEur ?? 50}
+                defaultValue={stats.data?.budgetUsd ?? 10}
                 min={1}
+                max={10}
                 className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
+              <p className="text-xs text-amber-600 mt-1">Maximum: 10 USD / hó</p>
             </div>
             <div>
               <label htmlFor="settings-huf-rate" className="block text-sm font-medium text-foreground mb-1">
-                EUR→HUF árfolyam
+                USD→HUF árfolyam
               </label>
               <input
                 id="settings-huf-rate"
                 type="number"
-                value={eurToHuf}
-                onChange={(e) => setEurToHuf(Number(e.target.value) || DEFAULT_EUR_TO_HUF)}
+                value={usdToHuf}
+                onChange={(e) => setUsdToHuf(Number(e.target.value) || DEFAULT_USD_TO_HUF)}
                 min={1}
                 className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -856,7 +858,7 @@ export default function AiAgentPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            A Gemini modell és a kérés limit szerver konfigurációból származik. A HUF árfolyam helyi beállítás, csak a megjelenítést befolyásolja.
+            A Gemini modell és a kérés limit szerver konfigurációból származik. Az USD→HUF árfolyam helyi beállítás, csak a megjelenítést befolyásolja.
           </p>
         </CardContent>
       </Card>

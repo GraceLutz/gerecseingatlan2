@@ -6,7 +6,7 @@
  * follow-up suggestions.
  */
 
-import { sendMessage, estimateCostEur, type LlmMessage } from "./llm";
+import { sendMessage, estimateCostUsd, type LlmMessage } from "./llm";
 import {
   AGENT_TOOL_DECLARATIONS,
   executeTool,
@@ -30,7 +30,7 @@ export interface AgentResponse {
   citations: Citation[];
   suggestions: string[];
   tokensUsed: number;
-  estimatedCostEur: number;
+  estimatedCostUsd: number;
 }
 
 // ─── Constants ──────────────────────────────────────────────
@@ -215,14 +215,14 @@ export async function processMessage(request: AgentRequest): Promise<AgentRespon
 
     // If we got a text reply with no tool calls, we're done
     if (response.reply && response.toolCalls.length === 0) {
-      const cost = estimateCostEur(totalInputTokens, totalOutputTokens);
+      const cost = estimateCostUsd(totalInputTokens, totalOutputTokens);
 
       log("info", "process_complete", {
         sessionId,
         iterations,
         totalTokens: totalInputTokens + totalOutputTokens,
         citationCount: allCitations.length,
-        estimatedCostEur: cost,
+        estimatedCostUsd: cost,
       });
 
       return {
@@ -230,7 +230,7 @@ export async function processMessage(request: AgentRequest): Promise<AgentRespon
         citations: deduplicateCitations(allCitations),
         suggestions: generateSuggestions(property, message),
         tokensUsed: totalInputTokens + totalOutputTokens,
-        estimatedCostEur: cost,
+        estimatedCostUsd: cost,
       };
     }
 
@@ -281,14 +281,14 @@ export async function processMessage(request: AgentRequest): Promise<AgentRespon
     log("warn", "max_iterations_reached", { sessionId, iterations });
   }
 
-  const cost = estimateCostEur(totalInputTokens, totalOutputTokens);
+  const cost = estimateCostUsd(totalInputTokens, totalOutputTokens);
 
   return {
     reply: "Sajnos nem sikerült a kérdés feldolgozása. Kérjük, próbálja újra egyszerűbb kérdéssel.",
     citations: deduplicateCitations(allCitations),
     suggestions: generateSuggestions(property, message),
     tokensUsed: totalInputTokens + totalOutputTokens,
-    estimatedCostEur: cost,
+    estimatedCostUsd: cost,
   };
 }
 

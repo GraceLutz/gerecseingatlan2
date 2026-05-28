@@ -22,10 +22,10 @@ const DEFAULT_RADIUS = 1500;
 const MAX_RADIUS = 3000;
 const MAX_RESULTS = 10;
 
-// Cost per API call in EUR (approximate, based on May 2025 pricing)
-const COST_NEARBY_SEARCH_EUR = 0.029;
-const COST_PLACE_DETAILS_EUR = 0.016;
-const COST_DISTANCE_MATRIX_EUR = 0.0046;
+// Cost per API call in USD (approximate, based on Google Maps Platform pricing)
+const COST_NEARBY_SEARCH_USD = 0.032;
+const COST_PLACE_DETAILS_USD = 0.017;
+const COST_DISTANCE_MATRIX_USD = 0.005;
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -71,7 +71,7 @@ function log(level: "info" | "warn" | "error", event: string, data?: Record<stri
 
 async function logApiUsage(
   endpoint: string,
-  costEur: number,
+  costUsd: number,
   sessionId?: string,
   propertyId?: string,
 ): Promise<void> {
@@ -80,7 +80,7 @@ async function logApiUsage(
       service: "google_maps",
       endpoint,
       tokensOrUnits: 1,
-      estimatedCostEur: costEur.toFixed(6),
+      estimatedCostEur: costUsd.toFixed(6),
       userSessionId: sessionId ?? null,
       propertyId: propertyId ?? null,
     });
@@ -172,7 +172,7 @@ export async function searchNearbyPlaces(
   }));
 
   await setCachedPlaces(queryHash, places);
-  await logApiUsage("places:searchNearby", COST_NEARBY_SEARCH_EUR, sessionId, propertyId);
+  await logApiUsage("places:searchNearby", COST_NEARBY_SEARCH_USD, sessionId, propertyId);
 
   log("info", "nearby_api_result", { count: places.length });
   return places;
@@ -240,7 +240,7 @@ export async function getPlaceDetails(
   };
 
   await setCachedPlaces(queryHash, details);
-  await logApiUsage("places:details", COST_PLACE_DETAILS_EUR, sessionId, propertyId);
+  await logApiUsage("places:details", COST_PLACE_DETAILS_USD, sessionId, propertyId);
 
   log("info", "details_api_result", { name: details.name });
   return details;
@@ -322,7 +322,7 @@ export async function calculateDistance(
   };
 
   await setCachedDistance(originLat, originLng, destPlaceId, mode, result.distanceM, result.durationS);
-  await logApiUsage("distancematrix", COST_DISTANCE_MATRIX_EUR, sessionId, propertyId);
+  await logApiUsage("distancematrix", COST_DISTANCE_MATRIX_USD, sessionId, propertyId);
 
   log("info", "distance_api_result", { distanceM: result.distanceM, durationS: result.durationS });
   return result;

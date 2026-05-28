@@ -9,7 +9,7 @@ const router = Router();
 
 router.use(requireRole("admin"));
 
-const BUDGET_EUR = Number(process.env.AGENT_MONTHLY_BUDGET_EUR) || 50;
+const BUDGET_USD = Number(process.env.AGENT_MONTHLY_BUDGET_USD) || 10;
 
 /** GET /api/admin/agent/stats */
 router.get("/stats", async (_req, res) => {
@@ -72,7 +72,7 @@ router.get("/stats", async (_req, res) => {
     const totalSpend = parseFloat(spendResult?.total ?? "0");
 
     res.json({
-      budgetEur: BUDGET_EUR,
+      budgetUsd: BUDGET_USD,
       currentMonthSpend: {
         total: totalSpend,
         byService: {
@@ -80,7 +80,7 @@ router.get("/stats", async (_req, res) => {
           google_maps: parseFloat(spendResult?.googleMaps ?? "0"),
         },
       },
-      budgetUsedPercent: BUDGET_EUR > 0 ? Math.round((totalSpend / BUDGET_EUR) * 100) : 0,
+      budgetUsedPercent: BUDGET_USD > 0 ? Math.round((totalSpend / BUDGET_USD) * 100) : 0,
       dailyRequestCount: dailyResult?.count ?? 0,
       topQueriedProperties: topProperties.map((r) => ({
         propertyId: r.propertyId,

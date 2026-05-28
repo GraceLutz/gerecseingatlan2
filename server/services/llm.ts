@@ -62,24 +62,27 @@ function getClient(): GoogleGenerativeAI {
 
 // ─── Model configuration ────────────────────────────────────
 
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = "gemini-2.5-flash";
 
-// ─── Cost estimation ────────────────────────────────────────
+// ─── Cost estimation (USD) ─────────────────────────────────
 
-const COST_PER_1M_INPUT_TOKENS_EUR = 0.092;
-const COST_PER_1M_OUTPUT_TOKENS_EUR = 0.368;
+const COST_PER_1M_INPUT_TOKENS_USD = 0.15;
+const COST_PER_1M_OUTPUT_TOKENS_USD = 0.60;
 
-export function estimateCostEur(inputTokens: number, outputTokens: number): number {
+export function estimateCostUsd(inputTokens: number, outputTokens: number): number {
   return (
-    (inputTokens / 1_000_000) * COST_PER_1M_INPUT_TOKENS_EUR +
-    (outputTokens / 1_000_000) * COST_PER_1M_OUTPUT_TOKENS_EUR
+    (inputTokens / 1_000_000) * COST_PER_1M_INPUT_TOKENS_USD +
+    (outputTokens / 1_000_000) * COST_PER_1M_OUTPUT_TOKENS_USD
   );
 }
+
+/** @deprecated Use estimateCostUsd instead */
+export const estimateCostEur = estimateCostUsd;
 
 // ─── Main API ───────────────────────────────────────────────
 
 /**
- * Sends a message to Gemini 2.0 Flash with optional function calling tools.
+ * Sends a message to Gemini 2.5 Flash with optional function calling tools.
  * Returns the model's text reply and/or tool calls, plus token usage.
  */
 export async function sendMessage(

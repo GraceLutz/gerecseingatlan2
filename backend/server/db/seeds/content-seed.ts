@@ -45,8 +45,10 @@ const seeds: SeedBlock[] = [
   { pagePath: "/bemutatkozas", blockKey: "about.valuesText", content: "Megbízhatóság, szakértelem, személyes odafigyelés és átláthatóság – ezek azok az értékek, amelyek mentén dolgozunk. Minden ügyfelünket egyedi figyelemmel kezeljük.", contentType: "text" },
 
   // ── Services overview ─────────────────────────────────────
-  { pagePath: "/", blockKey: "services.salesTitle", content: "Ingatlan értékesítés és bérbeadás", contentType: "text" },
-  { pagePath: "/", blockKey: "services.salesDesc", content: "Lakossági, gazdasági és ipari ingatlanok értékesítése és bérbeadása.", contentType: "text" },
+  { pagePath: "/", blockKey: "services.salesTitle", content: "Ingatlan értékesítés", contentType: "text" },
+  { pagePath: "/", blockKey: "services.salesDesc", content: "Lakossági, gazdasági és ipari ingatlanok értékesítése.", contentType: "text" },
+  { pagePath: "/", blockKey: "services.rentalTitle", content: "Ingatlan bérbeadás", contentType: "text" },
+  { pagePath: "/", blockKey: "services.rentalDesc", content: "Lakossági, gazdasági és ipari ingatlanok bérbeadása.", contentType: "text" },
   { pagePath: "/", blockKey: "services.appraisalTitle", content: "Értékbecslés és értékmeghatározás készítése", contentType: "text" },
   { pagePath: "/", blockKey: "services.appraisalDesc", content: "Hivatalos értékbecslés és piaci értékmeghatározás szakértői közreműködéssel.", contentType: "text" },
   { pagePath: "/", blockKey: "services.legalTitle", content: "Teljeskörű jogi háttér", contentType: "text" },

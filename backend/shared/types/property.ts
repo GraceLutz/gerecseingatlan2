@@ -10,9 +10,11 @@ export interface RawXmlProperty {
   id: string;
   nyilvantartasi_szam?: string;
   ertekesito_id?: string;
+  /** Advertised name from the feed, e.g. "Azonnal költözhető felújított lakás Dorogon" */
+  nev?: string;
   /** 1=eladó, 2=kiadó */
   kategoria: string;
-  /** 1=lakás, 2=ház, 3=telek, 4=garázs, 5=üzlethelyiség, 6=iroda */
+  /** 1=Lakás, 2=Ház, 3=Telek, 4=Garázs, 5=Nyaraló, 6=Iroda, 7=Üzlethelyiség, 8=Vendéglátás, 9=Ipari, 10=Mezőgazdasági, 13=Szoba */
   tipus: string;
   /** Fine-grained subtype code (see altipusMap in ingatlan-feed.ts) */
   altipus?: string;
@@ -68,27 +70,80 @@ export type PropertyCategory =
   | "haz"
   | "telek"
   | "garazs"
+  | "nyaralo"
   | "iroda"
   | "uzlethelyiseg"
+  | "vendeglatas"
   | "ipari"
   | "mezogazdasagi"
+  | "szoba"
   | "egyeb";
 
 export type PropertySubCategory =
+  // Lakás
   | "tegla-lakas"
   | "panel-lakas"
+  | "csusztatott-zsalus"
+  // Ház
   | "csaladi-haz"
   | "ikerhaz"
   | "sorhaz"
-  | "garzon"
-  | "tarsashazi-lakas"
-  | "nyaralo"
+  | "hazresz"
   | "tanya"
-  | "kastely-villa"
-  | "epitesi-telek"
-  | "zartkerti-telek"
-  | "mezogazdasagi-telek"
-  | "ipari-telek"
+  | "kastely"
+  // Telek
+  | "kulterulet-telek"
+  | "belterulet-telek"
+  | "uduloterulet-telek"
+  | "zartkert-telek"
+  | "egyeb-telek"
+  // Nyaraló
+  | "nyaralo-telek"
+  | "hetvegi-hazas"
+  | "udulohazas"
+  // Iroda
+  | "irodahaz-a"
+  | "irodahaz-b"
+  | "irodahaz-c"
+  | "csaladi-hazban-iroda"
+  | "lakasban-iroda"
+  | "egyeb-iroda"
+  // Üzlethelyiség
+  | "udvarban"
+  | "uzlethazban"
+  | "utcai-bejarattal"
+  | "egyeb-uzlethelyiseg"
+  // Vendéglátás
+  | "szalloda"
+  | "etterem"
+  | "egyeb-vendeglato"
+  | "borozo"
+  | "cukraszda"
+  // Ipari
+  | "telephely"
+  | "raktar"
+  | "muhely"
+  | "egyeb-ipari"
+  | "ipari-park"
+  | "csarnok"
+  | "gyarepulet"
+  | "aruhaz"
+  | "autoszalon"
+  | "fejlesztesi-terulet"
+  // Mezőgazdasági
+  | "mg-tanya"
+  | "mg-zartkert"
+  | "mg-belterulet"
+  | "mg-kulterulet"
+  | "erdo"
+  | "fold"
+  | "szantofold"
+  | "gyumolcsos"
+  | "istallo"
+  | "halasto"
+  | "gyep"
+  | "nadas"
+  | "mg-egyeb"
   | "egyeb";
 
 export interface PropertyAddress {
@@ -169,6 +224,7 @@ export const RawIngatlanSchema = z.object({
   id: z.coerce.string(),
   nyilvantartasi_szam: z.coerce.string().optional().default(""),
   ertekesito_id: z.coerce.string().optional().default("0"),
+  nev: z.coerce.string().optional().default(""),
   kategoria: z.coerce.number(),
   tipus: z.coerce.number(),
   altipus: z.coerce.number().optional(),
@@ -191,8 +247,8 @@ export const NormalizedPropertySchema = z.object({
   slug: z.string(),
   listingType: z.enum(["elado", "kiado"]),
   category: z.enum([
-    "lakas", "haz", "telek", "garazs", "iroda",
-    "uzlethelyiseg", "ipari", "mezogazdasagi", "egyeb",
+    "lakas", "haz", "telek", "garazs", "nyaralo", "iroda",
+    "uzlethelyiseg", "vendeglatas", "ipari", "mezogazdasagi", "szoba", "egyeb",
   ]),
   subCategory: z.string(),
   title: z.string(),
@@ -241,39 +297,91 @@ export function mapKategoriaToListingType(code: number): ListingType {
   return code === 2 ? "kiado" : "elado";
 }
 
-/** tipus code → PropertyCategory */
+/** tipus code → PropertyCategory (official IF9 spec) */
 const tipusToCategoryMap: Record<number, PropertyCategory> = {
   1: "lakas",
   2: "haz",
   3: "telek",
   4: "garazs",
-  5: "uzlethelyiseg",
+  5: "nyaralo",
   6: "iroda",
-  7: "ipari",
-  8: "mezogazdasagi",
-  9: "egyeb",
+  7: "uzlethelyiseg",
+  8: "vendeglatas",
+  9: "ipari",
+  10: "mezogazdasagi",
+  13: "szoba",
 };
 
 export function mapTipusToCategory(code: number): PropertyCategory {
   return tipusToCategoryMap[code] ?? "egyeb";
 }
 
-/** altipus code → PropertySubCategory */
+/** altipus code → PropertySubCategory (IF9: 2=tégla, 3=panel) */
 const altipusToSubCategoryMap: Record<number, PropertySubCategory> = {
-  1: "garzon",
-  2: "panel-lakas",
-  3: "tegla-lakas",
+  // Lakás
+  2: "tegla-lakas",
+  3: "panel-lakas",
+  82: "csusztatott-zsalus",
+  // Ház
   4: "csaladi-haz",
   5: "ikerhaz",
   6: "sorhaz",
-  7: "tarsashazi-lakas",
-  8: "nyaralo",
-  9: "tanya",
-  10: "kastely-villa",
-  11: "epitesi-telek",
-  12: "zartkerti-telek",
-  13: "mezogazdasagi-telek",
-  14: "ipari-telek",
+  7: "hazresz",
+  8: "tanya",
+  9: "kastely",
+  // Telek
+  10: "kulterulet-telek",
+  11: "belterulet-telek",
+  12: "uduloterulet-telek",
+  13: "egyeb-telek",
+  50: "zartkert-telek",
+  // Nyaraló
+  16: "nyaralo-telek",
+  17: "hetvegi-hazas",
+  18: "udulohazas",
+  // Iroda
+  19: "irodahaz-a",
+  20: "csaladi-hazban-iroda",
+  21: "lakasban-iroda",
+  22: "egyeb-iroda",
+  46: "irodahaz-b",
+  47: "irodahaz-c",
+  // Üzlethelyiség
+  23: "udvarban",
+  24: "uzlethazban",
+  25: "utcai-bejarattal",
+  26: "egyeb-uzlethelyiseg",
+  // Vendéglátás
+  27: "szalloda",
+  28: "etterem",
+  29: "egyeb-vendeglato",
+  60: "borozo",
+  61: "cukraszda",
+  // Ipari
+  30: "telephely",
+  31: "raktar",
+  32: "muhely",
+  33: "egyeb-ipari",
+  43: "ipari-park",
+  44: "csarnok",
+  45: "gyarepulet",
+  62: "aruhaz",
+  63: "autoszalon",
+  64: "fejlesztesi-terulet",
+  // Mezőgazdasági
+  34: "mg-tanya",
+  35: "mg-zartkert",
+  48: "mg-belterulet",
+  49: "mg-kulterulet",
+  51: "erdo",
+  52: "fold",
+  53: "szantofold",
+  54: "gyumolcsos",
+  55: "istallo",
+  56: "halasto",
+  57: "gyep",
+  58: "nadas",
+  59: "mg-egyeb",
 };
 
 export function mapAltipusToSubCategory(code?: number): PropertySubCategory {
@@ -281,23 +389,73 @@ export function mapAltipusToSubCategory(code?: number): PropertySubCategory {
   return altipusToSubCategoryMap[code] ?? "egyeb";
 }
 
-/** SubCategory → Hungarian display label */
+/** SubCategory → Hungarian display label (official IF9 names) */
 const subCategoryLabels: Record<PropertySubCategory, string> = {
-  "tegla-lakas": "Tégla lakás",
-  "panel-lakas": "panellakás",
-  "csaladi-haz": "családi ház",
-  "ikerhaz": "ikerház",
-  "sorhaz": "sorház",
-  "garzon": "garzonlakás",
-  "tarsashazi-lakas": "társasházi lakás",
-  "nyaralo": "nyaraló",
-  "tanya": "tanya",
-  "kastely-villa": "kastély/villa",
-  "epitesi-telek": "építési telek",
-  "zartkerti-telek": "zártkerti telek",
-  "mezogazdasagi-telek": "mezőgazdasági telek",
-  "ipari-telek": "ipari telek",
-  "egyeb": "egyéb",
+  // Lakás
+  "tegla-lakas": "tégla lakás",
+  "panel-lakas": "panel lakás",
+  "csusztatott-zsalus": "Csúsztatott zsalus",
+  // Ház
+  "csaladi-haz": "Családi ház",
+  "ikerhaz": "Ikerház",
+  "sorhaz": "Sorház",
+  "hazresz": "Házrész",
+  "tanya": "Tanya",
+  "kastely": "Kastély",
+  // Telek
+  "kulterulet-telek": "Külterület",
+  "belterulet-telek": "Belterület",
+  "uduloterulet-telek": "Üdülőövezet",
+  "zartkert-telek": "Zártkert",
+  "egyeb-telek": "Egyéb telek",
+  // Nyaraló
+  "nyaralo-telek": "Nyaralótelek",
+  "hetvegi-hazas": "Hétvégi házas",
+  "udulohazas": "Üdülőházas",
+  // Iroda
+  "irodahaz-a": 'Irodaház "A"',
+  "irodahaz-b": 'Irodaház "B"',
+  "irodahaz-c": 'Irodaház "C"',
+  "csaladi-hazban-iroda": "Családi házban",
+  "lakasban-iroda": "Lakásban",
+  "egyeb-iroda": "Egyéb iroda",
+  // Üzlethelyiség
+  "udvarban": "Udvarban",
+  "uzlethazban": "Üzletházban",
+  "utcai-bejarattal": "Utcai bejárattal",
+  "egyeb-uzlethelyiseg": "Egyéb üzlethelyiség",
+  // Vendéglátás
+  "szalloda": "Szálloda, hotel, panzió",
+  "etterem": "Étterem, vendéglő",
+  "egyeb-vendeglato": "Egyéb vendéglátó egység",
+  "borozo": "Borozó, söröző, büfé",
+  "cukraszda": "Cukrászda, presszó",
+  // Ipari
+  "telephely": "Telephely",
+  "raktar": "Raktár",
+  "muhely": "Műhely",
+  "egyeb-ipari": "Egyéb ipari ingatlan",
+  "ipari-park": "Ipari park",
+  "csarnok": "Csarnok",
+  "gyarepulet": "Gyárépület",
+  "aruhaz": "Áruház",
+  "autoszalon": "Autószalon",
+  "fejlesztesi-terulet": "Fejlesztési terület",
+  // Mezőgazdasági
+  "mg-tanya": "Tanya",
+  "mg-zartkert": "Zártkert",
+  "mg-belterulet": "Belterület",
+  "mg-kulterulet": "Külterület",
+  "erdo": "Erdő",
+  "fold": "Föld",
+  "szantofold": "Szántóföld, legelő",
+  "gyumolcsos": "Gyümölcsös, szőlő",
+  "istallo": "Istálló",
+  "halasto": "Halastó",
+  "gyep": "Gyep",
+  "nadas": "Nádas",
+  "mg-egyeb": "Egyéb",
+  "egyeb": "Egyéb",
 };
 
 export function getSubCategoryLabel(sub: PropertySubCategory): string {
@@ -307,10 +465,12 @@ export function getSubCategoryLabel(sub: PropertySubCategory): string {
 /** SubCategory → internal type code for existing Property interface compatibility */
 export function subCategoryToTypeCode(sub: PropertySubCategory): string {
   if (sub === "panel-lakas") return "panel";
-  if (sub.includes("lakas") || sub === "garzon") return "brick";
-  if (sub.includes("haz") || sub === "tanya" || sub === "nyaralo" || sub === "kastely-villa") return "house";
-  if (sub.includes("telek")) return "land";
-  if (sub === "ikerhaz" || sub === "sorhaz") return "house";
+  if (sub === "tegla-lakas" || sub === "csusztatott-zsalus") return "brick";
+  if (sub === "csaladi-haz" || sub === "ikerhaz" || sub === "sorhaz" || sub === "hazresz" || sub === "tanya" || sub === "kastely") return "house";
+  if (sub.includes("telek") || sub.includes("kulterulet") || sub.includes("belterulet") || sub === "uduloterulet-telek") return "land";
+  if (sub.startsWith("mg-") || sub === "erdo" || sub === "fold" || sub === "szantofold" || sub === "gyumolcsos" || sub === "istallo" || sub === "halasto" || sub === "gyep" || sub === "nadas") return "land";
+  if (sub === "hetvegi-hazas" || sub === "udulohazas" || sub === "nyaralo-telek") return "holiday";
+  if (sub === "telephely" || sub === "raktar" || sub === "muhely" || sub === "csarnok" || sub === "gyarepulet" || sub === "ipari-park" || sub === "aruhaz" || sub === "autoszalon" || sub === "fejlesztesi-terulet" || sub === "egyeb-ipari") return "industrial";
   return "house";
 }
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { buildContactEmail } from "../../server/templates/contact_form";
-import { buildInteriorDesignEmail } from "../../server/templates/interior_design";
-import { escapeHtml } from "../../server/templates/shared";
+import { buildContactEmail } from "./contact_form";
+import { buildInteriorDesignEmail } from "./interior_design";
+import { escapeHtml } from "./shared";
 
 describe("escapeHtml", () => {
   it("escapes ampersands", () => {

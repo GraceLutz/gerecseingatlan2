@@ -31,6 +31,9 @@ export const calendarEvents = pgTable("calendar_events", {
   location: varchar("location", { length: 500 }),
   propertyId: text("property_id"),
   color: varchar("color", { length: 7 }),
+  clientName: varchar("client_name", { length: 255 }),
+  reminder24hSentAt: timestamp("reminder_24h_sent_at", { withTimezone: true }),
+  reminder90minSentAt: timestamp("reminder_90min_sent_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

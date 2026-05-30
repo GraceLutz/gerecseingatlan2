@@ -41,6 +41,7 @@ const createStaffSchema = z.object({
   showPhone: z.boolean().default(true),
   focalPointX: z.number().int().min(0).max(100).default(50),
   focalPointY: z.number().int().min(0).max(100).default(25),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Érvénytelen szín formátum.").default("#3B82F6"),
   dashboardAccess: z.boolean().default(false),
 });
 
@@ -56,6 +57,7 @@ const updateStaffSchema = z.object({
   sortOrder: z.number().int().min(0).optional(),
   focalPointX: z.number().int().min(0).max(100).optional(),
   focalPointY: z.number().int().min(0).max(100).optional(),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Érvénytelen szín formátum.").optional(),
 });
 
 const idSchema = z.string().uuid("Érvénytelen azonosító.");
@@ -354,7 +356,7 @@ router.post("/:id/photo", async (req, res) => {
       return res.status(400).json({ error: "Nem támogatott képformátum. Használjon JPEG, PNG vagy WebP formátumot." });
     }
 
-    await fs.promises.mkdir(UPLOAD_DIR, { recursive: true });
+    await fs.promises.mkdir(UPLOAD_DIR, { recursive: true, mode: 0o755 });
 
     const chunks: Buffer[] = [];
     const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -382,7 +384,7 @@ router.post("/:id/photo", async (req, res) => {
 
       const filename = `${idResult.data}${detected.ext}`;
       const filePath = path.join(UPLOAD_DIR, filename);
-      await fs.promises.writeFile(filePath, buffer);
+      await fs.promises.writeFile(filePath, buffer, { mode: 0o644 });
 
       // Delete old photo if different format — validate path stays within UPLOAD_DIR
       if (member.photoUrl) {

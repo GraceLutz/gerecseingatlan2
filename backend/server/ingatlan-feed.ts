@@ -328,6 +328,21 @@ export async function fetchFeed(
   }
 }
 
+let autoRefreshTimer: ReturnType<typeof setInterval> | null = null;
+
+/** Starts periodic feed refresh (every CACHE_TTL_MS) */
+export function startAutoRefresh(feedUrl: string) {
+  if (autoRefreshTimer) return;
+  autoRefreshTimer = setInterval(() => {
+    fetchFeed(feedUrl, { forceRefresh: true }).catch((err) => {
+      log("error", "auto_refresh_failed", {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
+  }, CACHE_TTL_MS);
+  log("info", "auto_refresh_started", { intervalMs: CACHE_TTL_MS });
+}
+
 /** Returns cache status for admin/debug */
 export function getFeedStatus() {
   return {

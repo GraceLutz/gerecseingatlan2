@@ -57,7 +57,7 @@ blocks.push({ pagePath: "/kapcsolat", blockKey: "contact.form.submit", content: 
 blocks.push({ pagePath: "/kapcsolat", blockKey: "contact.form.success", content: bi("Üzenetét sikeresen elküldtük! Hamarosan felvesszük Önnel a kapcsolatot.", "Your message has been sent successfully! We will contact you shortly."), contentType: "json" });
 
 // ═══════════════════════════════════════════════════════
-// SERVICE PAGES — 8 services, each with paragraphs + benefits + CTA
+// SERVICE PAGES — 7 services, each with paragraphs + benefits + CTA
 // ═══════════════════════════════════════════════════════
 
 const serviceData: Array<{
@@ -485,8 +485,10 @@ blocks.push({ pagePath: "/", blockKey: "about.counter.sold", content: bi("Eladot
 blocks.push({ pagePath: "/", blockKey: "about.counter.clients", content: bi("Elégedett ügyfél", "Satisfied clients"), contentType: "json" });
 blocks.push({ pagePath: "/", blockKey: "about.cta.label", content: bi("Tovább a teljes bemutatáshoz", "Read our full story"), contentType: "json" });
 
-blocks.push({ pagePath: "/", blockKey: "services.salesTitle", content: bi("Ingatlan értékesítés és bérbeadás", "Property Sales & Rentals"), contentType: "json" });
-blocks.push({ pagePath: "/", blockKey: "services.salesDesc", content: bi("Lakossági, gazdasági és ipari ingatlanok értékesítése és bérbeadása.", "Residential, commercial, and industrial property sales and rentals."), contentType: "json" });
+blocks.push({ pagePath: "/", blockKey: "services.salesTitle", content: bi("Ingatlan értékesítés", "Property Sales"), contentType: "json" });
+blocks.push({ pagePath: "/", blockKey: "services.salesDesc", content: bi("Lakossági, gazdasági és ipari ingatlanok értékesítése.", "Residential, commercial, and industrial property sales."), contentType: "json" });
+blocks.push({ pagePath: "/", blockKey: "services.rentalTitle", content: bi("Ingatlan bérbeadás", "Property Letting"), contentType: "json" });
+blocks.push({ pagePath: "/", blockKey: "services.rentalDesc", content: bi("Lakossági, gazdasági és ipari ingatlanok bérbeadása.", "Residential, commercial, and industrial property letting and rentals."), contentType: "json" });
 blocks.push({ pagePath: "/", blockKey: "services.appraisalTitle", content: bi("Értékbecslés és értékmeghatározás készítése", "Appraisal & Value Determination"), contentType: "json" });
 blocks.push({ pagePath: "/", blockKey: "services.appraisalDesc", content: bi("Hivatalos értékbecslés és piaci értékmeghatározás szakértői közreműködéssel.", "Official property appraisal and market value determination with expert involvement."), contentType: "json" });
 blocks.push({ pagePath: "/", blockKey: "services.legalTitle", content: bi("Teljeskörű jogi háttér", "Full Legal Support"), contentType: "json" });
@@ -522,7 +524,8 @@ blocks.push({ pagePath: "/footer", blockKey: "links.about", content: bi("Rólunk
 blocks.push({ pagePath: "/footer", blockKey: "links.properties", content: bi("Ingatlanok", "Properties"), contentType: "json" });
 blocks.push({ pagePath: "/footer", blockKey: "links.contact", content: bi("Kapcsolat", "Contact"), contentType: "json" });
 blocks.push({ pagePath: "/footer", blockKey: "services.title", content: bi("Szolgáltatások", "Services"), contentType: "json" });
-blocks.push({ pagePath: "/footer", blockKey: "links.sales", content: bi("Ingatlan értékesítés és bérbeadás", "Property Sales & Rentals"), contentType: "json" });
+blocks.push({ pagePath: "/footer", blockKey: "links.sales", content: bi("Ingatlan értékesítés", "Property Sales"), contentType: "json" });
+blocks.push({ pagePath: "/footer", blockKey: "links.rental", content: bi("Ingatlan bérbeadás", "Property Letting"), contentType: "json" });
 blocks.push({ pagePath: "/footer", blockKey: "links.appraisal", content: bi("Értékbecslés és értékmeghatározás készítése", "Appraisal & Value Determination"), contentType: "json" });
 blocks.push({ pagePath: "/footer", blockKey: "links.legal", content: bi("Teljeskörű jogi háttér", "Full Legal Support"), contentType: "json" });
 blocks.push({ pagePath: "/footer", blockKey: "links.loan", content: bi("Hitel- és állami támogatások ügyintézése", "Loan & State Subsidy Administration"), contentType: "json" });

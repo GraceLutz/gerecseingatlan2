@@ -52,7 +52,7 @@ const PropertyListItemComponent: React.FC<PropertyListItemProps> = ({ property }
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
             <p className="text-lg font-heading font-bold text-gold">
               {formatPrice(property.price)}
-              {property.status === "rent" && <span className="text-sm font-body font-normal text-muted-foreground"> /{lang === "hu" ? "hó" : "mo"}</span>}
+              {property.status === "rent" && <span className="text-sm font-body font-normal text-muted-foreground"> /{t.properties.perMonth}</span>}
             </p>
             {property.featured && (
               <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase rounded bg-gold text-accent-foreground" aria-label={t.featured.title}>
@@ -63,7 +63,17 @@ const PropertyListItemComponent: React.FC<PropertyListItemProps> = ({ property }
           <h3 className="font-heading font-semibold text-foreground mb-1 line-clamp-1 group-hover:text-primary transition-colors">
             {title}
           </h3>
-          <p className="text-sm text-muted-foreground mb-2 line-clamp-1">{property.location}</p>
+          <p className="text-sm text-muted-foreground mb-1 line-clamp-1">
+            {property.location}
+            {(property.category || property.subCategory) && (
+              <span className="text-xs text-muted-foreground/70">
+                {" · "}{t.propertyCategories[property.category] ?? ""}
+                {property.subCategory && t.propertySubTypes[property.subCategory] && (
+                  <> / {t.propertySubTypes[property.subCategory]}</>
+                )}
+              </span>
+            )}
+          </p>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             {property.area > 0 && (
               <span className="flex items-center gap-1">

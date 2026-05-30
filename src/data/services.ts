@@ -11,10 +11,16 @@ export interface Service {
 
 export const services: Service[] = [
   {
-    slug: "ingatlan-ertekesites-berbeadas",
+    slug: "ingatlan-ertekesites",
     icon: Home,
     titleKey: "salesTitle",
     descKey: "salesDesc",
+  },
+  {
+    slug: "ingatlan-berbeadas",
+    icon: Home,
+    titleKey: "rentalTitle",
+    descKey: "rentalDesc",
   },
   {
     slug: "ertekbecsles-ertekmeghatrozas",

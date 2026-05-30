@@ -29,7 +29,7 @@ const seeds: SeedBlock[] = [
   { pagePath: "/", blockKey: "services.subtitle", content: "Átfogó ingatlanszolgáltatások az Ön igényeire szabva", contentType: "text" },
   { pagePath: "/", blockKey: "about.title", content: "Rólunk", contentType: "text" },
   { pagePath: "/", blockKey: "about.subtitle", content: "Megbízható partner az ingatlanpiacon", contentType: "text" },
-  { pagePath: "/", blockKey: "about.desc", content: "A Gerecse Ingatlan elkötelezett csapata több éves tapasztalattal segíti ügyfeleit az ingatlanpiacon. Legyen szó vásárlásról, eladásról vagy bérbeadásról, professzionális szolgáltatásainkkal biztosítjuk a sikeres ügyleteket.", contentType: "text" },
+  { pagePath: "/", blockKey: "about.desc", content: "A Gerecse Ingatlan több mint egy évtizede segíti ügyfeleit otthonuk megtalálásában. Családias, személyes hozzáállásunkkal biztosítjuk, hogy minden ügyfelünk megtalálja számára tökéletes ingatlant.", contentType: "text" },
   { pagePath: "/", blockKey: "about.more", content: "Tovább a teljes bemutatáshoz", contentType: "text" },
   { pagePath: "/", blockKey: "newsletter.title", content: "Iratkozzon fel hírlevelünkre", contentType: "text" },
   { pagePath: "/", blockKey: "newsletter.subtitle", content: "Értesüljön elsőként az új ingatlanokról és akciókról!", contentType: "text" },
@@ -40,13 +40,15 @@ const seeds: SeedBlock[] = [
   { pagePath: "/bemutatkozas", blockKey: "about.history", content: "Cégünk története", contentType: "text" },
   { pagePath: "/bemutatkozas", blockKey: "about.historyText", content: "A Gerecse Ingatlan a Gerecse hegység lábánál, a régió ingatlanpiacának egyik meghatározó szereplőjeként működik. Csapatunk helyi szakértelemmel és országos hálózattal rendelkezik, amellyel minden ügyfél számára a legjobb megoldást kínáljuk.", contentType: "text" },
   { pagePath: "/bemutatkozas", blockKey: "about.mission", content: "Küldetésünk", contentType: "text" },
-  { pagePath: "/bemutatkozas", blockKey: "about.missionText", content: "Célunk, hogy minden ügyfelünk számára megtaláljuk az ideális ingatlant, vagy a lehető legjobb feltételekkel értékesítsük meglévő ingatlanát. Személyre szabott szolgáltatásainkkal és átlátható ügyintézésünkkel biztosítjuk a stresszmentes ingatlanügyleteket.", contentType: "text" },
+  { pagePath: "/bemutatkozas", blockKey: "about.missionText", content: "Célunk, hogy a Gerecse vidékén mindenki megtalálja álmai otthonát, megbízható és átlátható szolgáltatással.", contentType: "text" },
   { pagePath: "/bemutatkozas", blockKey: "about.values", content: "Értékeink", contentType: "text" },
   { pagePath: "/bemutatkozas", blockKey: "about.valuesText", content: "Megbízhatóság, szakértelem, személyes odafigyelés és átláthatóság – ezek azok az értékek, amelyek mentén dolgozunk. Minden ügyfelünket egyedi figyelemmel kezeljük.", contentType: "text" },
 
   // ── Services overview ─────────────────────────────────────
-  { pagePath: "/", blockKey: "services.salesTitle", content: "Ingatlan értékesítés és bérbeadás", contentType: "text" },
-  { pagePath: "/", blockKey: "services.salesDesc", content: "Lakossági, gazdasági és ipari ingatlanok értékesítése és bérbeadása.", contentType: "text" },
+  { pagePath: "/", blockKey: "services.salesTitle", content: "Ingatlan értékesítés", contentType: "text" },
+  { pagePath: "/", blockKey: "services.salesDesc", content: "Lakossági, gazdasági és ipari ingatlanok értékesítése.", contentType: "text" },
+  { pagePath: "/", blockKey: "services.rentalTitle", content: "Ingatlan bérbeadás", contentType: "text" },
+  { pagePath: "/", blockKey: "services.rentalDesc", content: "Lakossági, gazdasági és ipari ingatlanok bérbeadása.", contentType: "text" },
   { pagePath: "/", blockKey: "services.appraisalTitle", content: "Értékbecslés és értékmeghatározás készítése", contentType: "text" },
   { pagePath: "/", blockKey: "services.appraisalDesc", content: "Hivatalos értékbecslés és piaci értékmeghatározás szakértői közreműködéssel.", contentType: "text" },
   { pagePath: "/", blockKey: "services.legalTitle", content: "Teljeskörű jogi háttér", contentType: "text" },
@@ -92,7 +94,7 @@ const seeds: SeedBlock[] = [
   { pagePath: "/bemutatkozas", blockKey: "seo.title", content: "Rólunk – Gerecse Ingatlan", contentType: "text" },
   { pagePath: "/bemutatkozas", blockKey: "seo.description", content: "Ismerje meg a Gerecse Ingatlan csapatát és szolgáltatásait.", contentType: "text" },
   { pagePath: "/kapcsolat", blockKey: "seo.title", content: "Kapcsolat – Gerecse Ingatlan", contentType: "text" },
-  { pagePath: "/kapcsolat", blockKey: "seo.description", content: "Vegye fel velünk a kapcsolatot! Iroda: Tata, telefonszám, e-mail, nyitvatartás.", contentType: "text" },
+  { pagePath: "/kapcsolat", blockKey: "seo.description", content: "Vegye fel velünk a kapcsolatot! Iroda: Tata, telefonszám, e-mail, elérhetőség.", contentType: "text" },
 ];
 
 async function seed() {

@@ -14,7 +14,8 @@ const HU_TO_EN_PATH: Record<string, string> = {
   "/adatkezelesi-tajekoztato": "/en/privacy-policy",
   "/cookie-tajekoztato": "/en/cookie-policy",
   "/aszf": "/en/terms",
-  "/ingatlan-ertekesites-berbeadas": "/en/property-sales-and-rental",
+  "/ingatlan-ertekesites": "/en/property-sales",
+  "/ingatlan-berbeadas": "/en/property-letting",
   "/ertekbecsles-ertekmeghatrozas": "/en/appraisal-and-valuation",
   "/belsoepiteszet-latvanyterv": "/en/interior-design-and-visualization",
   "/teljeskoru-jogi-hatter": "/en/full-legal-support",
@@ -33,7 +34,7 @@ function resolveHuEnPair(huPath: string): { hu: string; en: string } | null {
     return { hu: huPath, en: `/en/property/${propertyMatch[1]}` };
   }
   // Service slug pages: /:slug → /en/:slug (same slug)
-  if (huPath.startsWith("/") && !huPath.startsWith("/en") && !huPath.startsWith("/admin")) {
+  if (huPath.startsWith("/") && huPath !== "/en" && !huPath.startsWith("/en/") && !huPath.startsWith("/admin")) {
     return { hu: huPath, en: `/en${huPath}` };
   }
   return null;

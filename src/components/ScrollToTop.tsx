@@ -5,7 +5,7 @@ import { ArrowUp } from "lucide-react";
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   const [visible, setVisible] = useState(false);
-  const isEnglish = pathname.startsWith("/en");
+  const isEnglish = pathname === "/en" || pathname.startsWith("/en/");
 
   // Scroll to top on route change
   useEffect(() => {

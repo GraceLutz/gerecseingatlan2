@@ -220,6 +220,13 @@ export function validateCsrf(req: Request, res: Response, next: NextFunction): v
     cookieToken.length !== headerToken.length ||
     !crypto.timingSafeEqual(Buffer.from(cookieToken), Buffer.from(headerToken))
   ) {
+    console.warn("[CSRF] Validation failed:", {
+      method: req.method,
+      path: req.path,
+      hasCookie: !!cookieToken,
+      hasHeader: !!headerToken,
+      lengthMatch: cookieToken && headerToken ? cookieToken.length === headerToken.length : "n/a",
+    });
     res.status(403).json({ error: "Érvénytelen CSRF token." });
     return;
   }

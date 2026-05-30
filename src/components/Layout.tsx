@@ -3,7 +3,6 @@ import Header from "./Header";
 import Footer from "./Footer";
 import ScrollToTop from "./ScrollToTop";
 import CookieConsent from "./CookieConsent";
-import ChatWidget from "./ChatWidget";
 import SEOHead from "./SEOHead";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -43,7 +42,6 @@ const Layout: React.FC<LayoutProps> = ({ children, title, description, canonical
       <Footer />
       <ScrollToTop />
       <CookieConsent />
-      <ChatWidget />
     </div>
   );
 };

@@ -270,6 +270,10 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
     ? "fixed inset-0 z-50 bg-background flex flex-col"
     : "fixed bottom-6 right-6 z-50 w-[400px] h-[600px] max-h-[80vh] bg-background border border-border rounded-xl shadow-2xl flex flex-col";
 
+  // Hidden on admin pages. All hooks above already ran, so as a single
+  // app-level instance the chat state persists across public-page navigation.
+  if (location.pathname.startsWith("/admin")) return null;
+
   return (
     <>
       {!isOpen && (

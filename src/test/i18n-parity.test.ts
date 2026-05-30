@@ -62,7 +62,7 @@ describe("i18n key parity", () => {
 
   it("no translation value is an empty string", () => {
     // Keys whose content comes from the CMS at runtime — empty fallbacks are intentional
-    const cmsProvidedKeys = new Set(["hero.title", "hero.subtitle", "hero.cta"]);
+    const cmsProvidedKeys = new Set(["hero.title", "hero.subtitle", "hero.cta", "contact.saturday", "contact.sunday"]);
 
     function findEmpty(obj: Record<string, unknown>, prefix = ""): string[] {
       const empties: string[] = [];

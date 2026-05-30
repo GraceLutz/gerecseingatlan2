@@ -1,0 +1,109 @@
+import { getTransporter, getMailFrom } from "../mailer";
+import { welcomeNewUserHtml, welcomeNewUserText, inviteEmailHtml, inviteEmailText } from "../templates/welcome_new_user";
+import { passwordResetHtml, passwordResetText } from "../templates/password_reset";
+import { newsletterConfirmationHtml, newsletterConfirmationText } from "../templates/newsletter_confirmation";
+
+interface EmailAttachment {
+  filename: string;
+  content: string;
+  contentType: string;
+}
+
+interface SendEmailOptions {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  attachments?: EmailAttachment[];
+}
+
+/**
+ * Sends an email via SMTP using the shared mailer transporter.
+ * Falls back to console logging when SMTP is not configured.
+ */
+export async function sendEmail(options: SendEmailOptions): Promise<void> {
+  try {
+    const smtp = getTransporter();
+    await smtp.sendMail({
+      from: getMailFrom(),
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+      text: options.text,
+      ...(options.attachments?.length ? { attachments: options.attachments } : {}),
+    });
+  } catch (error) {
+    if (!process.env.SMTP_HOST) {
+      console.log("[Email] SMTP not configured — logging email to console:");
+      console.log(`  To: ${options.to}`);
+      console.log(`  Subject: ${options.subject}`);
+      console.log(`  Text: ${options.text.substring(0, 200)}...`);
+      return;
+    }
+    throw error;
+  }
+}
+
+interface WelcomeEmailParams {
+  email: string;
+  tempPassword: string;
+  loginUrl: string;
+}
+
+export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<void> {
+  await sendEmail({
+    to: params.email,
+    subject: "Üdvözöljük a Gerecse Ingatlan rendszerében",
+    html: welcomeNewUserHtml(params),
+    text: welcomeNewUserText(params),
+  });
+}
+
+interface PasswordResetParams {
+  email: string;
+  resetUrl: string;
+}
+
+export async function sendPasswordResetEmail(params: PasswordResetParams): Promise<void> {
+  await sendEmail({
+    to: params.email,
+    subject: "Jelszó visszaállítás – Gerecse Ingatlan",
+    html: passwordResetHtml(params),
+    text: passwordResetText(params),
+  });
+}
+
+interface NewsletterConfirmationParams {
+  email: string;
+  confirmUrl: string;
+  name?: string;
+}
+
+export async function sendNewsletterConfirmationEmail(params: NewsletterConfirmationParams): Promise<void> {
+  await sendEmail({
+    to: params.email,
+    subject: "Hírlevél feliratkozás megerősítése – Gerecse Ingatlan",
+    html: newsletterConfirmationHtml(params),
+    text: newsletterConfirmationText(params),
+  });
+}
+
+interface InviteEmailParams {
+  email: string;
+  inviteUrl: string;
+  inviterName?: string;
+  lang?: "hu" | "en";
+}
+
+export async function sendInviteEmail(params: InviteEmailParams): Promise<void> {
+  const subject = params.lang === "en"
+    ? "Invitation to Gerecse Ingatlan – Gerecse Ingatlan"
+    : "Meghívó a Gerecse Ingatlan csapatába – Gerecse Ingatlan";
+
+  await sendEmail({
+    to: params.email,
+    subject,
+    html: inviteEmailHtml(params),
+    text: inviteEmailText(params),
+  });
+}

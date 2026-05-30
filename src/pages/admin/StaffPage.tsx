@@ -305,7 +305,10 @@ export default function StaffPage() {
         credentials: "include",
         body: file,
       });
-      if (!res.ok) throw new Error("Hiba történt a kép feltöltésekor.");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.error || "Hiba történt a kép feltöltésekor.");
+      }
       showSuccess("Profilkép sikeresen feltöltve.");
       fetchStaff();
     } catch (err) {

@@ -25,6 +25,7 @@ const Footer = () => {
   const { content: linkContact } = useContentBlock(PAGE, "links.contact", t.nav.contact);
   const { content: servicesTitle } = useContentBlock(PAGE, "services.title", t.footer.services);
   const { content: linkSales } = useContentBlock(PAGE, "links.sales", t.services.salesTitle);
+  const { content: linkRental } = useContentBlock(PAGE, "links.rental", t.services.rentalTitle);
   const { content: linkAppraisal } = useContentBlock(PAGE, "links.appraisal", t.services.appraisalTitle);
   const { content: linkLegal } = useContentBlock(PAGE, "links.legal", t.services.legalTitle);
   const { content: linkLoan } = useContentBlock(PAGE, "links.loan", t.services.loanTitle);
@@ -45,7 +46,14 @@ const Footer = () => {
   const handleFooterNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     setFooterError(null);
-    if (!EMAIL_REGEX.test(footerEmail) || !footerGdpr) return;
+    if (!EMAIL_REGEX.test(footerEmail)) {
+      setFooterError(t.newsletter.emailInvalid);
+      return;
+    }
+    if (!footerGdpr) {
+      setFooterError(t.newsletter.gdprInvalid);
+      return;
+    }
     try {
       const res = await fetch("/api/newsletter/subscribe", {
         method: "POST",
@@ -99,7 +107,8 @@ const Footer = () => {
           <div>
             <h3 data-editable="services.title" data-page={PAGE} className="text-lg font-heading font-bold text-gold mb-4">{servicesTitle}</h3>
             <nav aria-label={servicesTitle} className="space-y-2 text-sm">
-              <Link to={localePath("/ingatlan-ertekesites-berbeadas")} data-editable="links.sales" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkSales}</Link>
+              <Link to={localePath("/ingatlan-ertekesites")} data-editable="links.sales" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkSales}</Link>
+              <Link to={localePath("/ingatlan-berbeadas")} data-editable="links.rental" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkRental}</Link>
               <Link to={localePath("/ertekbecsles-ertekmeghatrozas")} data-editable="links.appraisal" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkAppraisal}</Link>
               <Link to={localePath("/teljeskoru-jogi-hatter")} data-editable="links.legal" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkLegal}</Link>
               <Link to={localePath("/hitel-allami-tamogatasok")} data-editable="links.loan" data-page={PAGE} className="block text-primary-foreground/80 hover:text-gold transition-colors focus-visible:outline-none focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#4682B4] rounded-sm">{linkLoan}</Link>

@@ -19,6 +19,8 @@ describe("translateHuToEn", () => {
   });
 
   it("translates service routes", () => {
+    expect(translateHuToEn("/ingatlan-ertekesites")).toBe("/property-sales");
+    expect(translateHuToEn("/ingatlan-berbeadas")).toBe("/property-letting");
     expect(translateHuToEn("/ingatlan-ertekesites-berbeadas")).toBe("/property-sales-and-rental");
     expect(translateHuToEn("/energetikai-tanusitvany")).toBe("/energy-performance-certificate");
     expect(translateHuToEn("/belsoepiteszet-latvanyterv")).toBe("/interior-design-and-visualization");

@@ -28,7 +28,7 @@ interface FaqItem {
   a: string;
 }
 
-const LIST_BLOCK_KEYS = ["benefits", "values", "items", "notRightFit"];
+const LIST_BLOCK_KEYS = ["benefits", "values", "notRightFit.items"];
 
 function isListBlock(blockKey: string): boolean {
   return LIST_BLOCK_KEYS.some((k) => blockKey.includes(k));
@@ -115,22 +115,21 @@ export default function InlineEditPanel({
           setHuFaq(parsed.hu);
           setEnFaq(parsed.en);
         } else {
-          if (block && block.contentType === "json") {
-            try {
-              const parsed = JSON.parse(block.content);
+          const src = block?.content ?? target.content;
+          let didParse = false;
+          try {
+            const parsed = JSON.parse(src);
+            if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+                && ("hu" in parsed || "en" in parsed)) {
               const hu = Array.isArray(parsed.hu) ? (jsonArrayToHtml(JSON.stringify(parsed.hu)) ?? "") : (parsed.hu || "");
               const en = Array.isArray(parsed.en) ? (jsonArrayToHtml(JSON.stringify(parsed.en)) ?? "") : (parsed.en || "");
               setHuContent(hu);
               setEnContent(en);
-            } catch {
-              setHuContent(block.content);
-              setEnContent("");
+              didParse = true;
             }
-          } else if (block) {
-            setHuContent(block.content);
-            setEnContent("");
-          } else {
-            setHuContent(target.content);
+          } catch { /* not JSON */ }
+          if (!didParse) {
+            setHuContent(src);
             setEnContent("");
           }
         }

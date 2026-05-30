@@ -41,7 +41,7 @@ export default function SettingsPage() {
     setEmailSaving(true);
     try {
       const csrf = getCsrfToken();
-      const res = await fetch("/api/admin/users/me/email", {
+      const res = await fetch("/api/admin/me/email", {
         method: "PATCH",
         credentials: "include",
         headers: {
@@ -88,7 +88,7 @@ export default function SettingsPage() {
     setPasswordSaving(true);
     try {
       const csrf = getCsrfToken();
-      const res = await fetch("/api/admin/users/me/password", {
+      const res = await fetch("/api/admin/me/password", {
         method: "PATCH",
         credentials: "include",
         headers: {

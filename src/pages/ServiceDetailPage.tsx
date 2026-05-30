@@ -11,7 +11,9 @@ import EditableText from "@/components/EditableText";
 import EditableList from "@/components/EditableList";
 
 const enToHuServiceSlug: Record<string, string> = {
-  "property-sales-and-rentals": "ingatlan-ertekesites-berbeadas",
+  "property-sales-and-rentals": "ingatlan-ertekesites",
+  "property-sales": "ingatlan-ertekesites",
+  "property-letting": "ingatlan-berbeadas",
   "appraisal-and-valuation": "ertekbecsles-ertekmeghatrozas",
   "interior-design": "belsoepiteszet-latvanyterv",
   "full-legal-support": "teljeskoru-jogi-hatter",
@@ -19,7 +21,7 @@ const enToHuServiceSlug: Record<string, string> = {
   "energy-certificate": "energetikai-tanusitvany",
   "electrical-safety-inspection": "villamos-biztonsagi-felulvizsgalat",
   // Legacy aliases — App.tsx redirects these, but kept for direct-navigation safety
-  "property-sales-and-rental": "ingatlan-ertekesites-berbeadas",
+  "property-sales-and-rental": "ingatlan-ertekesites",
   "interior-design-and-visualization": "belsoepiteszet-latvanyterv",
   "credit-and-state-support": "hitel-allami-tamogatasok",
   "energy-performance-certificate": "energetikai-tanusitvany",
@@ -27,7 +29,8 @@ const enToHuServiceSlug: Record<string, string> = {
 
 /** Maps Hungarian service slugs to i18n seo key prefixes */
 const slugToSeoKey: Record<string, string> = {
-  "ingatlan-ertekesites-berbeadas": "sales",
+  "ingatlan-ertekesites": "sales",
+  "ingatlan-berbeadas": "rental",
   "ertekbecsles-ertekmeghatrozas": "appraisal",
   "belsoepiteszet-latvanyterv": "interior",
   "teljeskoru-jogi-hatter": "legal",

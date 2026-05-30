@@ -24,8 +24,14 @@ const SERVICE_BLOCK_TEMPLATE: BlockDefinition[] = [
 
 const SERVICE_PAGES: PageDefinition[] = [
   {
-    path: "/ingatlan-ertekesites-berbeadas",
+    path: "/ingatlan-ertekesites",
     nameHu: "Ingatlan értékesítés",
+    icon: "Home",
+    expectedBlocks: SERVICE_BLOCK_TEMPLATE,
+  },
+  {
+    path: "/ingatlan-berbeadas",
+    nameHu: "Ingatlan bérbeadás",
     icon: "Home",
     expectedBlocks: SERVICE_BLOCK_TEMPLATE,
   },
@@ -61,7 +67,7 @@ const SERVICE_PAGES: PageDefinition[] = [
   },
   {
     path: "/villamos-biztonsagi-felulvizsgalat",
-    nameHu: "Villamos biztonsági felülvizsgálat",
+    nameHu: "Érintésvédelmi felülvizsgálat",
     icon: "FileText",
     expectedBlocks: SERVICE_BLOCK_TEMPLATE,
   },
@@ -146,7 +152,7 @@ export const PAGE_REGISTRY: PageDefinition[] = [
       { key: "page.subtitle", label: "Alcím", type: "json", bilingual: true },
       { key: "contact.info.phone", label: "Telefon", type: "json", bilingual: true },
       { key: "contact.info.email", label: "Email cím", type: "json", bilingual: true },
-      { key: "contact.info.hours", label: "Nyitvatartás", type: "json", bilingual: true },
+      { key: "contact.info.hours", label: "Elérhetőség", type: "json", bilingual: true },
       { key: "contact.info.address", label: "Cím", type: "json", bilingual: true },
       { key: "contact.form.name.label", label: "Név mező", type: "json", bilingual: true },
       { key: "contact.form.email.label", label: "Email mező", type: "json", bilingual: true },

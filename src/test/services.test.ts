@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { services, getServiceBySlug } from "@/data/services";
 
 describe("services data", () => {
-  it("has 7 services", () => {
-    expect(services).toHaveLength(7);
+  it("has 8 services", () => {
+    expect(services).toHaveLength(8);
   });
 
   it("all services have unique slugs", () => {
@@ -28,19 +28,30 @@ describe("services data", () => {
 });
 
 describe("getServiceBySlug", () => {
-  it("finds a service by slug", () => {
-    const service = getServiceBySlug("ingatlan-ertekesites-berbeadas");
+  it("finds selling service by slug", () => {
+    const service = getServiceBySlug("ingatlan-ertekesites");
     expect(service).toBeDefined();
     expect(service!.titleKey).toBe("salesTitle");
+  });
+
+  it("finds rental service by slug", () => {
+    const service = getServiceBySlug("ingatlan-berbeadas");
+    expect(service).toBeDefined();
+    expect(service!.titleKey).toBe("rentalTitle");
+  });
+
+  it("returns undefined for old combined slug", () => {
+    expect(getServiceBySlug("ingatlan-ertekesites-berbeadas")).toBeUndefined();
   });
 
   it("returns undefined for unknown slug", () => {
     expect(getServiceBySlug("nonexistent")).toBeUndefined();
   });
 
-  it("finds all 7 services by their respective slugs", () => {
+  it("finds all 8 services by their respective slugs", () => {
     const expectedSlugs = [
-      "ingatlan-ertekesites-berbeadas",
+      "ingatlan-ertekesites",
+      "ingatlan-berbeadas",
       "ertekbecsles-ertekmeghatrozas",
       "belsoepiteszet-latvanyterv",
       "teljeskoru-jogi-hatter",

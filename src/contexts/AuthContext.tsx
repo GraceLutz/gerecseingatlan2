@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
+import { getCsrfToken } from "@/lib/csrf";
 
 interface AuthUser {
   id: string;
@@ -21,6 +22,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Always prefer the cookie value — it's the most up-to-date source
+  // (e.g., another tab may have refreshed the token)
+  const resolvedCsrfToken = getCsrfToken() ?? csrfToken;
 
   const checkAuth = useCallback(async () => {
     try {
@@ -64,11 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    const token = csrfToken ?? getCsrfToken();
     await fetch("/api/admin/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+        ...(token ? { "x-csrf-token": token } : {}),
       },
       credentials: "include",
     });
@@ -77,8 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [csrfToken]);
 
   const value = useMemo(
-    () => ({ user, csrfToken, loading, login, logout }),
-    [user, csrfToken, loading, login, logout],
+    () => ({ user, csrfToken: resolvedCsrfToken, loading, login, logout }),
+    [user, resolvedCsrfToken, loading, login, logout],
   );
 
   return (

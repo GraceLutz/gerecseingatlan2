@@ -2,6 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useContentBlock } from "@/contexts/ContentContext";
 import { Link } from "react-router-dom";
 import AnimatedCounter from "./AnimatedCounter";
+import RichText from "./RichText";
 
 const AboutPreview = () => {
   const { t, localePath } = useLanguage();
@@ -17,7 +18,7 @@ const AboutPreview = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-10">
           <h2 id="about-preview-heading" data-editable="about.title" data-page="/" className="text-3xl md:text-4xl font-heading font-bold text-dark-green mb-4">{aboutTitle}</h2>
-          <p data-editable="about.text" data-page="/" className="text-base text-muted-foreground font-body leading-relaxed">{aboutText}</p>
+          <RichText content={aboutText} data-editable="about.text" data-page="/" className="text-base text-muted-foreground font-body leading-relaxed" />
         </div>
 
         <div className="grid grid-cols-3 gap-6 max-w-lg mx-auto mb-10">

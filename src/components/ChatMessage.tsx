@@ -36,6 +36,10 @@ function renderMarkdown(text: string): string {
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/`(.+?)`/g, '<code class="bg-muted px-1 rounded text-xs">$1</code>')
     .replace(
+      /\[(.+?)\]\((\/[^\s)]+)\)/g,
+      '<a href="$2" class="underline text-dark-green font-medium">$1 →</a>',
+    )
+    .replace(
       /\[(.+?)\]\((https?:\/\/.+?)\)/g,
       '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline text-dark-green">$1</a>',
     )

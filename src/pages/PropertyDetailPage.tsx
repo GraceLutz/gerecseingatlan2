@@ -19,51 +19,16 @@ const PropertyDetailPage = () => {
 
   const property = properties.find(p => p.id === id);
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="py-32 text-center text-muted-foreground" aria-live="polite">
-          {t.common.loading}
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!property) {
-    return (
-      <Layout>
-        <div className="py-32 text-center text-muted-foreground">
-          {t.properties.notFound}
-        </div>
-      </Layout>
-    );
-  }
-
-  const title = lang === "hu" ? property.titleHu : property.titleEn;
-  const description = lang === "hu" ? property.descriptionHu : property.descriptionEn;
-  const statusLabel = property.status === "sale" ? t.featured.forSale : t.featured.forRent;
-
-  const details = [
-    property.area > 0 ? { icon: Maximize, label: t.properties.area, value: `${property.area} m²` } : null,
-    property.lotSize ? { icon: Trees, label: t.properties.lotSize, value: `${property.lotSize} m²` } : null,
-    property.rooms > 0 ? { icon: BedDouble, label: t.featured.rooms, value: property.rooms } : null,
-    property.bathrooms > 0 ? { icon: Bath, label: t.properties.bathrooms, value: property.bathrooms } : null,
-    property.builtYear ? { icon: Calendar, label: t.properties.builtYear, value: property.builtYear } : null,
-    property.heating ? { icon: Thermometer, label: t.properties.heating, value: property.heating } : null,
-    property.energy ? { icon: Zap, label: t.properties.energy, value: property.energy } : null,
-    property.floor !== undefined ? { icon: Building, label: t.properties.floor, value: property.floor } : null,
-    property.parking !== undefined ? { icon: Car, label: t.properties.parking, value: property.parking ? t.properties.yes : t.properties.no } : null,
-  ].filter(Boolean) as { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; value: string | number }[];
-
-  const seoTitle = `${title} – ${property.location} | Gerecse Ingatlan`;
-  const seoDescription = `${title} – ${property.location}.${property.area > 0 ? ` ${property.area} m²,` : ""} ${formatPrice(property.price)}. Gerecse Ingatlan.`;
+  const title = property ? (lang === "hu" ? property.titleHu : property.titleEn) : "";
+  const description = property ? (lang === "hu" ? property.descriptionHu : property.descriptionEn) : "";
+  const statusLabel = property ? (property.status === "sale" ? t.featured.forSale : t.featured.forRent) : "";
 
   const ORIGIN = "https://gerecseingatlan.hu";
-  const ogImage = property.images?.[0]
-    ? (property.images[0].startsWith("http") ? property.images[0] : `${ORIGIN}${property.images[0]}`)
-    : undefined;
 
   useEffect(() => {
+    if (!property) return;
+
+    const seoDesc = `${title} – ${property.location}.${property.area > 0 ? ` ${property.area} m²,` : ""} ${formatPrice(property.price)}. Gerecse Ingatlan.`;
     const schemas: Record<string, unknown>[] = [
       buildBreadcrumbJsonLd([
         { name: t.nav.home, url: ORIGIN },
@@ -74,7 +39,7 @@ const PropertyDetailPage = () => {
         "@context": "https://schema.org",
         "@type": "RealEstateListing",
         name: title,
-        description: seoDescription,
+        description: seoDesc,
         url: `${ORIGIN}${localePath(`/ingatlan/${property.id}`)}`,
         ...(property.images?.[0] && { image: property.images[0] }),
         offers: {
@@ -105,7 +70,50 @@ const PropertyDetailPage = () => {
     });
 
     return () => scripts.forEach((s) => s.remove());
-  }, [property.id, property.price, property.location, property.area, property.rooms, property.images, title, seoDescription, t.nav.home, t.nav.properties, localePath]);
+  }, [property, title, formatPrice, t.nav.home, t.nav.properties, localePath]);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="py-32 text-center text-muted-foreground" aria-live="polite">
+          {t.common.loading}
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!property) {
+    return (
+      <Layout>
+        <div className="py-32 text-center text-muted-foreground">
+          {t.properties.notFound}
+        </div>
+      </Layout>
+    );
+  }
+
+  const details = [
+    property.area > 0 ? { icon: Maximize, label: t.properties.area, value: `${property.area} m²` } : null,
+    property.lotSize ? { icon: Trees, label: t.properties.lotSize, value: `${property.lotSize} m²` } : null,
+    property.rooms > 0 ? { icon: BedDouble, label: t.featured.rooms, value: property.rooms } : null,
+    property.bathrooms > 0 ? { icon: Bath, label: t.properties.bathrooms, value: property.bathrooms } : null,
+    property.builtYear ? { icon: Calendar, label: t.properties.builtYear, value: property.builtYear } : null,
+    property.heating ? { icon: Thermometer, label: t.properties.heating, value: property.heating } : null,
+    property.energy ? { icon: Zap, label: t.properties.energy, value: property.energy } : null,
+    property.floor !== undefined ? { icon: Building, label: t.properties.floor, value: property.floor } : null,
+    property.parking !== undefined ? { icon: Car, label: t.properties.parking, value: property.parking ? t.properties.yes : t.properties.no } : null,
+  ].filter((d): d is { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; value: string | number } => {
+    if (!d) return false;
+    const v = String(d.value);
+    return v !== "" && v !== "undefined" && !/#\d+/.test(v);
+  });
+
+  const seoTitle = `${title} – ${property.location} | Gerecse Ingatlan`;
+  const seoDescription = `${title} – ${property.location}.${property.area > 0 ? ` ${property.area} m²,` : ""} ${formatPrice(property.price)}. Gerecse Ingatlan.`;
+
+  const ogImage = property.images?.[0]
+    ? (property.images[0].startsWith("http") ? property.images[0] : `${ORIGIN}${property.images[0]}`)
+    : undefined;
 
   return (
     <Layout title={seoTitle} description={seoDescription} canonicalPath={`/ingatlan/${property.id}`} ogImage={ogImage}>
@@ -185,7 +193,12 @@ const PropertyDetailPage = () => {
               </div>
 
               {/* Map */}
-              <PropertyMap lat={property.lat} lng={property.lng} location={property.location} />
+              <PropertyMap
+                lat={property.lat}
+                lng={property.lng}
+                location={property.location}
+                fullAddress={[property.zip, property.location, property.street].filter(Boolean).join(" ")}
+              />
             </div>
 
             {/* Right: contact form */}

@@ -3,6 +3,7 @@ import { useProperties } from "@/hooks/useProperties";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
+import { categoryOrder, subTypesByCategory } from "@/data/propertyTypeHierarchy";
 
 const SearchSection = () => {
   const { t, localePath } = useLanguage();
@@ -10,7 +11,8 @@ const SearchSection = () => {
   const { properties, locations } = useProperties();
   const [filters, setFilters] = useState({
     status: "sale" as "sale" | "rent",
-    type: "",
+    category: "",
+    subType: "",
     location: "",
     csokPlusz: "" as "" | "yes" | "no",
     propertyId: "",
@@ -22,23 +24,14 @@ const SearchSection = () => {
     maxRooms: "",
   });
 
-  const types = [
-    { value: "house", label: t.propertyTypes.house },
-    { value: "brick", label: t.propertyTypes.brick },
-    { value: "panel", label: t.propertyTypes.panel },
-    { value: "semiDetached", label: t.propertyTypes.semiDetached },
-    { value: "rowHouse", label: t.propertyTypes.rowHouse },
-    { value: "holiday", label: t.propertyTypes.holiday },
-    { value: "land", label: t.propertyTypes.land },
-    { value: "industrial", label: t.propertyTypes.industrial },
-  ];
+  const availableSubTypes = filters.category ? (subTypesByCategory[filters.category] ?? []) : [];
 
-  // Count matching results live
   const resultCount = useMemo(() => {
     return properties.filter(p => {
       if (filters.status === "sale" && p.status !== "sale") return false;
       if (filters.status === "rent" && p.status !== "rent") return false;
-      if (filters.type && p.type !== filters.type) return false;
+      if (filters.category && p.category !== filters.category) return false;
+      if (filters.subType && p.subCategory !== filters.subType) return false;
       if (filters.location && p.location !== filters.location) return false;
       if (filters.minPrice && p.price < Number(filters.minPrice) * 1_000_000) return false;
       if (filters.maxPrice && p.price > Number(filters.maxPrice) * 1_000_000) return false;
@@ -54,7 +47,8 @@ const SearchSection = () => {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (filters.status) params.set("status", filters.status);
-    if (filters.type) params.set("type", filters.type);
+    if (filters.category) params.set("category", filters.category);
+    if (filters.subType) params.set("subType", filters.subType);
     if (filters.location) params.set("location", filters.location);
     if (filters.csokPlusz) params.set("csok", filters.csokPlusz);
     if (filters.propertyId) params.set("id", filters.propertyId);
@@ -95,8 +89,8 @@ const SearchSection = () => {
           role="search"
           aria-label={t.search.title}
         >
-          {/* Row 1: Status toggle, Type, Location, CSOK, ID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 mb-4 items-end">
+          {/* Row 1: Status toggle, Type, Subtype, Location, CSOK, ID */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 mb-4 items-end">
             {/* ELADÓ / KIADÓ toggle */}
             <div className="flex" role="group" aria-label={t.search.status}>
               <button
@@ -122,13 +116,30 @@ const SearchSection = () => {
               <label htmlFor="search-type" className="sr-only">{t.search.type}</label>
               <select
                 id="search-type"
-                value={filters.type}
-                onChange={e => setFilters(f => ({ ...f, type: e.target.value }))}
+                value={filters.category}
+                onChange={e => setFilters(f => ({ ...f, category: e.target.value, subType: "" }))}
                 className={selectClasses}
               >
                 <option value="">--- {t.search.type} ---</option>
-                {types.map(tp => (
-                  <option key={tp.value} value={tp.value}>{tp.label}</option>
+                {categoryOrder.map(cat => (
+                  <option key={cat} value={cat}>{t.propertyCategories[cat] ?? cat}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Altípus — only active when Típus is selected */}
+            <div>
+              <label htmlFor="search-subtype" className="sr-only">{t.search.subType}</label>
+              <select
+                id="search-subtype"
+                value={filters.subType}
+                onChange={e => setFilters(f => ({ ...f, subType: e.target.value }))}
+                className={selectClasses}
+                disabled={!filters.category || availableSubTypes.length === 0}
+              >
+                <option value="">--- {t.search.subType} ---</option>
+                {availableSubTypes.map(sub => (
+                  <option key={sub} value={sub}>{t.propertySubTypes[sub] ?? sub}</option>
                 ))}
               </select>
             </div>

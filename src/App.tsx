@@ -9,6 +9,7 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ContentProvider } from "@/contexts/ContentContext";
 import Analytics from "./components/Analytics";
+import ChatWidget from "./components/ChatWidget";
 
 // Load editor bridge in edit mode
 if (new URLSearchParams(window.location.search).get("editMode") === "1") {
@@ -154,6 +155,9 @@ const AppRoutes = () => (
           {/* Typo redirects */}
           <Route path="/ergetikai-tanusitvany" element={<Navigate to="/energetikai-tanusitvany" replace />} />
 
+          {/* Old combined service page → redirect to sales page */}
+          <Route path="/ingatlan-ertekesites-berbeadas" element={<Navigate to="/ingatlan-ertekesites" replace />} />
+
           {/* Hungarian catch-all for service detail pages (must be after named routes) */}
           <Route path="/:slug" element={<ServiceDetailPage />} />
 
@@ -173,7 +177,9 @@ const AppRoutes = () => (
           <Route path="/en/terms" element={<ASZFPage />} />
 
           {/* Redirects: old /en/hungarian-slug → /en/english-slug */}
-          <Route path="/en/ingatlan-ertekesites-berbeadas" element={<Navigate to="/en/property-sales-and-rental" replace />} />
+          <Route path="/en/ingatlan-ertekesites-berbeadas" element={<Navigate to="/en/property-sales" replace />} />
+          <Route path="/en/ingatlan-ertekesites" element={<Navigate to="/en/property-sales" replace />} />
+          <Route path="/en/ingatlan-berbeadas" element={<Navigate to="/en/property-letting" replace />} />
           <Route path="/en/ertekbecsles-ertekmeghatrozas" element={<Navigate to="/en/appraisal-and-valuation" replace />} />
           <Route path="/en/belsoepiteszet-latvanyterv" element={<Navigate to="/en/interior-design-and-visualization" replace />} />
           <Route path="/en/teljeskoru-jogi-hatter" element={<Navigate to="/en/full-legal-support" replace />} />
@@ -184,7 +190,8 @@ const AppRoutes = () => (
 
           {/* Redirects: old /en/english-slug → new /en/english-slug */}
           <Route path="/en/energy-certificate" element={<Navigate to="/en/energy-performance-certificate" replace />} />
-          <Route path="/en/property-sales-and-rentals" element={<Navigate to="/en/property-sales-and-rental" replace />} />
+          <Route path="/en/property-sales-and-rental" element={<Navigate to="/en/property-sales" replace />} />
+          <Route path="/en/property-sales-and-rentals" element={<Navigate to="/en/property-sales" replace />} />
           <Route path="/en/interior-design" element={<Navigate to="/en/interior-design-and-visualization" replace />} />
           <Route path="/en/loans-and-subsidies" element={<Navigate to="/en/credit-and-state-support" replace />} />
 
@@ -194,6 +201,9 @@ const AppRoutes = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      {/* Single, app-level chat instance — stays mounted across route changes
+          so the conversation is NOT reset when navigating between pages. */}
+      <ChatWidget />
       </ContentProvider>
     </CurrencyProvider>
   </LanguageProvider>

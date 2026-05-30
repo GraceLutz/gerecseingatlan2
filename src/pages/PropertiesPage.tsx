@@ -6,6 +6,7 @@ import { useProperties } from "@/hooks/useProperties";
 import { buildBreadcrumbJsonLd } from "@/components/SEOHead";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyListItem from "@/components/PropertyListItem";
+import { categoryOrder, subTypesByCategory } from "@/data/propertyTypeHierarchy";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
@@ -14,7 +15,8 @@ const PAGE_SIZE = 9;
 
 interface Filters {
   location: string;
-  type: string;
+  category: string;
+  subType: string;
   status: string;
   minPrice: string;
   maxPrice: string;
@@ -25,7 +27,7 @@ interface Filters {
 }
 
 const EMPTY_FILTERS: Filters = {
-  location: "", type: "", status: "", minPrice: "", maxPrice: "",
+  location: "", category: "", subType: "", status: "", minPrice: "", maxPrice: "",
   minArea: "", maxArea: "", rooms: "", idSearch: "",
 };
 
@@ -41,16 +43,12 @@ interface FilterPanelProps {
 const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onFilterChange, onClear, hasActiveFilters, locations }) => {
   const { t } = useLanguage();
 
-  const types = [
-    { value: "house", label: t.propertyTypes.house },
-    { value: "brick", label: t.propertyTypes.brick },
-    { value: "panel", label: t.propertyTypes.panel },
-    { value: "semiDetached", label: t.propertyTypes.semiDetached },
-    { value: "rowHouse", label: t.propertyTypes.rowHouse },
-    { value: "holiday", label: t.propertyTypes.holiday },
-    { value: "land", label: t.propertyTypes.land },
-    { value: "industrial", label: t.propertyTypes.industrial },
-  ];
+  const availableSubTypes = filters.category ? (subTypesByCategory[filters.category] ?? []) : [];
+
+  const handleCategoryChange = (value: string) => {
+    onFilterChange("category", value);
+    onFilterChange("subType", "");
+  };
 
   const fieldClass = "w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-colors";
 
@@ -75,15 +73,33 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onFilterChange, onCl
         {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
       </select>
 
+      {/* Típus */}
       <select
-        value={filters.type}
-        onChange={e => onFilterChange("type", e.target.value)}
+        value={filters.category}
+        onChange={e => handleCategoryChange(e.target.value)}
         aria-label={t.search.type}
         className={fieldClass}
       >
         <option value="">{t.search.type}</option>
-        {types.map(tp => <option key={tp.value} value={tp.value}>{tp.label}</option>)}
+        {categoryOrder.map(cat => (
+          <option key={cat} value={cat}>{t.propertyCategories[cat] ?? cat}</option>
+        ))}
       </select>
+
+      {/* Altípus — only when category is selected and has subtypes */}
+      {filters.category && availableSubTypes.length > 0 && (
+        <select
+          value={filters.subType}
+          onChange={e => onFilterChange("subType", e.target.value)}
+          aria-label={t.search.subType}
+          className={fieldClass}
+        >
+          <option value="">{t.search.subType}</option>
+          {availableSubTypes.map(sub => (
+            <option key={sub} value={sub}>{t.propertySubTypes[sub] ?? sub}</option>
+          ))}
+        </select>
+      )}
 
       <select
         value={filters.status}
@@ -162,7 +178,8 @@ const PropertiesPage = () => {
 
   const [filters, setFilters] = useState<Filters>({
     location: searchParams.get("location") || "",
-    type: searchParams.get("type") || "",
+    category: searchParams.get("category") || "",
+    subType: searchParams.get("subType") || "",
     status: searchParams.get("status") || "",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
@@ -180,7 +197,8 @@ const PropertiesPage = () => {
   useEffect(() => {
     const params = new URLSearchParams();
     if (filters.location) params.set("location", filters.location);
-    if (filters.type) params.set("type", filters.type);
+    if (filters.category) params.set("category", filters.category);
+    if (filters.subType) params.set("subType", filters.subType);
     if (filters.status) params.set("status", filters.status);
     if (filters.minPrice) params.set("minPrice", filters.minPrice);
     if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
@@ -192,7 +210,11 @@ const PropertiesPage = () => {
   }, [filters, setSearchParams]);
 
   const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
-    setFilters(f => ({ ...f, [key]: value }));
+    setFilters(f => {
+      const next = { ...f, [key]: value };
+      if (key === "category") next.subType = "";
+      return next;
+    });
     setPage(1);
   }, []);
 
@@ -206,7 +228,8 @@ const PropertiesPage = () => {
   const filtered = useMemo(() => {
     let result = properties.filter(p => {
       if (filters.location && p.location !== filters.location) return false;
-      if (filters.type && p.type !== filters.type) return false;
+      if (filters.category && p.category !== filters.category) return false;
+      if (filters.subType && p.subCategory !== filters.subType) return false;
       if (filters.status && p.status !== filters.status) return false;
       if (filters.minPrice && p.price < Number(filters.minPrice)) return false;
       if (filters.maxPrice && p.price > Number(filters.maxPrice)) return false;

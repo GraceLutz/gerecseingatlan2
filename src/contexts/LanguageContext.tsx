@@ -31,6 +31,8 @@ const huToEnSlugs: Record<string, string> = {
   "/ingatlanok": "/properties",
   "/kapcsolat": "/contact",
   "/ingatlan-ertekesites-berbeadas": "/property-sales-and-rental",
+  "/ingatlan-ertekesites": "/property-sales",
+  "/ingatlan-berbeadas": "/property-letting",
   "/ertekbecsles-ertekmeghatrozas": "/appraisal-and-valuation",
   "/belsoepiteszet-latvanyterv": "/interior-design-and-visualization",
   "/teljeskoru-jogi-hatter": "/full-legal-support",
@@ -83,12 +85,16 @@ export function translateEnToHu(enPath: string): string {
 
 const LANG_STORAGE_KEY = "gerecse-lang";
 
+function isEnPath(pathname: string): boolean {
+  return pathname === "/en" || pathname.startsWith("/en/");
+}
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const didRedirectRef = useRef(false);
 
-  const lang: Language = location.pathname.startsWith("/en") ? "en" : "hu";
+  const lang: Language = isEnPath(location.pathname) ? "en" : "hu";
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -108,11 +114,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const currentPath = location.pathname;
     const search = location.search;
 
-    if (newLang === "en" && !currentPath.startsWith("/en")) {
+    if (newLang === "en" && !isEnPath(currentPath)) {
       const translatedPath = currentPath === "/" ? "" : translateHuToEn(currentPath);
       navigate("/en" + translatedPath + search);
-    } else if (newLang === "hu" && currentPath.startsWith("/en")) {
-      const enPath = currentPath.replace(/^\/en/, "") || "/";
+    } else if (newLang === "hu" && isEnPath(currentPath)) {
+      const enPath = currentPath.replace(/^\/en(?=\/|$)/, "") || "/";
       const huPath = enPath === "/" ? "/" : translateEnToHu(enPath);
       navigate(huPath + search);
     }

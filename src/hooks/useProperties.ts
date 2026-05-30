@@ -50,9 +50,24 @@ interface FeedResponse {
   error?: string;
 }
 
+const UNMAPPED_CODE_RE = /#\d+/;
+
+function safeStringFeature(val: string | number | boolean | undefined): string | undefined {
+  if (typeof val !== "string") return undefined;
+  if (UNMAPPED_CODE_RE.test(val)) return undefined;
+  return val || undefined;
+}
+
+function parseFloor(val: string | number | boolean | undefined): number | undefined {
+  if (typeof val !== "string") return undefined;
+  if (val === "Földszint" || val === "Félemelet") return 0;
+  if (val === "Alagsor" || val === "Szuterén") return -1;
+  const m = val.match(/^(\d+)\./);
+  return m ? parseInt(m[1], 10) : undefined;
+}
+
 /** Maps server NormalizedProperty to client Property interface */
 function toClientProperty(fp: FeedProperty): Property {
-  // Map subCategory to legacy type code
   let type = "house";
   if (fp.subCategory?.includes("panel")) type = "panel";
   else if (fp.subCategory?.includes("lakas") || fp.subCategory === "garzon") type = "brick";
@@ -68,19 +83,24 @@ function toClientProperty(fp: FeedProperty): Property {
     descriptionEn: fp.description,
     price: fp.price,
     type,
+    category: fp.category,
+    subCategory: fp.subCategory,
     status: fp.listingType === "kiado" ? "rent" : "sale",
     location: fp.address.city,
+    zip: fp.address.zip || undefined,
+    street: fp.address.street || undefined,
     area: fp.area,
     lotSize: fp.lotSize,
     rooms: fp.rooms,
     bathrooms: 0,
     builtYear: fp.builtYear,
-    condition: typeof fp.features["Állapot"] === "string" ? fp.features["Állapot"] : undefined,
-    heating: typeof fp.features["Fűtés típusa"] === "string" ? fp.features["Fűtés típusa"] : undefined,
-    energy: typeof fp.features["Energetikai besorolás"] === "string" ? fp.features["Energetikai besorolás"] : undefined,
+    condition: safeStringFeature(fp.features["Állapot"]),
+    heating: safeStringFeature(fp.features["Fűtés"]),
+    energy: safeStringFeature(fp.features["Energiatanúsítvány"]),
+    floor: parseFloor(fp.features["Emelet"]),
     elevator: typeof fp.features["Lift"] === "string" ? fp.features["Lift"].includes("Van") : undefined,
-    parking: typeof fp.features["Parkolás"] === "string" ? fp.features["Parkolás"].includes("Garázs") : undefined,
-    balcony: typeof fp.features["Erkély / Terasz"] === "string" ? fp.features["Erkély / Terasz"].includes("Van") : undefined,
+    parking: typeof fp.features["Parkolás"] === "string" ? !fp.features["Parkolás"].includes("Nincs") : undefined,
+    balcony: typeof fp.features["Erkély"] === "string" ? fp.features["Erkély"].includes("Igen") : undefined,
     images: fp.images,
     featured: fp.featured,
     lat: fp.location?.lat,

@@ -57,12 +57,20 @@ const PropertyCardComponent: React.FC<PropertyCardProps> = ({ property }) => {
       <div className="p-4 flex flex-col flex-1">
         <p className="text-lg font-heading font-bold text-gold mb-1">
           {formatPrice(property.price)}
-          {property.status === "rent" && <span className="text-sm font-body font-normal text-muted-foreground"> /{lang === "hu" ? "hó" : "mo"}</span>}
+          {property.status === "rent" && <span className="text-sm font-body font-normal text-muted-foreground"> /{t.properties.perMonth}</span>}
         </p>
         <h3 className="font-heading font-semibold text-foreground mb-2 line-clamp-2 min-h-[3rem] group-hover:text-primary transition-colors">
           {title}
         </h3>
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-1">{property.location}</p>
+        <p className="text-sm text-muted-foreground mb-1 line-clamp-1">{property.location}</p>
+        {(property.category || property.subCategory) && (
+          <p className="text-xs text-muted-foreground/70 mb-2">
+            {t.propertyCategories[property.category] ?? ""}
+            {property.subCategory && t.propertySubTypes[property.subCategory] && (
+              <> · {t.propertySubTypes[property.subCategory]}</>
+            )}
+          </p>
+        )}
         <div className="mt-auto flex items-center gap-4 text-sm text-muted-foreground">
           {property.area > 0 && (
             <span className="flex items-center gap-1">

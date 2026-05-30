@@ -110,7 +110,8 @@ const Header = () => {
   ];
 
   const serviceSubLinks = [
-    { label: t.services.salesTitle, path: "/ingatlan-ertekesites-berbeadas" },
+    { label: t.services.salesTitle, path: "/ingatlan-ertekesites" },
+    { label: t.services.rentalTitle, path: "/ingatlan-berbeadas" },
     { label: t.services.appraisalTitle, path: "/ertekbecsles-ertekmeghatrozas" },
     { label: t.services.interiorTitle, path: "/belsoepiteszet-latvanyterv" },
     { label: t.services.legalTitle, path: "/teljeskoru-jogi-hatter" },

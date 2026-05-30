@@ -81,11 +81,21 @@
 
   <!-- Szolgáltatások / Services -->
   <url>
-    <loc>https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas</loc>
-    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales-and-rental" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
-    <lastmod>2026-04-26</lastmod>
+    <loc>https://gerecseingatlan.hu/ingatlan-ertekesites</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-ertekesites" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/ingatlan-ertekesites" />
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/ingatlan-berbeadas</loc>
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-berbeadas" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-letting" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/ingatlan-berbeadas" />
+    <lastmod>2026-05-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -264,11 +274,21 @@
 
   <!-- English service pages -->
   <url>
-    <loc>https://gerecseingatlan.hu/en/property-sales-and-rental</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales-and-rental" />
-    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/ingatlan-ertekesites-berbeadas" />
-    <lastmod>2026-04-26</lastmod>
+    <loc>https://gerecseingatlan.hu/en/property-sales</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-sales" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-ertekesites" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/ingatlan-ertekesites" />
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://gerecseingatlan.hu/en/property-letting</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gerecseingatlan.hu/en/property-letting" />
+    <xhtml:link rel="alternate" hreflang="hu" href="https://gerecseingatlan.hu/ingatlan-berbeadas" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gerecseingatlan.hu/ingatlan-berbeadas" />
+    <lastmod>2026-05-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

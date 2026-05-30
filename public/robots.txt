@@ -13,15 +13,30 @@ Disallow: /admin/
 Disallow: /api/
 Crawl-delay: 2
 
-User-agent: Twitterbot
-Allow: /
-Disallow: /admin/
-Disallow: /api/
-
+# Social media crawlers — must be allowed for link previews
 User-agent: facebookexternalhit
 Allow: /
-Disallow: /admin/
-Disallow: /api/
+
+User-agent: Facebot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Slackbot-LinkExpanding
+Allow: /
+
+User-agent: Discordbot
+Allow: /
 
 User-agent: *
 Allow: /

@@ -6,8 +6,12 @@ export interface Property {
   descriptionEn: string;
   price: number; // HUF
   type: string;
+  category: string;
+  subCategory: string;
   status: "sale" | "rent";
   location: string;
+  zip?: string;
+  street?: string;
   area: number;
   lotSize?: number;
   rooms: number;
@@ -35,6 +39,8 @@ export const mockProperties: Property[] = [
     descriptionEn: "Beautiful, renovated family house in the center of Tata, in a quiet street. The house has 4 rooms, 2 bathrooms, a large garden and a garage. In like-new condition, ready to move in.",
     price: 69900000,
     type: "house",
+    category: "haz",
+    subCategory: "csaladi-haz",
     status: "sale",
     location: "Tata",
     area: 145,
@@ -52,12 +58,14 @@ export const mockProperties: Property[] = [
   },
   {
     id: "GI-002",
-    titleHu: "Tégla lakás Tatabányán",
+    titleHu: "Téglalakás Tatabányán",
     titleEn: "Brick apartment in Tatabánya",
     descriptionHu: "Tágas, 3 szobás tégla lakás Tatabánya központjában, kiváló közlekedési lehetőségekkel. Felújított konyha és fürdőszoba.",
     descriptionEn: "Spacious 3-room brick apartment in the center of Tatabánya with excellent transport links. Renovated kitchen and bathroom.",
     price: 34500000,
     type: "brick",
+    category: "lakas",
+    subCategory: "tegla-lakas",
     status: "sale",
     location: "Tatabánya",
     area: 78,
@@ -81,6 +89,8 @@ export const mockProperties: Property[] = [
     descriptionEn: "Charming holiday home at the foot of the Gerecse Mountains in a nature-close setting. Ideal for relaxation.",
     price: 28500000,
     type: "holiday",
+    category: "nyaralo",
+    subCategory: "hetvegi-hazas",
     status: "sale",
     location: "Vértestolna",
     area: 65,
@@ -103,6 +113,8 @@ export const mockProperties: Property[] = [
     descriptionEn: "Panoramic building plot on the Danube bank in Neszmély. All utilities at the plot boundary. Ideal for building a family home.",
     price: 18900000,
     type: "land",
+    category: "telek",
+    subCategory: "belterulet-telek",
     status: "sale",
     location: "Neszmély",
     area: 950,
@@ -113,12 +125,14 @@ export const mockProperties: Property[] = [
   },
   {
     id: "GI-005",
-    titleHu: "Panel lakás Tatabányán",
+    titleHu: "Panellakás Tatabányán",
     titleEn: "Panel apartment in Tatabánya",
     descriptionHu: "2 szobás panel lakás Tatabánya újvárosában, felújított, azonnal költözhető. Kiváló befektetési lehetőség.",
     descriptionEn: "2-room panel apartment in Tatabánya Újváros, renovated, ready to move in. Excellent investment opportunity.",
     price: 22500000,
     type: "panel",
+    category: "lakas",
+    subCategory: "panel-lakas",
     status: "sale",
     location: "Tatabánya",
     area: 54,
@@ -141,6 +155,8 @@ export const mockProperties: Property[] = [
     descriptionEn: "Furnished 2-room apartment for rent in the center of Tata. Ready to move in, utilities not included.",
     price: 150000,
     type: "brick",
+    category: "lakas",
+    subCategory: "tegla-lakas",
     status: "rent",
     location: "Tata",
     area: 58,
@@ -160,6 +176,8 @@ export const mockProperties: Property[] = [
     descriptionEn: "500 m² industrial hall with excellent accessibility, near the M1 motorway.",
     price: 89000000,
     type: "industrial",
+    category: "ipari",
+    subCategory: "csarnok",
     status: "sale",
     location: "Tatabánya",
     area: 500,
@@ -181,6 +199,8 @@ export const mockProperties: Property[] = [
     descriptionEn: "Modern semi-detached house in a quiet part of Tardos. 3 rooms, 2 bathrooms, garage, small garden.",
     price: 45900000,
     type: "semiDetached",
+    category: "haz",
+    subCategory: "ikerhaz",
     status: "sale",
     location: "Tardos",
     area: 110,

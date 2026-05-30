@@ -28,3 +28,13 @@ backups/
 
 # PM2 logs
 logs/
+
+# Local artifacts / junk (excluded before FE/BE split)
+*.zip
+*.tgz
+clipboard-*.png
+server-out.txt
+server-err.txt
+
+# Runtime user uploads (not source)
+uploads/

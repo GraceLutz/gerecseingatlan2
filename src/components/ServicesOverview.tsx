@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import { Home, FileText, Scale, Banknote, Zap, Sofa, ShieldCheck } from "lucide-react";
 
 const services = [
-  { icon: Home, titleKey: "salesTitle" as const, descKey: "salesDesc" as const, path: "/ingatlan-ertekesites-berbeadas" },
+  { icon: Home, titleKey: "salesTitle" as const, descKey: "salesDesc" as const, path: "/ingatlan-ertekesites" },
+  { icon: Home, titleKey: "rentalTitle" as const, descKey: "rentalDesc" as const, path: "/ingatlan-berbeadas" },
   { icon: FileText, titleKey: "appraisalTitle" as const, descKey: "appraisalDesc" as const, path: "/ertekbecsles-ertekmeghatrozas" },
   { icon: Scale, titleKey: "legalTitle" as const, descKey: "legalDesc" as const, path: "/teljeskoru-jogi-hatter" },
   { icon: Banknote, titleKey: "loanTitle" as const, descKey: "loanDesc" as const, path: "/hitel-allami-tamogatasok" },

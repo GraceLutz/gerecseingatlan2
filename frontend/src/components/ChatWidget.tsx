@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { MessageCircle, ChevronDown } from "lucide-react";
+import { MessageCircle, ChevronDown, X } from "lucide-react";
 import { useProperties } from "@/hooks/useProperties";
 import ChatHeader from "./chat/ChatHeader";
 import ChatInput from "./chat/ChatInput";
@@ -27,6 +27,9 @@ interface ChatApiResponse {
 }
 
 const MAX_MESSAGE_LENGTH = 500;
+
+/** localStorage flag — once the chat nudge is dismissed it never shows again on this device. */
+const NUDGE_DISMISSED_KEY = "gerecse_chat_nudge_dismissed";
 
 const SUGGESTED_QUESTIONS_PROPERTY = [
   "Mennyibe kerül és hány szobás?",
@@ -78,6 +81,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
   const [hasNewMessage, setHasNewMessage] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [retryMessage, setRetryMessage] = useState<string | null>(null);
+  const [showNudge, setShowNudge] = useState(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
@@ -91,6 +95,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Show the chat nudge ~6s after load, unless already dismissed on this device
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (localStorage.getItem(NUDGE_DISMISSED_KEY)) return;
+    } catch { /* localStorage unavailable */ }
+    const t = setTimeout(() => setShowNudge(true), 6000);
+    return () => clearTimeout(t);
   }, []);
 
   // Scroll tracking via IntersectionObserver
@@ -266,6 +280,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
     }
   }, []);
 
+  const dismissNudge = useCallback(() => {
+    setShowNudge(false);
+    try { localStorage.setItem(NUDGE_DISMISSED_KEY, "1"); } catch { /* ignore */ }
+  }, []);
+
+  const openFromNudge = useCallback(() => {
+    dismissNudge();
+    setIsOpen(true);
+  }, [dismissNudge]);
+
   const panelClasses = isMobile
     ? "fixed inset-0 z-50 bg-background flex flex-col"
     : "fixed bottom-6 right-6 z-50 w-[400px] h-[600px] max-h-[80vh] bg-background border border-border rounded-xl shadow-2xl flex flex-col";
@@ -285,6 +309,29 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ propertyId: propIdProp }) => {
         >
           <MessageCircle size={24} aria-hidden="true" />
         </button>
+      )}
+
+      {!isOpen && showNudge && (
+        <div className="fixed bottom-24 right-6 z-50 w-[min(264px,calc(100vw-3rem))] animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="relative rounded-2xl bg-dark-green text-white shadow-2xl">
+            <button
+              type="button"
+              onClick={dismissNudge}
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-dark-green text-white shadow-md flex items-center justify-center hover:bg-dark-green/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              aria-label="Értesítés bezárása"
+            >
+              <X size={14} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={openFromNudge}
+              className="block w-full text-left px-4 py-3 pr-5 text-sm font-medium leading-snug rounded-2xl hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            >
+              💬 Kérdése van? Beszélgessen ingatlanos asszisztensünkkel — itt és most!
+            </button>
+          </div>
+          <div className="absolute -bottom-1.5 right-8 h-3 w-3 rotate-45 bg-dark-green" aria-hidden="true" />
+        </div>
       )}
 
       {isOpen && (

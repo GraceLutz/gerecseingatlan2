@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ContentProvider } from "@/contexts/ContentContext";
 import Analytics from "./components/Analytics";
 import ChatWidget from "./components/ChatWidget";
+import AutoEditApply from "./components/AutoEditApply";
 
 // Load editor bridge in edit mode
 if (new URLSearchParams(window.location.search).get("editMode") === "1") {
@@ -204,6 +205,8 @@ const AppRoutes = () => (
       {/* Single, app-level chat instance — stays mounted across route changes
           so the conversation is NOT reset when navigating between pages. */}
       <ChatWidget />
+      {/* Applies live-edit auto-overrides (auto.* blocks) on public pages. */}
+      <AutoEditApply />
       </ContentProvider>
     </CurrencyProvider>
   </LanguageProvider>

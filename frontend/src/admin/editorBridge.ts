@@ -4,6 +4,8 @@
  * Communicates with the parent admin panel via postMessage.
  */
 
+import { discoverEditables, computeStableId, kindOf } from "@/lib/autoEdit";
+
 const HIGHLIGHT_CLASS = "ve-highlight";
 const ACTIVE_CLASS = "ve-active";
 
@@ -128,12 +130,48 @@ function handleParentMessages(event: MessageEvent) {
   }
 }
 
+/** Current page's content path: drop the optional /en prefix, default "/". */
+function currentPagePath(): string {
+  let p = window.location.pathname.replace(/^\/en(?=\/|$)/, "");
+  if (!p.startsWith("/")) p = "/" + p;
+  return p === "" ? "/" : p;
+}
+
+/**
+ * Auto-tag un-wired TEXT elements with data-editable="auto.<stableId>" so the
+ * existing hover/click logic treats them as editable. (Images/links: later.)
+ */
+function autoTag() {
+  const pagePath = currentPagePath();
+  for (const el of discoverEditables()) {
+    if (kindOf(el) !== "text") continue;
+    const id = computeStableId(el);
+    if (!id) continue;
+    el.setAttribute("data-editable", id);
+    el.setAttribute("data-page", pagePath);
+  }
+}
+
+let tagTimer: number | undefined;
+function scheduleAutoTag() {
+  if (tagTimer) window.clearTimeout(tagTimer);
+  tagTimer = window.setTimeout(autoTag, 300);
+}
+
+/** React renders/navigates asynchronously — re-tag whenever DOM structure changes. */
+function watchForAutoTag() {
+  const observer = new MutationObserver(() => scheduleAutoTag());
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 function init() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("editMode") !== "1") return;
 
   injectStyles();
   setupListeners();
+  watchForAutoTag();
+  scheduleAutoTag();
   window.addEventListener("message", handleParentMessages);
 
   // Notify parent that bridge is ready

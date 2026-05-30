@@ -394,7 +394,9 @@ router.post("/:id/photo", async (req, res) => {
         }
       }
 
-      const photoUrl = `/uploads/staff/${filename}`;
+      // Append a version query so re-uploads (same filename) bust the Cloudflare/browser
+      // cache — otherwise a new photo can show the old one for hours.
+      const photoUrl = `/uploads/staff/${filename}?v=${Date.now()}`;
       const [updated] = await db
         .update(staff)
         .set({ photoUrl })
